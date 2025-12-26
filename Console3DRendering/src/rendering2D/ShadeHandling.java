@@ -1,5 +1,7 @@
 package rendering2D;
-import functionalInterfaces.*;
+
+import functionalInterfaces.RealFunction;
+
 public class ShadeHandling {
 
 	private double[] shadePartition;

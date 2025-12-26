@@ -1,21 +1,24 @@
 package rendering3D;
 
-import classes3D.*;
+import classes3D.LightSource;
+import classes3D.R3Point;
+import classes3D.Triangle;
+import functionalInterfaces.R3Norm;
 import other.MiscFunctions;
-import rendering2D.ShadeHandling;
 import rendering2D.Figure;
+import rendering2D.ShadeHandling;
 
 public class RelativeTriangle extends RelativeSimplex {
 
 	// These fields are immutable and represent the actual position of the triangle
-	R3Point pointA;
-	R3Point pointB;
-	R3Point pointC;
+	private R3Point pointA;
+	private R3Point pointB;
+	private R3Point pointC;
 	
 	// These fields are mutable and represent the perceived position of the triangle
-	R3Point perceivedPointA;
-	R3Point perceivedPointB;
-	R3Point perceivedPointC;
+	private R3Point perceivedPointA;
+	private R3Point perceivedPointB;
+	private R3Point perceivedPointC;
 	
 	public RelativeTriangle(Triangle triangle, int shade) {
 		
@@ -92,4 +95,12 @@ public class RelativeTriangle extends RelativeSimplex {
 		return observer.triangleDefault(perceivedPointA, perceivedPointB, perceivedPointC, shade, false);	
 	}
 
+	// Returns the outward pointing unit normal vector of the triangle.
+	public RelativeLine getUnitNormal() {
+		
+		R3Point vectorTip = pointB.difference(pointA).cross(pointC.difference(pointA));
+		vectorTip.normalize(R3Norm.EUCLIDIAN);
+		
+		return new RelativeLine(pointA, vectorTip);
+	}
 }

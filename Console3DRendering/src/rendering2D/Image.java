@@ -3,6 +3,7 @@ package rendering2D;
 import classes2D.R2Point;
 import other.ArrayFunctions;
 import other.MiscFunctions;
+
 public class Image {
 
 

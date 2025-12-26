@@ -1,11 +1,10 @@
 package rendering2D;
 
-import java.util.*;
-
 import classes2D.R2Point;
-import classes3D.*;
-import functionalInterfaces.*;
-import other.*;
+import functionalInterfaces.R2Metric;
+import functionalInterfaces.RealFunction;
+import other.Constants;
+import other.MiscFunctions;
 
 public class DrawingMethods2D extends Image {
 	
