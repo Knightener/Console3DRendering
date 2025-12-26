@@ -1,4 +1,4 @@
-package interfaces;
+package functionalInterfaces;
 import classes2D.R2Point;
 
 @FunctionalInterface

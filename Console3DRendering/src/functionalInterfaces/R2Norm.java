@@ -1,5 +1,6 @@
-package interfaces;
+package functionalInterfaces;
 import classes2D.*;
+
 @FunctionalInterface
 public interface R2Norm {
 	double n(R2Point point);

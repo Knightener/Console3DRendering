@@ -1,5 +1,5 @@
 package rendering2D;
-import java.util.*;
+
 public class Pixel {
 
 	private int right;

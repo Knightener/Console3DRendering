@@ -1,7 +1,7 @@
 package classes3D;
 
 import classes2D.*;
-import interfaces.*;
+import functionalInterfaces.*;
 import other.Constants;
 
 public class R3Point {

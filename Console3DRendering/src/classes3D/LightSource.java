@@ -1,6 +1,6 @@
 package classes3D;
 
-import interfaces.R3Norm;
+import functionalInterfaces.R3Norm;
 import rendering2D.ShadeHandling;
 
 public class LightSource {

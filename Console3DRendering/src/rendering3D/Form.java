@@ -3,10 +3,10 @@ import java.util.*;
 
 public class Form {
 
-	ArrayList<RelativeTriangle> faces;
+	ArrayList<RelativeSimplex> components;
 
-	public Form(ArrayList<RelativeTriangle> faces) {
-		this.faces = faces;
+	public Form(ArrayList<RelativeSimplex> components) {
+		this.components = components;
 	}
 
 	/*
@@ -14,11 +14,8 @@ public class Form {
 	 * overlap them.
 	 */
 	public void determineRenderingOrder() {
-		Collections.sort(faces);
+		Collections.sort(components);
 	}
 	
-	public void octahedron() {
-		
-	}
 
 }

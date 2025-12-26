@@ -1,4 +1,4 @@
-package interfaces;
+package functionalInterfaces;
 
 @FunctionalInterface
 public interface RealFunction {

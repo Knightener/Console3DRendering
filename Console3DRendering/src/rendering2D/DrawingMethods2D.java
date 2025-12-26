@@ -4,7 +4,7 @@ import java.util.*;
 
 import classes2D.R2Point;
 import classes3D.*;
-import interfaces.*;
+import functionalInterfaces.*;
 import other.*;
 
 public class DrawingMethods2D extends Image {

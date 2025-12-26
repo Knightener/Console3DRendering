@@ -1,4 +1,4 @@
-package interfaces;
+package functionalInterfaces;
 
 import classes3D.R3Point;
 

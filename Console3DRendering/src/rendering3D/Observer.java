@@ -83,18 +83,14 @@ public class Observer {
 		return view;
 	}
 
-	public void updatePerspective(RelativeTriangle triangle) {
-		
-		triangle.perceivedPointA = perspective(triangle.pointA);
-		triangle.perceivedPointB = perspective(triangle.pointB);
-		triangle.perceivedPointC = perspective(triangle.pointC);
-		
-		triangle.determineMostAndLeastForward();
+	// Added because it feels more natural to have the observer "act on" the simplex.
+	public void updatePerspective(RelativeSimplex simplex) {
+		simplex.updatePerspective(this);
 	}
 	
 	public void updatePerspective(Form form) {
 		
-		for (RelativeTriangle face : form.faces) {
+		for (RelativeSimplex face : form.components) {
 			updatePerspective(face);
 		}
 		

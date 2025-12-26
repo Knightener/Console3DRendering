@@ -1,5 +1,5 @@
 package other;
-import interfaces.CheckInt;
+import functionalInterfaces.CheckInt;
 
 public class ArrayFunctions {
 

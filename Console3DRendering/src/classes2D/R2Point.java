@@ -1,9 +1,10 @@
 package classes2D;
-import interfaces.*;
 import rendering2D.Pixel;
 import rendering2D.ShadeHandling;
 
 import java.util.*;
+
+import functionalInterfaces.*;
 
 
 public class R2Point {

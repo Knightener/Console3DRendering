@@ -197,19 +197,12 @@ public class DrawingMethods3D extends Observer {
 		
 	}
 
-	// Triangle assumed to already be adjusted relative to the observer.
-	public Figure render(RelativeTriangle triangle) {
-
-		return triangleDefault(triangle.perceivedPointA, triangle.perceivedPointB, triangle.perceivedPointC, triangle.getShade(), false);
-	}
-
-	public void renderDirectly(RelativeTriangle triangle) {
-
-		view.replace(render(triangle));
+	public void renderDirectly(RelativeSimplex simplex) {
+		view.replace(simplex.viewedBy(this));
 	}
 
 	public void renderDirectly(Form form) {
-		for (RelativeTriangle face : form.faces) {
+		for (RelativeSimplex face : form.components) {
 			renderDirectly(face);
 		}
 	}

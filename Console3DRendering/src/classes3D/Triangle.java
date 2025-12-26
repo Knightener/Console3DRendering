@@ -1,13 +1,12 @@
 package classes3D;
 
-import interfaces.R3Norm;
+import functionalInterfaces.R3Norm;
 
 public class Triangle {
 
 	private R3Point pointA;
 	private R3Point pointB;
 	private R3Point pointC;
-
 	
 	/*
 	 * Orientation is a unit vector normal to the polygon formed by perceivedPointA, perceivedPointB,
@@ -27,19 +26,19 @@ public class Triangle {
 	}
 
 	public R3Point getPointA() {
-		return pointA;
+		return new R3Point(pointA);
 	}
 
 	public R3Point getPointB() {
-		return pointB;
+		return new R3Point(pointB);
 	}
 
 	public R3Point getPointC() {
-		return pointC;
+		return new R3Point(pointC);
 	}
 
 	public R3Point getOrientation() {
-		return orientation;
+		return new R3Point(orientation);
 	}
 	
 	
