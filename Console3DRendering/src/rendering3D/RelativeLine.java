@@ -29,7 +29,12 @@ public class RelativeLine extends RelativeSimplex {
 		this(pointA, pointB, ShadeHandling.getMaxPossibleShade());
 	}
 
-	// Unique added here to avoid the line overlapping itself
+	/*
+	 * Unique added here to avoid the line overlapping itself. This is a temporary
+	 * solution. I eventually plan on reworking the .replace method to work on
+	 * figures with non unique points. That or rework the line method to only return
+	 * a figure with unique points
+	 */
 	public Figure viewedBy(DrawingMethods3D observer) {
 		return observer.lineDefault(perceivedPointA, perceivedPointB, shade).unique();
 	}

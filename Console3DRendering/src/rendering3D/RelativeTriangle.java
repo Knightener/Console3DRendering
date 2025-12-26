@@ -98,9 +98,22 @@ public class RelativeTriangle extends RelativeSimplex {
 	// Returns the outward pointing unit normal vector of the triangle.
 	public RelativeLine getUnitNormal() {
 		
+		R3Point vectorTail = new R3Point();
+
+		vectorTail.translate(pointA);
+		vectorTail.translate(pointB);
+		vectorTail.translate(pointC);
+
+		vectorTail.scale(1 / (double) 3);
+
 		R3Point vectorTip = pointB.difference(pointA).cross(pointC.difference(pointA));
-		vectorTip.normalize(R3Norm.EUCLIDIAN);
 		
-		return new RelativeLine(pointA, vectorTip);
+		vectorTip.normalize(R3Norm.EUCLIDIAN);
+		vectorTip.scale(1);
+
+		vectorTip.translate(vectorTail);
+
+		System.out.println(vectorTail);
+		return new RelativeLine(vectorTail, vectorTip);
 	}
 }

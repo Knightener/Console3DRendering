@@ -21,6 +21,11 @@ public class R3Point {
 		this.forward = forward;
 	}
 
+	public R3Point() {
+		right = 0;
+		down = 0;
+		forward = 0;
+	}
 	public R2Point project(double fov) {
 		if (forward > 0) {
 			

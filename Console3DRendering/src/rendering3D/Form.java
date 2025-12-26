@@ -10,12 +10,28 @@ public class Form {
 	}
 
 	/*
-	 * The further forward triangles are rendered first, so the closer triangles
+	 * The further forward simplexes are rendered first, so the closer simplexes
 	 * overlap them.
+	 * 
+	 * This method will return an inaccurate result if any two components intersect
+	 * (besides the edges).
 	 */
 	public void determineRenderingOrder() {
 		Collections.sort(components);
 	}
-	
+
+	public void addNormals() {
+
+		int size = components.size();
+
+		for (int i = 0; i < size; i++) {
+
+			RelativeSimplex curr = components.get(i);
+
+			if (curr instanceof RelativeTriangle) {
+				components.add(((RelativeTriangle) curr).getUnitNormal());
+			}
+		}
+	}
 
 }

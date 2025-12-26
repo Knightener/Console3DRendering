@@ -14,33 +14,33 @@ public class DrawingMethods3D extends Observer {
 	}
 
 	// Observer assumed to be in default state (theta and phi = 0, position = (0,0,0))
-	private Figure lineAuxiliary(R3Point p1, R3Point p2) {
+	public Figure lineDefault(R3Point p1, R3Point p2, int maxShade) {
 
 		double f1 = p1.getForward();
 		double f2 = p2.getForward();
 
 		if (f1 > Constants.EPSILON && f2 > Constants.EPSILON) {
-			return view.line(p1.project(fov), p2.project(fov));
+			return view.line(p1.project(fov), p2.project(fov), maxShade);
 		}
 		if (f1 > Constants.EPSILON) {
 			R3Point direction = p2.difference(p1);
 			direction.scale(-f1 / direction.getForward());
 			direction.translate(p1);
-			return view.ray(p1.project(fov), direction.projectAlt(fov));
+			return view.ray(p1.project(fov), direction.projectAlt(fov), maxShade);
 
 		}
 		if (f2 > Constants.EPSILON) {
 			R3Point difference = p1.difference(p2);
 			difference.scale(-f2 / difference.getForward());
 			difference.translate(p2);
-			return view.ray(p2.project(fov), difference.projectAlt(fov));
+			return view.ray(p2.project(fov), difference.projectAlt(fov), maxShade);
 		}
 		return new Figure();
 	}
 
 	public Figure line(R3Point p1, R3Point p2) {
 
-		return lineAuxiliary(perspective(p1), perspective(p2));
+		return lineDefault(perspective(p1), perspective(p2), ShadeHandling.getMaxPossibleShade());
 	}
 
 	/*
@@ -206,6 +206,7 @@ public class DrawingMethods3D extends Observer {
 			renderDirectly(face);
 		}
 	}
+
 	
 	
 	
