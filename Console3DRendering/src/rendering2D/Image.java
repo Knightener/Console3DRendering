@@ -7,133 +7,22 @@ import other.ArrayFunctions;
 import other.Constants;
 import other.MiscFunctions;
 
-public class Image {
+public class Image extends ImageBase {
 
-
-	public static Figure lineFull(R2Point p1, R2Point p2, int maxShade) {
-		
-		Figure line = new Figure();
-	
-		/*
-		 * Chebyshev metric is used here because it minimizes the number of steps while
-		 * still ensuring that the sample of points gets close enough to every grid
-		 * square that the line passes
-		 */
-		double numSteps = Math.ceil(R2Metric.CHEBYSHEV.d(p1, p2));
-		R2Point stepVector = p2.difference(p1);
-		stepVector.scale(1 / numSteps);
-	
-		R2Point movingPoint = new R2Point(p1);
-	
-		for (int i = 0; i < numSteps; i++) {
-			line.add(movingPoint, maxShade);
-			movingPoint.translate(stepVector);
-	
-		}
-		return line;
-	}
-
-	public static Figure lineFull(R2Point p1, R2Point p2) {
-		return lineFull(p1, p2, ShadeHandling.maxPossibleShade);
-	}
-
-	int[][] image;
-	int imageRows;
-	int imageCols;
-
-	/*
-	 * When the image is displayed, the points that will be visible are those with
-	 * horizontal [resp. vertical] component greater than left bound [resp. upBound]
-	 * (inclusive) and lesser than rightBound [resp. downBound] (not inclusive).
-	 */
-	int leftBound, rightBound, upBound, downBound;
-
-	/*
-	 * Stored as an instance variable for convenience. This represents the furthest
-	 * point from the origin that is visible in terms of the Chebyshev metric.
-	 */
-	int furthestOut;
-
-	/*
-	 * These are stored as instance variables so that the displayCoordinates method
-	 * doesn't have to recalculate them every time its called.
-	 */
-	private String xAxis;
-	private String[] yAxis;
-
-	/*
-	 * Creates a new image out of the given int array, shifted according to the
-	 * given left, up parameters.
-	 */
-	public Image(int[][] arr, int left, int up) {
-		if (!ArrayFunctions.passesCheck(arr, n -> n >= 0 && n < ShadeHandling.maxPossibleShade)) {
-			throw new IllegalArgumentException();
-		}
-
-		image = ArrayFunctions.rectangulize(arr);
-
-		imageRows = image.length;
-		imageCols = image[0].length;
-
-		leftBound = -left;
-		rightBound = imageCols - left;
-		upBound = -up;
-		downBound = imageRows - up;
-
-		furthestOut = Math.max(Math.max(Math.abs(leftBound), Math.abs(rightBound - 1)),
-				Math.max(Math.abs(upBound), Math.abs(downBound - 1)));
-
-		xAxis = MiscFunctions.xAxis(leftBound, rightBound, 4);
-		yAxis = new String[imageRows];
-
-		for (int i = upBound; i < downBound; i++) {
-			yAxis[i + up] = MiscFunctions.spacedNumber(i, 4);
-		}
+	public Image(ImageBase image) {
+		super(image);
 	}
 
 	public Image(int leftEnd, int rightEnd, int upEnd, int downEnd) {
-		this(new int[downEnd - upEnd + 1][rightEnd - leftEnd + 1], -leftEnd, -upEnd);
+		super(leftEnd, rightEnd, upEnd, downEnd);
+	}
+
+	public Image(int[][] arr, int left, int up) {
+		super(arr, left, up);
 	}
 
 	public void clear() {
 		image = new int[imageRows][imageCols];
-	}
-
-	public String[][] convert() {
-
-		String[][] shadeArr = new String[imageRows][imageCols];
-
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				shadeArr[i][j] = ShadeHandling.shades[image[i][j]];
-			}
-		}
-		return shadeArr;
-	}
-
-	public void display() {
-		String[][] shadeArr = convert();
-
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				System.out.print(shadeArr[i][j]);
-			}
-			System.out.println();
-		}
-	}
-
-	public void displayCoordinates() {
-		String[][] shadeArr = convert();
-
-		System.out.print(xAxis);
-
-		for (int i = 0; i < imageRows; i++) {
-			System.out.print(yAxis[i]);
-			for (int j = 0; j < imageCols; j++) {
-				System.out.print(shadeArr[i][j]);
-			}
-			System.out.println();
-		}
 	}
 
 	public void replace(Figure figure) {
@@ -166,32 +55,9 @@ public class Image {
 		}
 	}
 	
-
-	public void invert() {
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				image[i][j] = ShadeHandling.maxPossibleShade - image[i][j];
-			}
-		}
-	}
-
-	public boolean isVisible(R2Point point) {
-
-		if (point == null) {
-			return false;
-		}
-		double right = point.getRight();
-		double down = point.getDown();
-
-		/*
-		 * The +-2s are arbitrary. I only added them to have a comfortable margin of
-		 * error as part of the point through the .approximate method might be visible
-		 */
-		return (leftBound - 2 <= right && right < rightBound + 2 && upBound - 2 <= down && down < downBound + 2);
-	}
-
 	// This is used for debug purposes, as I can't highlight columns.
 	public void highlightVertical(int x) {
+		
 		if (leftBound <= x && x < rightBound) {
 
 			for (int i = 0; i < imageRows; i++) {
@@ -199,7 +65,6 @@ public class Image {
 					image[i][x - leftBound] = 2;
 				}
 			}
-
 		}
 	}
 
@@ -239,6 +104,37 @@ public class Image {
 
 	// Everything past this point is drawing methods
 	
+	public static Figure lineFull(R2Point p1, R2Point p2, int maxShade) {
+		
+		Figure line = new Figure();
+	
+		/*
+		 * Chebyshev metric is used here because it minimizes the number of steps while
+		 * still ensuring that the sample of points gets close enough to every grid
+		 * square that the line passes
+		 */
+		double numSteps = Math.ceil(R2Metric.CHEBYSHEV.d(p1, p2));
+		R2Point stepVector = p2.difference(p1);
+		stepVector.scale(1 / numSteps);
+	
+		R2Point movingPoint = new R2Point(p1);
+	
+		for (int i = 0; i < numSteps; i++) {
+			line.add(movingPoint, maxShade);
+			movingPoint.translate(stepVector);
+	
+		}
+		return line;
+	}
+
+	public static Figure lineFull(R2Point p1, R2Point p2) {
+		return lineFull(p1, p2, ShadeHandling.maxPossibleShade);
+	}
+	
+	/*
+	 * Draws a line from p1 to p2, stopping when one of the points within the line
+	 * is no longer visible within the image provided as a parameter.
+	 */
 	private Figure lineP1Visible(R2Point p1, R2Point p2, int maxShade) {
 	
 		Figure line = new Figure();
@@ -264,6 +160,7 @@ public class Image {
 		return line;
 	}
 
+	// This method went through a loooot of iterations.
 	private Figure lineNeitherVisible(R2Point p1, R2Point p2, int maxShade) {
 	
 		double r1 = p1.getRight();
@@ -386,6 +283,7 @@ public class Image {
 	
 	}
 
+	// Renders only the points which are visible within image.
 	public Figure line(R2Point p1, R2Point p2, int maxShade) {
 	
 		boolean p1Visible = isVisible(p1);
@@ -407,6 +305,11 @@ public class Image {
 		return line(p1, p2, ShadeHandling.maxPossibleShade);
 	}
 
+	/*
+	 * Draws a ray in the given direction, stopping when the ray is no longer
+	 * visible. Provided direction vector assumed to have a magnitude greater than
+	 * 1.
+	 */
 	public Figure ray(R2Point point, R2Point direction, int maxShade) {
 	
 		R2Point directionCopy = new R2Point(direction);
@@ -425,6 +328,10 @@ public class Image {
 	
 	}
 
+	/*
+	 * Graphs a polygonal approximation of f, with numSteps evenly spaced line
+	 * segments.
+	 */
 	public Figure graph(RealFunction f, double start, double end, int numSteps) {
 	
 		if (start > end || numSteps <= 0) {
@@ -447,6 +354,29 @@ public class Image {
 		return graph;
 	}
 
+	/*
+	 * Draws a line from p1 to p2 such that no two points have the same horizontal
+	 * component. That is, no two points lie on the same vertical line.
+	 * 
+	 * Doesn't include the endpoint p2. 
+	 * 
+	 * Takes on the shade of p1.
+	 * 
+	 * p1 assumed to be further left than p2.
+	 * 
+	 * This was a very tedious algorithm to design. My initial idea was to move down
+	 * by downDist / rightDist at every iteration then trying to distribute the
+	 * remaining down distance evenly, but I had a lot of trouble figuring out how
+	 * to distribute it evenly.
+	 * 
+	 * I was close to giving up and just draw the line by truncating floats until I
+	 * realized that truncating divisions is equivalent to taking quotients.
+	 * 
+	 * This algorithm moves the movingPoint down every time the quotient (i* excess)
+	 * / downDist increases by one. That is, every time currMod += excess exceeds
+	 * rightDist. I did it this way because calculating a quotient at every
+	 * iteration felt inefficient.
+	 */
 	private Figure lineWithoutHorizontalRepetition(Pixel p1, Pixel p2) {
 	
 		Figure line = new Figure();
@@ -474,11 +404,16 @@ public class Image {
 		int currMod = excess;
 		
 		int visibleLength = Math.min(rightDist, rightBound - p1.getRight());
+		
 		Pixel movingPixel = new Pixel(p1);
+		
 		for (int i = 0; i < visibleLength; i++) {
+			
 			line.add(new Pixel(movingPixel));
+			
 			movingPixel.moveRight(1);
 			movingPixel.moveDown(minDownStep);
+			
 			currMod += excess;
 			if (currMod >= rightDist) {
 				currMod -= rightDist;
@@ -490,9 +425,16 @@ public class Image {
 	
 	}
 
-	private Figure verticalLineAuxiliary(Pixel p1, Pixel p2) {
+	/*
+	 * Draws a vertical line from p1 to p2, assuming p1 and p2 have the same
+	 * horizontal component. Includes p1 and p2. p1 assumed to have a lower down
+	 * component.
+	 * 
+	 * Takes on the shade of the uppermost element.
+	 */
+	protected Figure verticalLineAuxiliary(Pixel p1, Pixel p2) {
 		Figure line = new Figure();
-	
+
 		Pixel movingPixel = new Pixel(p1);
 	
 		if (upBound > p1.getDown()) {
@@ -515,6 +457,7 @@ public class Image {
 		return verticalLineAuxiliary(p2, p1);
 	}
 
+	// p1 is assumed to be the leftmost point and p3 is assumed to be rightmost.
 	public Figure jaggedTriangleAuxiliary(Pixel p1, Pixel p2, Pixel p3) {
 	
 		int r1 = p1.getRight();
@@ -607,12 +550,19 @@ public class Image {
 	
 	}
 
+	/*
+	 * Draws a triangle between p1, p2, and p3 with only the points that are visible
+	 * within image.
+	 * 
+	 * I did this in a way that that attempts to minimize the amount of processing
+	 * which is done for the parts of the triangle which are not visible.
+	 */
 	public Figure jaggedTriangle(Pixel p1, Pixel p2, Pixel p3) {
-	
+
 		boolean r2r3 = p2.getRight() <= p3.getRight();
 		boolean r1r3 = p1.getRight() <= p3.getRight();
 		boolean r1r2 = p1.getRight() <= p2.getRight();
-	
+
 		/*
 		 * Maybe not the cleanest way to do it, but I didn't want to go through the
 		 * process of sorting to account for 6 total permutations of 3 objects.
