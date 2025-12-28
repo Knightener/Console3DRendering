@@ -91,7 +91,7 @@ public class RelativeTriangle extends RelativeSimplex {
 		determineMostAndLeastForward();
 	}
 	
-	public Figure viewedBy(DrawingMethods3D observer) {
+	public Figure viewedBy(Observer observer) {
 		return observer.triangleDefault(perceivedPointA, perceivedPointB, perceivedPointC, shade, false);	
 	}
 
@@ -109,11 +109,9 @@ public class RelativeTriangle extends RelativeSimplex {
 		R3Point vectorTip = pointB.difference(pointA).cross(pointC.difference(pointA));
 		
 		vectorTip.normalize(R3Norm.EUCLIDIAN);
-		vectorTip.scale(1);
-
+		
 		vectorTip.translate(vectorTail);
 
-		System.out.println(vectorTail);
 		return new RelativeLine(vectorTail, vectorTip);
 	}
 }

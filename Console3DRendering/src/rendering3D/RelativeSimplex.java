@@ -57,6 +57,6 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	 */
 	abstract void determineMostAndLeastForward();
 
-	abstract Figure viewedBy(DrawingMethods3D observer);
+	abstract Figure viewedBy(Observer observer);
 
 }
