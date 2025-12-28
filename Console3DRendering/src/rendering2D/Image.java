@@ -68,6 +68,7 @@ public class Image extends ImageBase {
 		}
 	}
 
+	
 	public int countShade(int shade) {
 		int count = 0;
 
@@ -412,7 +413,7 @@ public class Image extends ImageBase {
 	 * 
 	 * Takes on the shade of the uppermost element.
 	 */
-	protected Figure verticalLineAuxiliary(Pixel p1, Pixel p2) {
+	private Figure verticalLineAuxiliary(Pixel p1, Pixel p2) {
 		Figure line = new Figure();
 
 		Pixel movingPixel = new Pixel(p1);
@@ -462,7 +463,7 @@ public class Image extends ImageBase {
 		}
 	
 		/*
-		 * If the program gets this far, the leftmost point must have a horizontal
+		 * If the method gets this far, the leftmost point must have a horizontal
 		 * component within the range visible by image.
 		 */
 		if (r1 > leftBound) {
@@ -485,7 +486,7 @@ public class Image extends ImageBase {
 		}
 	
 		/*
-		 * If the program gets this far, the leftmost point is outside the visible range
+		 * If the method gets this far, the leftmost point is outside the visible range
 		 * but the middle point is within it.
 		 */
 		if (r2 > leftBound) {
@@ -511,7 +512,7 @@ public class Image extends ImageBase {
 		}
 	
 		/*
-		 * If the program gets this far, only the rightmost point is within the visible
+		 * If the method gets this far, only the rightmost point is within the visible
 		 * range.
 		 */
 	

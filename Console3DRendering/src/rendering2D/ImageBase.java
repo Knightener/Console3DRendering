@@ -89,10 +89,6 @@ public abstract class ImageBase {
 		furthestOut = image.furthestOut;
 		
 	}
-	
-	public void clear() {
-		image = new int[imageRows][imageCols];
-	}
 
 	public String[][] convert() {
 
