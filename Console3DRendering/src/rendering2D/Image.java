@@ -82,26 +82,6 @@ public class Image extends ImageBase {
 		return count;
 	}
 
-	public int getLeftBound() {
-		return leftBound;
-	}
-
-	public int getRightBound() {
-		return rightBound;
-	}
-
-	public int getUpBound() {
-		return upBound;
-	}
-
-	public int getDownBound() {
-		return downBound;
-	}
-	
-	public int getFurthestOut() {
-		return furthestOut;
-	}
-
 	// Everything past this point is drawing methods
 	
 	public static Figure lineFull(R2Point p1, R2Point p2, int maxShade) {

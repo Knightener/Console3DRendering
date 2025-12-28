@@ -9,6 +9,7 @@ public class ArrayFunctions {
 		int[][] copy = new int[length][];
 
 		for (int i = 0; i < length; i++) {
+			copy[i] = new int[arr[i].length];
 			for (int j = 0; j < arr[i].length; j++) {
 				copy[i][j] = arr[i][j];
 			}

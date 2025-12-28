@@ -6,6 +6,14 @@ import other.MiscFunctions;
 
 public abstract class ImageBase {
 
+	/*
+	 * This class was pulled from the Image class. It was created so ZImage could
+	 * extend it instead of Image since Image comes with a lot of baggage.
+	 * 
+	 * Furthermore, most of the drawing methods in Image have to be rewritten to
+	 * account for the Z buffer. Although the changes to the methods are minor, they
+	 * cannot be implemented using only the output of the original drawing methods.
+	 */
 	protected int[][] image;
 	protected int imageRows;
 	protected int imageCols;
