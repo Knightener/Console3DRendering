@@ -3,7 +3,6 @@ package rendering2D;
 import classes2D.R2Point;
 import functionalInterfaces.R2Metric;
 import functionalInterfaces.RealFunction;
-import other.ArrayFunctions;
 import other.Constants;
 import other.MiscFunctions;
 
@@ -29,7 +28,6 @@ public class Image extends ImageBase {
 		int currRight;
 		int currDown;
 		for (Pixel pixel : figure.figure) {
-
 			currRight = pixel.getRight() - leftBound;
 			currDown = pixel.getDown() - upBound;
 

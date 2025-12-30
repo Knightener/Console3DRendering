@@ -90,6 +90,30 @@ public abstract class ImageBase {
 		
 	}
 
+	/*
+	 * This method and the one after it are used to initialize an Image/ZImage
+	 * instance with only the borders. This is useful, as the drawing methods only
+	 * really require the borders of the image that is calling it, and there are
+	 * times where you do not need all the overhead associated with constructing an
+	 * entire image.
+	 * 
+	 * The cleaner way to do this would be to make an ImageBorders class and put all
+	 * the drawing methods over there, but unfortunately Java's lack of multiple
+	 * inheritance stops of from doing this.
+	 */
+	protected ImageBase() {
+
+	}
+	
+	protected void setBorders(int leftBound, int rightBound, int upBound, int downBound) {
+
+		this.leftBound = leftBound;
+		this.rightBound = rightBound;
+		this.upBound = upBound;
+		this.downBound = downBound;
+
+	}
+	
 	public String[][] convert() {
 
 		String[][] shadeArr = new String[imageRows][imageCols];

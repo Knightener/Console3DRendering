@@ -26,6 +26,10 @@ public class ZImage extends ImageBase {
 		
 	}
 	
+	private ZImage() {
+		super();
+	}
+	
 	// Debug function. Returns an image with pixels colored according to their zBuffer
 	public Image getZBufferImage(ShadeHandling shadeHandling, RealFunction sigmoid) {
 		
@@ -102,7 +106,7 @@ public class ZImage extends ImageBase {
 			double ratio12 = ((double) (leftBound - r1)) / (r2 - r1);
 
 			adjustedP1 = new ZPixel(leftBound, d1 + (int) (ratio12 * (d2 - d1)), p1.getShade(),
-					z1 + ratio12 * (z2 - z1));
+				z1 + ratio12 * (z2 - z1));
 		}
 		
 		ZFigure	line = lineWithoutHorizontalRepetition(adjustedP1, p2,true);
@@ -158,7 +162,10 @@ public class ZImage extends ImageBase {
 		p1Flipped.flip();
 		p2Flipped.flip();
 
-		ZFigure borderedLine = borderedLine(p1Flipped, p2Flipped, borderShade);
+		ZImage flippedImage = new ZImage();
+		flippedImage.setBorders(upBound, downBound, leftBound, rightBound);
+		
+		ZFigure borderedLine = flippedImage.borderedLine(p1Flipped, p2Flipped, borderShade);
 
 		borderedLine.change(pixel -> ((ZPixel) pixel).flip());
 		
