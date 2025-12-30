@@ -21,6 +21,11 @@ public class ZPixel extends Pixel {
 		zBuffer = pixel.zBuffer;
 	}
 
+	public ZPixel(Pixel pixel, double zBuffer) {
+		super(pixel);
+		this.zBuffer = zBuffer;
+	}
+	
 	public void setZBuffer(double zBuffer) {
 		this.zBuffer = zBuffer;
 	}

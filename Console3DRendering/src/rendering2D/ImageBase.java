@@ -29,7 +29,7 @@ public abstract class ImageBase {
 	 * Stored as an instance variable for convenience. This represents the furthest
 	 * point from the origin that is visible in terms of the Chebyshev metric.
 	 */
-	private int furthestOut;
+	protected int furthestOut;
 
 	/*
 	 * These are stored as instance variables so that the displayCoordinates method

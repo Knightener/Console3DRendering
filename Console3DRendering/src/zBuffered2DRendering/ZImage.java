@@ -2,20 +2,21 @@ package zBuffered2DRendering;
 
 import other.MiscFunctions;
 import rendering2D.*;
+import functionalInterfaces.*;
 
 public class ZImage extends ImageBase {
 
+	/*
+	 * Stores the depth value of each pixel. The version of the depth buffer that is
+	 * being here has a range 0 to infinity. Furthermore, a higher zBuffer indicates
+	 * a closer object.
+	 */
 	double[][] zBuffer;
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
 		super(leftEnd, rightEnd, upEnd, downEnd);
 		zBuffer = new double[imageRows][imageCols];
 		
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				zBuffer[i][j] = 1;
-			}
-		}
 
 	}
 
@@ -23,21 +24,16 @@ public class ZImage extends ImageBase {
 		super(arr, left, up);
 		zBuffer = new double[imageRows][imageCols];
 		
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				zBuffer[i][j] = 1;
-			}
-		}
 	}
 	
 	// Debug function. Returns an image with pixels colored according to their zBuffer
-	public Image getZBufferImage(ShadeHandling shadeHandling) {
+	public Image getZBufferImage(ShadeHandling shadeHandling, RealFunction sigmoid) {
 		
 		Image image = new Image(this);
 		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				image.setShade(j, i, shadeHandling.determineShade(1 - zBuffer[i][j]));				
+				image.setShade(j, i, shadeHandling.determineShade(sigmoid.f(zBuffer[i][j])));				
 			}
 		}
 		
@@ -57,6 +53,7 @@ public class ZImage extends ImageBase {
 	}
 
 	
+	// Replaces a pixel iff the new pixel has a greater zBuffer
 	public void draw(ZFigure figure) {
 		
 		int currRight;
@@ -70,7 +67,7 @@ public class ZImage extends ImageBase {
 			currZBuffer = pixel.getZBuffer();
 
 			if (currRight >= 0 && currRight < imageCols && currDown >= 0 && currDown < imageRows
-				&& zBuffer[currDown][currRight] > currZBuffer) {
+				&& currZBuffer > zBuffer[currDown][currRight]) {
 
 				
 				zBuffer[currDown][currRight] = currZBuffer;

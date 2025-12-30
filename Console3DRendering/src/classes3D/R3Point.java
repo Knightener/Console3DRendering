@@ -4,6 +4,8 @@ import classes2D.R2Point;
 import functionalInterfaces.R2Norm;
 import functionalInterfaces.R3Norm;
 import other.Constants;
+import zBuffered2DRendering.ZPixel;
+
 
 public class R3Point {
 
@@ -35,6 +37,22 @@ public class R3Point {
 			point.scale(ratio);
 			
 			return point;
+		}
+		return null;
+	}
+	
+	public ZPixel project(double fov, int shade) {
+		if (forward > 0) {
+			
+			double ratio = fov / forward;
+			
+			R2Point point = new R2Point(right,down);
+			
+			point.scale(ratio);
+			
+			ZPixel pixel = new ZPixel(point.truncate(shade), ratio);
+			
+			return pixel;
 		}
 		return null;
 	}

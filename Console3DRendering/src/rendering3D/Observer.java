@@ -4,11 +4,12 @@ import classes2D.*;
 import classes3D.*;
 import other.Constants;
 import rendering2D.*;
+import zBuffered2DRendering.*;
 
 public class Observer {
 
 	// What the observer is seeing.
-	Image view;
+	ZImage view;
 
 	double fov;
 
@@ -80,11 +81,12 @@ public class Observer {
 		rotation.updateTransform(point);
 	}
 
-	public Image getView() {
+	public ZImage getView() {
 		return view;
 	}
 
 	// Added because it feels more natural to have the observer "act on" the simplex.
+	
 	public void updatePerspective(RelativeSimplex simplex) {
 		simplex.updatePerspective(this);
 	}
@@ -129,9 +131,13 @@ public class Observer {
 		return lineDefault(perspective(p1), perspective(p2), ShadeHandling.getMaxPossibleShade());
 	}
 
-	private Figure triangleAux(R3Point p1, R3Point p2, R3Point p3, int maxShade, boolean isSmooth) {
-		
-	
+	/*
+	 * Observer assumed to be in default state (theta, phi = 0, position = (0,0,0)),
+	 * p1 assumed to be the backmost point (least forward component) and p3 assumed
+	 * to be the forwardmost point
+	 */
+	private ZFigure triangleAux(R3Point p1, R3Point p2, R3Point p3, int shade) {
+
 		// Initialized for convenience.
 		double r1 = p1.getRight();
 		double r2 = p2.getRight();
@@ -146,11 +152,11 @@ public class Observer {
 		double f3 = p3.getForward();
 				
 		if (f1 > Constants.EPSILON) {
-			return view.triangle(p1.project(fov), p2.project(fov), p3.project(fov), maxShade, isSmooth);
+			return view.jaggedTriangle(p1.project(fov,shade), p2.project(fov,shade), p3.project(fov,shade));
 		}
 		
 		if (f2 > Constants.EPSILON) {
-			Figure triangle = new Figure();
+			ZFigure triangle = new ZFigure();
 	
 			/*
 			 * The idea is to find a far enough point that acts as a start for the line from
@@ -167,47 +173,28 @@ public class Observer {
 			start12.scale(f1 / (f1 - f2));
 			start13.scale(f1 / (f1 - f3));
 	
-			start12.translate(r1, d1, 0);
-			start13.translate(r1, d1, 0);
-			
-			R2Point proj12 = start12.projectAlt(fov);
-			R2Point proj13 = start13.projectAlt(fov);
+			start12.translate(r1, d1, Constants.EPSILON);
+			start13.translate(r1, d1, Constants.EPSILON);
 			
 			/*
-			 * Squaring is arbitrary here. It's just to (try to) make sure that the whole
-			 * screen is covered when the triangle is very flat. Of course, the triangle can
-			 * still be flat enough to where the screen doesn't get covered, but I doubt
-			 * that'll end up being serious issue. If it does, I'll try to make a scaling
-			 * factor that adjusts for the triangle's flatness.
-			 * 
-			 * The nice part about the triangle method is that going far beyond the bounds
-			 * of the image doesn't increase the processing time by that much.
+			 * These return far enough points that can act as vertices for the triangle.
+			 * Note that this could lead to visual artifacts if the triangle is very flat,
+			 * but in practice, this won't happen often.
 			 */
-			double scaleFactor = view.getFurthestOut() * view.getFurthestOut();
-			
-			proj12.scale(scaleFactor);
-			proj13.scale(scaleFactor);
+			ZPixel proj12 = start12.project(fov, shade);
+			ZPixel proj13 = start13.project(fov, shade);
 	
-			R2Point proj2 = p2.project(fov);
-			R2Point proj3 = p3.project(fov);
-	
-			proj12.translate(proj2);
-			proj13.translate(proj3);
-	
+			ZPixel proj2 = p2.project(fov, shade);
+			ZPixel proj3 = p3.project(fov, shade);
+
 			/*
 			 * I'm not exactly sure why this specific order of points works, but it 
 			 * returned a full triangle when tested.
 			 */
-			triangle.add(view.jaggedTriangle(proj12, proj13, proj3, maxShade));
+			triangle.add(view.jaggedTriangle(proj12, proj13, proj3));
 	
-			triangle.add(view.jaggedTriangle(proj12, proj3, proj2, maxShade));
+			triangle.add(view.jaggedTriangle(proj12, proj3, proj2));
 	
-			// A little bit more efficient than directly calling the triangle method.
-			if (isSmooth) {
-				triangle.add(view.line(proj12, proj2));
-				triangle.add(view.line(proj13, proj3));
-				triangle.add(view.line(proj2, proj3));
-			}
 			return triangle;
 		}
 	
@@ -223,30 +210,22 @@ public class Observer {
 			start23.scale(f3 / (f3 - f2));
 			start13.scale(f1 / (f1 - f3));
 	
-			start23.translate(r3, d3, 0);
-			start13.translate(r1, d1, 0);
+			start23.translate(r3, d3, Constants.EPSILON);
+			start13.translate(r1, d1, Constants.EPSILON);
 			
-			R2Point proj23 = start23.projectAlt(fov);
-			R2Point proj13 = start13.projectAlt(fov);
+			ZPixel proj23 = start23.project(fov,shade);
+			ZPixel proj13 = start13.project(fov,shade);
 			
-			double scaleFactor = view.getFurthestOut() * view.getFurthestOut();
-			
-			proj23.scale(scaleFactor);
-			proj13.scale(scaleFactor);
-			
-			R2Point proj3 = p3.project(fov);
+			ZPixel proj3 = p3.project(fov,shade);
 	
-			proj23.translate(proj3);
-			proj13.translate(proj3);
-	
-			return view.triangle(proj13, proj23, proj3, maxShade, isSmooth);
+			return view.jaggedTriangle(proj13, proj23, proj3);
 		}
 		
-		return new Figure();
+		return new ZFigure();
 	
 	}
 
-	public Figure triangleDefault(R3Point p1, R3Point p2, R3Point p3, int maxShade, boolean isSmooth) {
+	public ZFigure triangleDefault(R3Point p1, R3Point p2, R3Point p3, int shade) {
 		
 		boolean f2f3 = p2.getForward() <= p3.getForward();
 		boolean f1f3 = p1.getForward() <= p3.getForward();
@@ -256,25 +235,25 @@ public class Observer {
 		// Same justification as the 2d version of this method
 		if (f1f2) {
 			if (f2f3) {
-				return triangleAux(p1, p2, p3, maxShade, isSmooth);
+				return triangleAux(p1, p2, p3, shade);
 			}
 			if (f1f3) {
-				return triangleAux(p1, p3, p2, maxShade, isSmooth);
+				return triangleAux(p1, p3, p2, shade);
 			}
-			return triangleAux(p3, p1, p2, maxShade, isSmooth);
+			return triangleAux(p3, p1, p2, shade);
 		}
 		if (f1f3) {
-			return triangleAux(p2, p1, p3, maxShade, isSmooth);
+			return triangleAux(p2, p1, p3, shade);
 		}
 		if (f2f3) {
-			return triangleAux(p2, p3, p1, maxShade, isSmooth);
+			return triangleAux(p2, p3, p1, shade);
 		}
-		return triangleAux(p3, p2, p1, maxShade, isSmooth);
+		return triangleAux(p3, p2, p1, shade);
 	}
 
-	public Figure triangle(R3Point p1, R3Point p2, R3Point p3, int maxShade, boolean isSmooth) {
+	public ZFigure triangle(R3Point p1, R3Point p2, R3Point p3, int shade) {
 	
-		return triangleDefault(perspective(p1), perspective(p2), perspective(p3), maxShade, isSmooth);
+		return triangleDefault(perspective(p1), perspective(p2), perspective(p3), shade);
 		
 	}
 

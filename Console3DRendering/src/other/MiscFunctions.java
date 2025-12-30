@@ -95,4 +95,5 @@ public class MiscFunctions {
 	public static boolean nearlyEquals(double a, double b) {
 		return Math.abs(a - b) < Constants.EPSILON;
 	}
+	
 }
