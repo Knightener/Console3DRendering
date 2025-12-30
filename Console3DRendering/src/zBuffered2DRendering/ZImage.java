@@ -41,15 +41,9 @@ public class ZImage extends ImageBase {
 	}
 
 	public void clear() {
+		
 		image = new int[imageRows][imageCols];
-		
 		zBuffer = new double[imageRows][imageCols];
-		
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				zBuffer[i][j] = 1;
-			}
-		}
 	}
 
 	
@@ -69,20 +63,117 @@ public class ZImage extends ImageBase {
 			if (currRight >= 0 && currRight < imageCols && currDown >= 0 && currDown < imageRows
 				&& currZBuffer > zBuffer[currDown][currRight]) {
 
-				
 				zBuffer[currDown][currRight] = currZBuffer;
 				image[currDown][currRight] = pixel.getShade();
 			}
+		}		
+	}
+	
+	// Everything past this point is drawing methods
 
+	/*
+	 * Here p1 is assumed to be further to the left than p2 and the vertical
+	 * distance between p1 and p2 is lesser than their horizontal distance
+	 */
+	private ZFigure borderedLineAux1(ZPixel p1, ZPixel p2, int borderShade) {
+
+		int r1 = p1.getRight();
+		int r2 = p2.getRight();
+
+		int d1 = p1.getDown();
+		int d2 = p2.getDown();
+
+		double z1 = p1.getZBuffer();
+		double z2 = p2.getZBuffer();
+
+		// Entire line is further to the left than the leftmost visible point
+		if (r2 < leftBound) {
+			return new ZFigure();
 		}
 		
+		ZPixel adjustedP1 = new ZPixel(p1);
+
+		/*
+		 * Intersects the left border with the line between p1 and p2 and uses the
+		 * intersection as a starting point for the line drawing method
+		 */
+		if (r1 < leftBound) {
+
+			double ratio12 = ((double) (leftBound - r1)) / (r2 - r1);
+
+			adjustedP1 = new ZPixel(leftBound, d1 + (int) (ratio12 * (d2 - d1)), p1.getShade(),
+					z1 + ratio12 * (z2 - z1));
+		}
+		
+		ZFigure	line = lineWithoutHorizontalRepetition(adjustedP1, p2,true);
+			
+		ZFigure borderedLine = new ZFigure();
+		
+		for (int i = 0; i < line.size(); i++) {
+			
+			ZPixel curr = line.get(i);
+			
+			// Middle
+			borderedLine.add(curr);
+			
+			// One down
+			curr = new ZPixel(curr);
+			curr.moveDown(1);
+			curr.setShade(borderShade);
+			
+			borderedLine.add(curr);
+			
+			// One up
+			curr = new ZPixel(curr);
+			curr.moveDown(-2);
+			
+			borderedLine.add(curr);
+		}
+		
+		return borderedLine;
 	}
 	
 	/*
-	 * Similar to the method of the same name in the image class, but the zBuffer is
-	 * linearly interpolated between points
+	 * Vertical distance between p1 and p2 assumed to be lesser than their
+	 * horizontal distance
 	 */
-	public ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
+	private ZFigure borderedLineAux2(ZPixel p1, ZPixel p2, int borderShade) {
+		
+		if (p1.getRight() < p2.getRight()) {
+			return borderedLineAux1(p1, p2, borderShade);
+		}
+		return borderedLineAux1(p2, p1, borderShade);
+	}
+
+
+	public ZFigure borderedLine(ZPixel p1, ZPixel p2, int borderShade) {
+
+		if (Math.abs(p1.getRight() - p2.getRight()) >= Math.abs(p1.getDown() - p2.getDown())) {
+			return borderedLineAux2(p1,p2,borderShade);
+		}
+		
+		ZPixel p1Flipped = new ZPixel(p1);
+		ZPixel p2Flipped = new ZPixel(p2);
+		
+		p1Flipped.flip();
+		p2Flipped.flip();
+
+		ZFigure borderedLine = borderedLine(p1Flipped, p2Flipped, borderShade);
+
+		borderedLine.change(pixel -> ((ZPixel) pixel).flip());
+		
+		return borderedLine;
+	}
+
+	/*
+	 * Similar to the method of the same name in the image class, but the zBuffer is
+	 * linearly interpolated between points.
+	 * 
+	 * stopVertical argument terminates the method when the line exceeds the
+	 * vertical bounds of the image. This is unwanted when this method is used for
+	 * drawing triangles but needed when drawing lines.
+	 */
+	public ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2, boolean stopVertical) {
 
 		ZFigure line = new ZFigure();
 
@@ -108,6 +199,13 @@ public class ZImage extends ImageBase {
 		int currMod = excess;
 		
 		int visibleLength = Math.min(rightDist, rightBound - p1.getRight());
+		
+		if (stopVertical && downDir == 1) {
+			visibleLength = Math.min(visibleLength, downBound - p1.getDown());
+		} else if (stopVertical && downDir == -1) {
+			visibleLength = Math.min(visibleLength, p1.getDown() - upBound);
+
+		}
 		
 		double zStep = (p2.getZBuffer() - p1.getZBuffer()) / rightDist;
 		
@@ -205,9 +303,9 @@ public class ZImage extends ImageBase {
 		 */
 		if (r1 > leftBound) {
 
-			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3);
-			ZFigure line13 = lineWithoutHorizontalRepetition(p1, p3);
-			ZFigure line12 = lineWithoutHorizontalRepetition(p1, p2);
+			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3, false);
+			ZFigure line13 = lineWithoutHorizontalRepetition(p1, p3, false);
+			ZFigure line12 = lineWithoutHorizontalRepetition(p1, p2, false);
 
 			for (int i = 0; i < line12.size(); i++) {
 				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
@@ -246,10 +344,10 @@ public class ZImage extends ImageBase {
 			ZPixel start13 = new ZPixel(leftBound, d1 + (int) (ratio13 * (d3 - d1)), 
 				shade, z1 + ratio13 * (z3 - z1));
 
-			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3);
-			ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3);
-			ZFigure line12 = lineWithoutHorizontalRepetition(start12, p2);
-	
+			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3, false);
+			ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3, false);
+			ZFigure line12 = lineWithoutHorizontalRepetition(start12, p2, false);
+
 			for (int i = 0; i < line12.size(); i++) {
 				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
 	
@@ -278,8 +376,8 @@ public class ZImage extends ImageBase {
 		ZPixel start13 = new ZPixel(leftBound, d1 + (int) (ratio13 * (d3 - d1)), 
 			shade, z1 + ratio13 * (z3 - z1));
 
-		ZFigure line23 = lineWithoutHorizontalRepetition(start23, p3);
-		ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3);
+		ZFigure line23 = lineWithoutHorizontalRepetition(start23, p3, false);
+		ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3, false);
 
 		for (int i = 0; i < line13.size(); i++) {
 			triangle.add(verticalLine(line13.get(i), line23.get(i), slope));
@@ -317,4 +415,6 @@ public class ZImage extends ImageBase {
 		return jaggedTriangleAuxiliary(p3, p2, p1);
 		
 	}
+	
+	
 }

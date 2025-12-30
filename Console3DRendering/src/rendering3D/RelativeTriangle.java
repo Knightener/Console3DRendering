@@ -5,8 +5,8 @@ import classes3D.R3Point;
 import classes3D.Triangle;
 import functionalInterfaces.R3Norm;
 import other.MiscFunctions;
-import rendering2D.Figure;
 import rendering2D.ShadeHandling;
+import zBuffered2DRendering.ZFigure;
 
 public class RelativeTriangle extends RelativeSimplex {
 
@@ -91,8 +91,8 @@ public class RelativeTriangle extends RelativeSimplex {
 		determineMostAndLeastForward();
 	}
 	
-	public Figure viewedBy(Observer observer) {
-		return observer.triangleDefault(perceivedPointA, perceivedPointB, perceivedPointC, shade, false);	
+	public ZFigure viewedBy(Observer observer) {
+		return observer.triangleDefault(perceivedPointA, perceivedPointB, perceivedPointC, shade);	
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.

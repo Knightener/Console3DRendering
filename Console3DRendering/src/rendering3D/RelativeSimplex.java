@@ -1,7 +1,7 @@
 package rendering3D;
 
 import other.MiscFunctions;
-import rendering2D.Figure;
+import zBuffered2DRendering.ZFigure;
 
 public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	/*
@@ -57,6 +57,6 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	 */
 	abstract void determineMostAndLeastForward();
 
-	abstract Figure viewedBy(Observer observer);
+	abstract ZFigure viewedBy(Observer observer);
 
 }

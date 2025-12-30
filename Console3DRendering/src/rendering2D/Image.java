@@ -242,7 +242,6 @@ public class Image extends ImageBase {
 	
 				}
 			}
-	
 		}
 	
 		if (MiscFunctions.between(downBound, d1, d2)) {
@@ -252,7 +251,7 @@ public class Image extends ImageBase {
 				borderIntersections[currIndex] = new R2Point(intersectionRight, downBound);
 				currIndex++;
 			}
-	
+
 		}
 	
 		// Checks if the square was crossed.
@@ -261,7 +260,6 @@ public class Image extends ImageBase {
 		}
 	
 		return new Figure();
-	
 	}
 
 	// Renders only the points which are visible within image.

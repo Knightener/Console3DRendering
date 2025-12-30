@@ -4,5 +4,17 @@ package functionalInterfaces;
 public interface RealFunction {
 	double f(double x);
 
-	public static final RealFunction SIGMOID = x -> x / (1 + Math.abs(x));
+	public static RealFunction sigmoid(double steepness) {
+
+		RealFunction f = x -> {
+
+			double adjusted = x * steepness;
+
+			return adjusted / (1 + Math.abs(adjusted));
+			
+		};
+
+		return f;
+
+	}
 }

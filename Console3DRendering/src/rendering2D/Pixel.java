@@ -26,7 +26,6 @@ public class Pixel {
 		down = pixel.down;
 		shade = pixel.shade;
 	}
-
 	
 	public int getRight() {
 		return right;
@@ -35,6 +34,7 @@ public class Pixel {
 	public void moveRight(int delta) {
 		right += delta;
 	}
+	
 	public void moveDown(int delta) {
 		down += delta;
 	}

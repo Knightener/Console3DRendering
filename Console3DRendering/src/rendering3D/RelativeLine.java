@@ -35,7 +35,7 @@ public class RelativeLine extends RelativeSimplex {
 	 * figures with non unique points. That or rework the line method to only return
 	 * a figure with unique points
 	 */
-	public Figure viewedBy(Observer observer) {
+	public ZFigure viewedBy(Observer observer) {
 		return observer.lineDefault(perceivedPointA, perceivedPointB, shade).unique();
 	}
 

@@ -39,7 +39,7 @@ public class Observer {
 	 * The formula for the rotation matrix was derived by multiplying the rotation
 	 * matrices for theta alone and phi alone, which can be easily written down.
 	 */
-	public Observer(R3Point position, double theta, double phi, Image view, double fov) {
+	public Observer(R3Point position, double theta, double phi, ZImage view, double fov) {
 
 		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
 			throw new IllegalArgumentException();
@@ -258,7 +258,7 @@ public class Observer {
 	}
 
 	public void renderDirectly(RelativeSimplex simplex) {
-		view.replace(simplex.viewedBy(this));
+		view.draw(simplex.viewedBy(this));
 	}
 
 	public void renderDirectly(Form form) {
