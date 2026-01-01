@@ -6,9 +6,12 @@ import zBuffered2DRendering.ZFigure;
 
 public class RelativeLine extends RelativeSimplex {
 
-	// Lines require a second integer to specify the shade of it's border when rendered
+	/*
+	 * Lines require a second integer to specify the shade of it's border when
+	 * rendered. This is to make them clearly visible amongst triangles 
+	 */
 	private int borderShade;
-	
+
 	// These fields are immutable and represent the actual position of the line.
 	private R3Point pointA;
 	private R3Point pointB;
@@ -33,12 +36,6 @@ public class RelativeLine extends RelativeSimplex {
 		this(pointA, pointB, ShadeHandling.getMaxPossibleShade(), 0);
 	}
 
-	/*
-	 * Unique added here to avoid the line overlapping itself. This is a temporary
-	 * solution. I eventually plan on reworking the .replace method to work on
-	 * figures with non unique points. That or rework the line method to only return
-	 * a figure with unique points
-	 */
 	public ZFigure viewedBy(Observer observer) {
 		return observer.lineDefault(perceivedPointA, perceivedPointB, shade, borderShade);
 	}

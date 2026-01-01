@@ -113,9 +113,21 @@ public class ZImage extends ImageBase {
 
 		ZFigure borderedLine = new ZFigure();
 
+		ZPixel movingPixel = new ZPixel();
+		
+		// Starting point left border
+		if (line.size() != 0) {
+			movingPixel = new ZPixel(line.get(0));
+			movingPixel.moveRight(-1);
+			movingPixel.setShade(borderShade);
+
+			borderedLine.add(movingPixel);
+		}
+
+		// Middle point up/down borders
 		for (int i = 0; i < line.size(); i++) {
 
-			ZPixel movingPixel = line.get(i);
+			movingPixel = line.get(i);
 
 			// Middle
 			borderedLine.add(movingPixel);
@@ -130,9 +142,16 @@ public class ZImage extends ImageBase {
 			// One up
 			movingPixel = new ZPixel(movingPixel);
 			movingPixel.moveDown(-2);
-			
+
 			borderedLine.add(movingPixel);
 		}
+
+		// End point right border
+		movingPixel = new ZPixel(movingPixel);
+		movingPixel.moveDown(1);
+		movingPixel.moveRight(1);
+
+		borderedLine.add(movingPixel);
 		
 		return borderedLine;
 	}
