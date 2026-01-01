@@ -1,11 +1,14 @@
 package rendering3D;
 
 import classes3D.R3Point;
-import rendering2D.Figure;
 import rendering2D.ShadeHandling;
+import zBuffered2DRendering.ZFigure;
 
 public class RelativeLine extends RelativeSimplex {
 
+	// Lines require a second integer to specify the shade of it's border when rendered
+	private int borderShade;
+	
 	// These fields are immutable and represent the actual position of the line.
 	private R3Point pointA;
 	private R3Point pointB;
@@ -14,7 +17,7 @@ public class RelativeLine extends RelativeSimplex {
 	private R3Point perceivedPointA;
 	private R3Point perceivedPointB;
 
-	public RelativeLine(R3Point pointA, R3Point pointB, int shade) {
+	public RelativeLine(R3Point pointA, R3Point pointB, int shade, int borderShade) {
 
 		this.pointA = pointA;
 		this.pointB = pointB;
@@ -23,10 +26,11 @@ public class RelativeLine extends RelativeSimplex {
 		perceivedPointB = pointB;
 
 		this.shade = shade;
+		this.borderShade = borderShade;
 	}
 
 	public RelativeLine(R3Point pointA, R3Point pointB) {
-		this(pointA, pointB, ShadeHandling.getMaxPossibleShade());
+		this(pointA, pointB, ShadeHandling.getMaxPossibleShade(), 0);
 	}
 
 	/*
@@ -36,7 +40,7 @@ public class RelativeLine extends RelativeSimplex {
 	 * a figure with unique points
 	 */
 	public ZFigure viewedBy(Observer observer) {
-		return observer.lineDefault(perceivedPointA, perceivedPointB, shade).unique();
+		return observer.lineDefault(perceivedPointA, perceivedPointB, shade, borderShade);
 	}
 
 	public void determineMostAndLeastForward() {

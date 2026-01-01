@@ -151,14 +151,14 @@ public abstract class ImageBase {
 	}
 
 	public void setShade(int right, int down, int shade) {
-		
+
 		if (!(shade >= 0 && shade <= ShadeHandling.maxPossibleShade)) {
 			throw new IllegalArgumentException();
 		}
-		
-		image[down][right] = shade;
+
+		image[down - upBound][right - leftBound] = shade;
 	}
-	
+
 	public int getShade(int right, int down) {
 		return image[down][right];
 	}

@@ -1,10 +1,12 @@
 package rendering3D;
 
-import classes2D.*;
-import classes3D.*;
+import classes2D.R2Point;
+import classes3D.R3Matrix;
+import classes3D.R3Point;
 import other.Constants;
-import rendering2D.*;
-import zBuffered2DRendering.*;
+import zBuffered2DRendering.ZFigure;
+import zBuffered2DRendering.ZImage;
+import zBuffered2DRendering.ZPixel;
 
 public class Observer {
 
@@ -62,12 +64,6 @@ public class Observer {
 
 	public R2Point lookAt(R3Point point) {
 		return perspective(point).project(fov);
-
-	}
-
-	public R2Point lookAtAlt(R3Point point) {
-		return perspective(point).projectAlt(fov);
-
 	}
 
 	// Returns the position of the point from the observer's perspective
@@ -102,33 +98,48 @@ public class Observer {
 
 	// Everything past this point is drawing methods
 	
-	public Figure lineDefault(R3Point p1, R3Point p2, int maxShade) {
+	// Observer assumed to be in default state, p1 assumed to be further back than p2.
+	public ZFigure lineDefaultAuxiliary(R3Point p1, R3Point p2, int shade, int borderShade) {
+	
+		double r1 = p1.getRight();
+		double r2 = p2.getRight();
+	
+		double d1 = p1.getDown();
+		double d2 = p2.getDown();
 	
 		double f1 = p1.getForward();
 		double f2 = p2.getForward();
-	
-		if (f1 > Constants.EPSILON && f2 > Constants.EPSILON) {
-			return view.line(p1.project(fov), p2.project(fov), maxShade);
-		}
+				
 		if (f1 > Constants.EPSILON) {
-			R3Point direction = p2.difference(p1);
-			direction.scale(-f1 / direction.getForward());
-			direction.translate(p1);
-			return view.ray(p1.project(fov), direction.projectAlt(fov), maxShade);
+			return view.borderedLine(p1.project(fov, shade), p2.project(fov, shade), borderShade);
+		}
+		
+		if (f2 > Constants.EPSILON) {
+
+			double ratio = f1 / (f1 - f2);
+
+			// Intersection between the line from p1 and p2 and the plane forward = 0
+			R3Point start = new R3Point(r1 + ratio * (r2 - r1), d1 + ratio * (d2 - d1), Constants.EPSILON);
+
+			return view.borderedLine(start.project(fov,shade),p2.project(fov,shade), borderShade);
 	
 		}
-		if (f2 > Constants.EPSILON) {
-			R3Point difference = p1.difference(p2);
-			difference.scale(-f2 / difference.getForward());
-			difference.translate(p2);
-			return view.ray(p2.project(fov), difference.projectAlt(fov), maxShade);
-		}
-		return new Figure();
+
+		return new ZFigure();
 	}
 
-	public Figure line(R3Point p1, R3Point p2) {
-	
-		return lineDefault(perspective(p1), perspective(p2), ShadeHandling.getMaxPossibleShade());
+	// Observer assumed to be in default state.
+	public ZFigure lineDefault(R3Point p1, R3Point p2, int shade, int borderShade) {
+		
+		if (p2.getForward() > p1.getForward()) {
+			return lineDefaultAuxiliary(p1, p2, shade, borderShade);
+		}
+		return lineDefaultAuxiliary(p2, p1, shade, borderShade);
+	}
+
+	public ZFigure line(R3Point p1, R3Point p2, int shade, int borderShade) {
+
+		return lineDefault(perspective(p1), perspective(p2), shade, borderShade);
 	}
 
 	/*

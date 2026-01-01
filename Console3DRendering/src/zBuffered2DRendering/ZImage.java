@@ -108,30 +108,30 @@ public class ZImage extends ImageBase {
 			adjustedP1 = new ZPixel(leftBound, d1 + (int) (ratio12 * (d2 - d1)), p1.getShade(),
 				z1 + ratio12 * (z2 - z1));
 		}
-		
-		ZFigure	line = lineWithoutHorizontalRepetition(adjustedP1, p2,true);
-			
+
+		ZFigure line = lineWithoutHorizontalRepetition(adjustedP1, p2);
+
 		ZFigure borderedLine = new ZFigure();
-		
+
 		for (int i = 0; i < line.size(); i++) {
-			
-			ZPixel curr = line.get(i);
-			
+
+			ZPixel movingPixel = line.get(i);
+
 			// Middle
-			borderedLine.add(curr);
-			
+			borderedLine.add(movingPixel);
+
 			// One down
-			curr = new ZPixel(curr);
-			curr.moveDown(1);
-			curr.setShade(borderShade);
-			
-			borderedLine.add(curr);
-			
+			movingPixel = new ZPixel(movingPixel);
+			movingPixel.moveDown(1);
+			movingPixel.setShade(borderShade);
+
+			borderedLine.add(movingPixel);
+
 			// One up
-			curr = new ZPixel(curr);
-			curr.moveDown(-2);
+			movingPixel = new ZPixel(movingPixel);
+			movingPixel.moveDown(-2);
 			
-			borderedLine.add(curr);
+			borderedLine.add(movingPixel);
 		}
 		
 		return borderedLine;
@@ -175,16 +175,12 @@ public class ZImage extends ImageBase {
 	/*
 	 * Similar to the method of the same name in the image class, but the zBuffer is
 	 * linearly interpolated between points.
-	 * 
-	 * stopVertical argument terminates the method when the line exceeds the
-	 * vertical bounds of the image. This is unwanted when this method is used for
-	 * drawing triangles but needed when drawing lines.
 	 */
-	public ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2, boolean stopVertical) {
+	public ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
 
 		ZFigure line = new ZFigure();
 
-		// difference
+		// Difference
 		int rightDist = p2.getRight() - p1.getRight();
 		int downDif = p2.getDown() - p1.getDown();
 	
@@ -192,27 +188,21 @@ public class ZImage extends ImageBase {
 			return line;
 		}
 	
-		// direction
+		// Direction
 		int downDir = MiscFunctions.sign(downDif);
 	
-		// distance
+		// Distance
 		int downDist = Math.abs(downDif);
 	
 		int minDownStep = downDif / rightDist;
 	
-		// remaining down distance that will need to be distributed across iterations.
+		// Remaining down distance that will need to be distributed across iterations.
 		int excess = downDist % rightDist;
 	
 		int currMod = excess;
 		
+		// Horizontal length of the visible line.
 		int visibleLength = Math.min(rightDist, rightBound - p1.getRight());
-		
-		if (stopVertical && downDir == 1) {
-			visibleLength = Math.min(visibleLength, downBound - p1.getDown());
-		} else if (stopVertical && downDir == -1) {
-			visibleLength = Math.min(visibleLength, p1.getDown() - upBound);
-
-		}
 		
 		double zStep = (p2.getZBuffer() - p1.getZBuffer()) / rightDist;
 		
@@ -226,6 +216,7 @@ public class ZImage extends ImageBase {
 			movingPixel.incrementZBuffer(zStep);
 			
 			currMod += excess;
+			
 			if (currMod >= rightDist) {
 				currMod -= rightDist;
 				movingPixel.moveDown(downDir);
@@ -310,9 +301,9 @@ public class ZImage extends ImageBase {
 		 */
 		if (r1 > leftBound) {
 
-			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3, false);
-			ZFigure line13 = lineWithoutHorizontalRepetition(p1, p3, false);
-			ZFigure line12 = lineWithoutHorizontalRepetition(p1, p2, false);
+			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3);
+			ZFigure line13 = lineWithoutHorizontalRepetition(p1, p3);
+			ZFigure line12 = lineWithoutHorizontalRepetition(p1, p2);
 
 			for (int i = 0; i < line12.size(); i++) {
 				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
@@ -351,9 +342,9 @@ public class ZImage extends ImageBase {
 			ZPixel start13 = new ZPixel(leftBound, d1 + (int) (ratio13 * (d3 - d1)), 
 				shade, z1 + ratio13 * (z3 - z1));
 
-			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3, false);
-			ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3, false);
-			ZFigure line12 = lineWithoutHorizontalRepetition(start12, p2, false);
+			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3);
+			ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3);
+			ZFigure line12 = lineWithoutHorizontalRepetition(start12, p2);
 
 			for (int i = 0; i < line12.size(); i++) {
 				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
@@ -383,8 +374,8 @@ public class ZImage extends ImageBase {
 		ZPixel start13 = new ZPixel(leftBound, d1 + (int) (ratio13 * (d3 - d1)), 
 			shade, z1 + ratio13 * (z3 - z1));
 
-		ZFigure line23 = lineWithoutHorizontalRepetition(start23, p3, false);
-		ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3, false);
+		ZFigure line23 = lineWithoutHorizontalRepetition(start23, p3);
+		ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3);
 
 		for (int i = 0; i < line13.size(); i++) {
 			triangle.add(verticalLine(line13.get(i), line23.get(i), slope));
