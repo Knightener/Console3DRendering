@@ -10,25 +10,26 @@ import zBuffered2DRendering.ZFigure;
 
 public class RelativeTriangle extends RelativeSimplex {
 
-	// These fields are immutable and represent the actual position of the triangle
-	private R3Point pointA;
-	private R3Point pointB;
-	private R3Point pointC;
+	int shade;
 	
-	// These fields are mutable and represent the perceived position of the triangle
-	private R3Point perceivedPointA;
-	private R3Point perceivedPointB;
-	private R3Point perceivedPointC;
+	protected RelativePoint pointA;
+	protected RelativePoint pointB;
+	protected RelativePoint pointC;
+	
+	// Represents the orientation of the actual triangle. 
+	protected R3Point orientation;
+
+	protected RelativeTriangle() {
+		
+	}
 	
 	public RelativeTriangle(Triangle triangle, int shade) {
 		
-		pointA = triangle.getPointA();
-		pointB = triangle.getPointB();
-		pointC = triangle.getPointC();
-		
-		perceivedPointA = pointA;
-		perceivedPointB = pointB;
-		perceivedPointC = pointC;
+		pointA = new RelativePoint(triangle.getPointA());
+		pointB = new RelativePoint(triangle.getPointB());
+		pointC = new RelativePoint(triangle.getPointC());
+
+		orientation = triangle.getOrientation();
 		
 		this.shade = shade;
 	}
@@ -54,45 +55,21 @@ public class RelativeTriangle extends RelativeSimplex {
 	}
 
 	public void determineMostAndLeastForward() {
-		leastForward = Math.min(Math.min(perceivedPointA.getForward(), perceivedPointB.getForward()), perceivedPointC.getForward());
-		mostForward = Math.max(Math.max(perceivedPointA.getForward(), perceivedPointB.getForward()), perceivedPointC.getForward());
-	}
-
-	public int compareTo(RelativeTriangle triangle) {
-
-		if (!MiscFunctions.nearlyEquals(leastForward, triangle.leastForward)) {
-
-			if (leastForward < triangle.leastForward) {
-				return 1;
-			}
-			if (leastForward > triangle.leastForward) {
-				return -1;
-			}
-		}
-		
-		// Tie breaker
-		if (mostForward < triangle.mostForward) {
-			return 1;
-		}
-		if (mostForward > triangle.mostForward) {
-			return -1;
-		}
-
-		return 0;
-
+		leastForward = Math.min(Math.min(pointA.mostForward, pointB.mostForward), pointC.mostForward);
+		mostForward = Math.max(Math.max(pointA.mostForward, pointB.mostForward), pointC.mostForward);
 	}
 
 	public void updatePerspective(Observer observer) {
 		
-		perceivedPointA = observer.perspective(pointA);
-		perceivedPointB = observer.perspective(pointB);
-		perceivedPointC = observer.perspective(pointC);
+		pointA.updatePerspective(observer);
+		pointB.updatePerspective(observer);
+		pointC.updatePerspective(observer);
 		
 		determineMostAndLeastForward();
 	}
 	
 	public ZFigure viewedBy(Observer observer) {
-		return observer.triangleDefault(perceivedPointA, perceivedPointB, perceivedPointC, shade);	
+		return observer.triangleDefault(pointA.perceived, pointB.perceived, pointC.perceived, shade);	
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.
@@ -100,17 +77,15 @@ public class RelativeTriangle extends RelativeSimplex {
 		
 		R3Point vectorTail = new R3Point();
 
-		vectorTail.translate(pointA);
-		vectorTail.translate(pointB);
-		vectorTail.translate(pointC);
+		vectorTail.translate(pointA.getPoint());
+		vectorTail.translate(pointB.getPoint());
+		vectorTail.translate(pointC.getPoint());
 
 		vectorTail.scale(1 / (double) 3);
 
-		R3Point vectorTip = pointB.difference(pointA).cross(pointC.difference(pointA));
+		R3Point vectorTip = new R3Point(vectorTail);		
 		
-		vectorTip.normalize(R3Norm.EUCLIDIAN);
-		
-		vectorTip.translate(vectorTail);
+		vectorTip.translate(orientation);
 
 		return new RelativeLine(vectorTail, vectorTip);
 	}

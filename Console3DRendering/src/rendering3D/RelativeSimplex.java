@@ -11,9 +11,6 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	 * are lines, triangles, and possibly points. The point of this class
 	 * is to assist in rendering something which has both lines and triangles.
 	 */
-	
-	
-	int shade;
 
 	double leastForward;
 	double mostForward;

@@ -97,7 +97,17 @@ public class Observer {
 	}
 
 	// Everything past this point is drawing methods
-	
+
+	// Draws a point
+	public ZFigure point(R3Point p, int shade) {
+		
+		ZFigure point = new ZFigure();
+		
+		if (p.getForward() > Constants.EPSILON) {
+			point.add(p.project(fov, shade));
+		}
+		return point;
+	}
 	// Observer assumed to be in default state, p1 assumed to be further back than p2.
 	public ZFigure lineDefaultAuxiliary(R3Point p1, R3Point p2, int shade, int borderShade) {
 	

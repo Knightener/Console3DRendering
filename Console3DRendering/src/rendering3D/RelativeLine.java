@@ -8,26 +8,19 @@ public class RelativeLine extends RelativeSimplex {
 
 	/*
 	 * Lines require a second integer to specify the shade of it's border when
-	 * rendered. This is to make them clearly visible amongst triangles 
+	 * rendered. This is to make them clearly visible amongst triangles
 	 */
+	int shade;
 	private int borderShade;
 
-	// These fields are immutable and represent the actual position of the line.
-	private R3Point pointA;
-	private R3Point pointB;
-
-	// These fields are mutable and represent the perceived position of the line.
-	private R3Point perceivedPointA;
-	private R3Point perceivedPointB;
+	private RelativePoint pointA;
+	private RelativePoint pointB;
 
 	public RelativeLine(R3Point pointA, R3Point pointB, int shade, int borderShade) {
 
-		this.pointA = pointA;
-		this.pointB = pointB;
-
-		perceivedPointA = pointA;
-		perceivedPointB = pointB;
-
+		this.pointA = new RelativePoint(pointA);
+		this.pointB = new RelativePoint(pointB);
+		
 		this.shade = shade;
 		this.borderShade = borderShade;
 	}
@@ -37,19 +30,19 @@ public class RelativeLine extends RelativeSimplex {
 	}
 
 	public ZFigure viewedBy(Observer observer) {
-		return observer.lineDefault(perceivedPointA, perceivedPointB, shade, borderShade);
+		return observer.lineDefault(pointA.perceived, pointB.perceived, shade, borderShade);
 	}
 
 	public void determineMostAndLeastForward() {
 		
-		leastForward = Math.min(perceivedPointA.getForward(), perceivedPointB.getForward());
-		mostForward = Math.max(perceivedPointA.getForward(), perceivedPointB.getForward());
+		leastForward = Math.min(pointA.mostForward,pointB.mostForward);
+		mostForward = Math.max(pointA.mostForward,pointB.mostForward);
 	}
 
 	public void updatePerspective(Observer observer) {
-		
-		perceivedPointA = observer.perspective(pointA);
-		perceivedPointB = observer.perspective(pointB);
+
+		pointA.updatePerspective(observer);
+		pointB.updatePerspective(observer);
 		
 		determineMostAndLeastForward();
 	}
