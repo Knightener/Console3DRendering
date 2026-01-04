@@ -5,6 +5,8 @@ import functionalInterfaces.R2Metric;
 import functionalInterfaces.RealFunction;
 import other.Constants;
 import other.MiscFunctions;
+import zBuffered2DRendering.ZFigure;
+import zBuffered2DRendering.ZPixel;
 
 public class Image extends ImageBase {
 
@@ -399,7 +401,28 @@ public class Image extends ImageBase {
 		}
 	
 		return line;
-	
+	}
+
+	// Starts the line at leftBound if it crosses it
+	private Figure lWHRCut(Pixel p1, Pixel p2) {
+
+		int r1 = p1.getRight();
+		int r2 = p2.getRight();
+
+		if (r1 > leftBound) {
+			return lineWithoutHorizontalRepetition(p1, p2);
+		}
+		if (r2 > leftBound) {
+
+			int d1 = p1.getDown();
+			int d2 = p2.getDown();
+
+			Pixel start = new Pixel(leftBound, d1 + ((leftBound - r1) * (d2 - d1)) / (r2 - r1), p1.getShade());
+
+			return lineWithoutHorizontalRepetition(start, p2);
+		}
+
+		return new Figure();
 	}
 
 	/*
@@ -436,41 +459,15 @@ public class Image extends ImageBase {
 
 	// p1 is assumed to be the leftmost point and p3 is assumed to be rightmost.
 	public Figure jaggedTriangleAuxiliary(Pixel p1, Pixel p2, Pixel p3) {
-	
-		int r1 = p1.getRight();
-		int r2 = p2.getRight();
-		int r3 = p3.getRight();
-	
-		int d1 = p1.getDown();
-		int d2 = p2.getDown();
-		int d3 = p3.getDown();
-	
-		int shade = p1.getShade();
-	
+
 		Figure triangle = new Figure();
 	
-		/*
-		 * No part of the triangle is visible because the whole triangle is further
-		 * right [resp left] than the rightmost [resp leftmost] visible point.
-		 */
-		if (r1 > rightBound || r3 < leftBound) {
-	
-			return triangle;
-		}
-	
-		/*
-		 * If the method gets this far, the leftmost point must have a horizontal
-		 * component within the range visible by image.
-		 */
-		if (r1 > leftBound) {
-	
-			Figure line23 = lineWithoutHorizontalRepetition(p2, p3);
-			Figure line13 = lineWithoutHorizontalRepetition(p1, p3);
-			Figure line12 = lineWithoutHorizontalRepetition(p1, p2);
+			Figure line23 = lWHRCut(p2, p3);
+			Figure line13 = lWHRCut(p1, p3);
+			Figure line12 = lWHRCut(p1, p2);
 	
 			for (int i = 0; i < line12.size(); i++) {
 				triangle.add(verticalLine(line13.get(i), line12.get(i)));
-	
 			}
 	
 			for (int i = 0; i < line23.size(); i++) {
@@ -479,52 +476,6 @@ public class Image extends ImageBase {
 			}
 	
 			return triangle;
-		}
-	
-		/*
-		 * If the method gets this far, the leftmost point is outside the visible range
-		 * but the middle point is within it.
-		 */
-		if (r2 > leftBound) {
-	
-			Pixel start12 = new Pixel(leftBound, d1 + ((leftBound - r1) * (d2 - d1)) / (r2 - r1), shade);
-			Pixel start13 = new Pixel(leftBound, d1 + ((leftBound - r1) * (d3 - d1)) / (r3 - r1), shade);
-	
-			Figure line23 = lineWithoutHorizontalRepetition(p2, p3);
-			Figure line13 = lineWithoutHorizontalRepetition(start13, p3);
-			Figure line12 = lineWithoutHorizontalRepetition(start12, p2);
-	
-			for (int i = 0; i < line12.size(); i++) {
-				triangle.add(verticalLine(line13.get(i), line12.get(i)));
-	
-			}
-	
-			for (int i = 0; i < line23.size(); i++) {
-				triangle.add(verticalLine(line13.get(i + line12.size()), line23.get(i)));
-	
-			}
-	
-			return triangle;
-		}
-	
-		/*
-		 * If the method gets this far, only the rightmost point is within the visible
-		 * range.
-		 */
-	
-		Pixel start23 = new Pixel(leftBound, d2 + ((leftBound - r2) * (d3 - d2)) / (r3 - r2), shade);
-		Pixel start13 = new Pixel(leftBound, d1 + ((leftBound - r1) * (d3 - d1)) / (r3 - r1), shade);
-	
-		Figure line23 = lineWithoutHorizontalRepetition(start23, p3);
-		Figure line13 = lineWithoutHorizontalRepetition(start13, p3);
-	
-		for (int i = 0; i < line13.size(); i++) {
-			triangle.add(verticalLine(line13.get(i), line23.get(i)));
-	
-		}
-	
-		return triangle;
-	
 	}
 
 	/*
