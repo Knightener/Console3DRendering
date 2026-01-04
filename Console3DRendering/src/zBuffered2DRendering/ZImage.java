@@ -1,8 +1,12 @@
 package zBuffered2DRendering;
 
+import java.util.ArrayList;
+
+import functionalInterfaces.RealFunction;
 import other.MiscFunctions;
-import rendering2D.*;
-import functionalInterfaces.*;
+import rendering2D.Image;
+import rendering2D.ImageBase;
+import rendering2D.ShadeHandling;
 
 public class ZImage extends ImageBase {
 
@@ -200,7 +204,7 @@ public class ZImage extends ImageBase {
 	 * zStep is the slope delta zBuffer / delta right. This isn't calculated within the
 	 * method to optimize the polygon method. 
 	 */
-	public ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
+	private ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
 
 		ZFigure line = new ZFigure();
 
@@ -248,6 +252,33 @@ public class ZImage extends ImageBase {
 		}
 	
 		return line;
+	}
+	
+	// Cuts the line to start at leftBound if it crosses it
+	private ZFigure lWHRCut(ZPixel p1, ZPixel p2) {
+
+		int r1 = p1.getRight();
+		int r2 = p2.getRight();
+
+		if (r1 > leftBound) {
+			return lineWithoutHorizontalRepetition(p1,p2);
+		}
+		if (r2 > leftBound) {
+			
+			int d1 = p1.getDown();
+			int d2 = p2.getDown();
+
+			double z1 = p1.getZBuffer();
+			double z2 = p2.getZBuffer();
+			
+			double ratio = ((double)(leftBound - r1))/(r2-r1);
+			
+			ZPixel start = new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)), p1.getShade(), z1 + ratio * (z2 - z1));
+			
+			return lineWithoutHorizontalRepetition(start,p2);
+		}
+		
+		return new ZFigure();
 	}
 	
 	private ZFigure verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep) {
@@ -442,11 +473,11 @@ public class ZImage extends ImageBase {
 	 * All points assumed to be in the same plane and convex. Putting in any other
 	 * set of points may lead to visual artifacts.
 	 */
-	public ZFigure polygon(ZPixel[] points) {
+	public ZFigure polygon(ArrayList<ZPixel> points) {
 
 		double slope = 0;
 		
-		int length = points.length;
+		int length = points.size();
 
 		// Index of the left/right most points in the list of points
 		int leftMostIndex = 0;
@@ -454,61 +485,60 @@ public class ZImage extends ImageBase {
 
 		{
 			// Local variables that are only used to calculate the slope
-			int r1 = points[0].getRight();
-			int r2 = points[1].getRight();
-			int r3 = points[2].getRight();
+			int r1 = points.get(0).getRight();
+			int r2 = points.get(1).getRight();
+			int r3 = points.get(2).getRight();
 
-			int d1 = points[0].getDown();
-			int d2 = points[1].getDown();
-			int d3 = points[2].getDown();
+			int d1 = points.get(0).getDown();
+			int d2 = points.get(1).getDown();
+			int d3 = points.get(2).getDown();
 
-			double z1 = points[0].getZBuffer();
-			double z2 = points[1].getZBuffer();
-			double z3 = points[2].getZBuffer();
+			double z1 = points.get(0).getZBuffer();
+			double z2 = points.get(1).getZBuffer();
+			double z3 = points.get(2).getZBuffer();
 
 			/*
 			 * Slope of the line (delta zBuffer / delta down) formed by intersection of the
 			 * plane on which the polygon lies on and the plane(s) right = x for any x (it
 			 * is independent of x).
 			 */
-			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
-				((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
-			
+			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / ((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
+
 		}
 
 		// Finds leftMostIndex/rightMostIndex
 		for (int i = 1; i < length; i++) {
 
-			double curr = points[i].getRight();
+			double curr = points.get(i).getRight();
 
-			if (curr < points[leftMostIndex].getRight()) {
+			if (curr < points.get(leftMostIndex).getRight()) {
 				leftMostIndex = i;
 			}
 
-			if (curr > points[rightMostIndex].getRight()) {
+			if (curr > points.get(rightMostIndex).getRight()) {
 				rightMostIndex = i;
 			}
 
 		}
 
-		// Line formed when winding left->right through polygon
-		ZFigure leftRight = new ZFigure();
+		// Line formed when winding counter clockwise through polygon from leftMost to rightMost
+		ZFigure CounterClockWise = new ZFigure();
 
-		// Line formed when winding right->left through polygon
-		ZFigure rightLeft = new ZFigure();
+		// Line formed when winding clockwise through polygon from leftMost to rightMost
+		ZFigure ClockWise = new ZFigure();
 
 		for (int i = leftMostIndex; i % length != rightMostIndex; i++) {
-			leftRight.add(lineWithoutHorizontalRepetition(points[i], points[(i + 1) % length]));
+			ClockWise.add(lWHRCut(points.get(i), points.get((i + 1) % length)));
 		}
 
 		for (int i = leftMostIndex; i % length != rightMostIndex; i--) {
-			rightLeft.add(lineWithoutHorizontalRepetition(points[i], points[(i - 1) % length]));
+			CounterClockWise.add(lWHRCut(points.get(i), points.get((i - 1) % length)));
 		}
 
 		ZFigure polygon = new ZFigure();
 
-		for (int i = 0; i < rightLeft.size(); i++) {
-			polygon.add(verticalLine(rightLeft.get(i), leftRight.get(i), slope));
+		for (int i = 0; i < ClockWise.size(); i++) {
+			polygon.add(verticalLine(ClockWise.get(i), CounterClockWise.get(i), slope));
 		}
 
 		return polygon;
