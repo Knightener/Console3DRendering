@@ -87,35 +87,7 @@ public class ZImage extends ImageBase {
 	 */
 	private ZFigure borderedLineAux1(ZPixel p1, ZPixel p2, int borderShade) {
 
-		int r1 = p1.getRight();
-		int r2 = p2.getRight();
-
-		int d1 = p1.getDown();
-		int d2 = p2.getDown();
-
-		double z1 = p1.getZBuffer();
-		double z2 = p2.getZBuffer();
-
-		// Entire line is further to the left than the leftmost visible point
-		if (r2 < leftBound) {
-			return new ZFigure();
-		}
-		
-		ZPixel adjustedP1 = new ZPixel(p1);
-
-		/*
-		 * Intersects the left border with the line between p1 and p2 and uses the
-		 * intersection as a starting point for the line drawing method
-		 */
-		if (r1 < leftBound) {
-
-			double ratio12 = ((double) (leftBound - r1)) / (r2 - r1);
-
-			adjustedP1 = new ZPixel(leftBound, d1 + (int) (ratio12 * (d2 - d1)), p1.getShade(),
-				z1 + ratio12 * (z2 - z1));
-		}
-
-		ZFigure line = lineWithoutHorizontalRepetition(adjustedP1, p2);
+		ZFigure line = lWHRCut(p1, p2);
 
 		ZFigure borderedLine = new ZFigure();
 
@@ -316,49 +288,41 @@ public class ZImage extends ImageBase {
 
 	public ZFigure jaggedTriangleAuxiliary(ZPixel p1, ZPixel p2, ZPixel p3) {
 
-		int r1 = p1.getRight();
-		int r2 = p2.getRight();
-		int r3 = p3.getRight();
+		double slope = 0;
 
-		int d1 = p1.getDown();
-		int d2 = p2.getDown();
-		int d3 = p3.getDown();
-	
-		double z1 = p1.getZBuffer();
-		double z2 = p2.getZBuffer();
-		double z3 = p3.getZBuffer();
+		{
+			int r1 = p1.getRight();
+			int r2 = p2.getRight();
+			int r3 = p3.getRight();
 
-		int shade = p1.getShade();
-		
-		/*
-		 * This is just the slope of the line (delta zBuffer / delta down) formed by
-		 * intersection of the plane determined by the triangle and the plane(s) right =
-		 * x for any x (it is independent of x). The derivation is not particularly
-		 * interesting
-		 */
-		double slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1))
-			/ ((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
+			int d1 = p1.getDown();
+			int d2 = p2.getDown();
+			int d3 = p3.getDown();
 
+			double z1 = p1.getZBuffer();
+			double z2 = p2.getZBuffer();
+			double z3 = p3.getZBuffer();
+
+			/*
+			 * This is just the slope of the line (delta zBuffer / delta down) formed by
+			 * intersection of the plane determined by the triangle and the plane(s) right =
+			 * x for any x (it is independent of x). The derivation is not particularly
+			 * interesting
+			 */
+			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
+				((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
+
+		}
 		ZFigure triangle = new ZFigure();
 
-		/*
-		 * No part of the triangle is visible because the whole triangle is further
-		 * right [resp left] than the rightmost [resp leftmost] visible point.
-		 */
-		if (r1 > rightBound || r3 < leftBound) {
-	
-			return triangle;
-		}
-	
 		/*
 		 * If the method gets this far, the leftmost point must have a horizontal
 		 * component within the range visible by image.
 		 */
-		if (r1 > leftBound) {
 
-			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3);
-			ZFigure line13 = lineWithoutHorizontalRepetition(p1, p3);
-			ZFigure line12 = lineWithoutHorizontalRepetition(p1, p2);
+			ZFigure line23 = lWHRCut(p2, p3);
+			ZFigure line13 = lWHRCut(p1, p3);
+			ZFigure line12 = lWHRCut(p1, p2);
 
 			for (int i = 0; i < line12.size(); i++) {
 				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
@@ -371,72 +335,7 @@ public class ZImage extends ImageBase {
 			}
 
 			return triangle;
-		}
 
-		/*
-		 * If the method gets this far, the leftmost point is outside the visible range
-		 * but the middle point is within it.
-		 */
-		if (r2 > leftBound) {
-
-			double ratio12 = ((double)(leftBound - r1))/(r2-r1);
-			double ratio13 = ((double)(leftBound - r1))/(r3-r1);
-
-			/*
-			 * This is the intersection of the line formed by p1 and p2 and the plane right
-			 * = leftBound. Note that truncating here warps the triangle a little bit. This
-			 * isn't a huge problem, however, as the effect diminishes significantly with
-			 * the size of the image
-			 */
-			ZPixel start12 = new ZPixel(leftBound, d1 + (int) (ratio12 * (d2 - d1)), shade, z1 + ratio12 * (z2 - z1));
-
-			/*
-			 * This is the intersection of the line formed by p1 and p3 and the plane right
-			 * = leftBound
-			 */
-			ZPixel start13 = new ZPixel(leftBound, d1 + (int) (ratio13 * (d3 - d1)), 
-				shade, z1 + ratio13 * (z3 - z1));
-
-			ZFigure line23 = lineWithoutHorizontalRepetition(p2, p3);
-			ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3);
-			ZFigure line12 = lineWithoutHorizontalRepetition(start12, p2);
-
-			for (int i = 0; i < line12.size(); i++) {
-				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
-			}
-	
-			for (int i = 0; i < line23.size(); i++) {
-				triangle.add(verticalLine(line13.get(i + line12.size()), line23.get(i), slope));
-	
-			}
-	
-			return triangle;
-		}
-	
-		/*
-		 * If the method gets this far, only the rightmost point is within the visible
-		 * range.
-		 */
-
-		// Idea here similar to the previous case.
-		double ratio23 = ((double) (leftBound - r2)) / (r3 - r2);
-		double ratio13 = ((double) (leftBound - r1)) / (r3 - r1);
-
-		ZPixel start23 = new ZPixel(leftBound, d2 + (int) (ratio23 * (d3 - d2)), 
-			shade, z2 + ratio23 * (z3 - z2));
-
-		ZPixel start13 = new ZPixel(leftBound, d1 + (int) (ratio13 * (d3 - d1)), 
-			shade, z1 + ratio13 * (z3 - z1));
-
-		ZFigure line23 = lineWithoutHorizontalRepetition(start23, p3);
-		ZFigure line13 = lineWithoutHorizontalRepetition(start13, p3);
-
-		for (int i = 0; i < line13.size(); i++) {
-			triangle.add(verticalLine(line13.get(i), line23.get(i), slope));
-
-		}
-
-		return triangle;
 	}
 
 	/*
