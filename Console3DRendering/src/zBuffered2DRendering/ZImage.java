@@ -37,7 +37,9 @@ public class ZImage extends ImageBase {
 		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				image.setShade(j, i, shadeHandling.determineShade(sigmoid.f(zBuffer[i][j])));				
+				if (zBuffer[i][j] != 0)  {
+				image.setShade(j+leftBound, i+upBound, shadeHandling.determineShade(sigmoid.f(zBuffer[i][j])));			
+				}
 			}
 		}
 		
@@ -194,6 +196,9 @@ public class ZImage extends ImageBase {
 	/*
 	 * Similar to the method of the same name in the image class, but the zBuffer is
 	 * linearly interpolated between points.
+	 * 
+	 * zStep is the slope delta zBuffer / delta right. This isn't calculated within the
+	 * method to optimize the polygon method. 
 	 */
 	public ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
 
@@ -219,7 +224,7 @@ public class ZImage extends ImageBase {
 		int excess = downDist % rightDist;
 	
 		int currMod = excess;
-		
+
 		// Horizontal length of the visible line.
 		int visibleLength = Math.min(rightDist, rightBound - p1.getRight());
 		
@@ -367,7 +372,6 @@ public class ZImage extends ImageBase {
 
 			for (int i = 0; i < line12.size(); i++) {
 				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
-	
 			}
 	
 			for (int i = 0; i < line23.size(); i++) {
@@ -405,8 +409,7 @@ public class ZImage extends ImageBase {
 	}
 
 	/*
-	 * Similar to the method of the same name in the Image class. zBuffer value is
-	 * interpolated linearly for the points between p1, p2, p3
+	 * zBuffer value is interpolated linearly for the points between p1, p2, p3
 	 */
 	public ZFigure jaggedTriangle(ZPixel p1, ZPixel p2, ZPixel p3) {
 
@@ -432,6 +435,83 @@ public class ZImage extends ImageBase {
 		return jaggedTriangleAuxiliary(p3, p2, p1);
 		
 	}
-	
-	
+
+	/*
+	 * Renders a polygon specified by points.
+	 * 
+	 * All points assumed to be in the same plane and convex. Putting in any other
+	 * set of points may lead to visual artifacts.
+	 */
+	public ZFigure polygon(ZPixel[] points) {
+
+		double slope = 0;
+		
+		int length = points.length;
+
+		// Index of the left/right most points in the list of points
+		int leftMostIndex = 0;
+		int rightMostIndex = 0;
+
+		{
+			// Local variables that are only used to calculate the slope
+			int r1 = points[0].getRight();
+			int r2 = points[1].getRight();
+			int r3 = points[2].getRight();
+
+			int d1 = points[0].getDown();
+			int d2 = points[1].getDown();
+			int d3 = points[2].getDown();
+
+			double z1 = points[0].getZBuffer();
+			double z2 = points[1].getZBuffer();
+			double z3 = points[2].getZBuffer();
+
+			/*
+			 * Slope of the line (delta zBuffer / delta down) formed by intersection of the
+			 * plane on which the polygon lies on and the plane(s) right = x for any x (it
+			 * is independent of x).
+			 */
+			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
+				((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
+			
+		}
+
+		// Finds leftMostIndex/rightMostIndex
+		for (int i = 1; i < length; i++) {
+
+			double curr = points[i].getRight();
+
+			if (curr < points[leftMostIndex].getRight()) {
+				leftMostIndex = i;
+			}
+
+			if (curr > points[rightMostIndex].getRight()) {
+				rightMostIndex = i;
+			}
+
+		}
+
+		// Line formed when winding left->right through polygon
+		ZFigure leftRight = new ZFigure();
+
+		// Line formed when winding right->left through polygon
+		ZFigure rightLeft = new ZFigure();
+
+		for (int i = leftMostIndex; i % length != rightMostIndex; i++) {
+			leftRight.add(lineWithoutHorizontalRepetition(points[i], points[(i + 1) % length]));
+		}
+
+		for (int i = leftMostIndex; i % length != rightMostIndex; i--) {
+			rightLeft.add(lineWithoutHorizontalRepetition(points[i], points[(i - 1) % length]));
+		}
+
+		ZFigure polygon = new ZFigure();
+
+		for (int i = 0; i < rightLeft.size(); i++) {
+			polygon.add(verticalLine(rightLeft.get(i), leftRight.get(i), slope));
+		}
+
+		return polygon;
+	}
+
 }

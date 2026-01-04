@@ -82,7 +82,6 @@ public class Observer {
 	}
 
 	// Added because it feels more natural to have the observer "act on" the simplex.
-	
 	public void updatePerspective(RelativeSimplex simplex) {
 		simplex.updatePerspective(this);
 	}

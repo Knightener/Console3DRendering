@@ -50,6 +50,5 @@ public class LightSource {
 		return shadeHandling.determineShade(alignment(triangle));
 	}
 	
-
 }
 

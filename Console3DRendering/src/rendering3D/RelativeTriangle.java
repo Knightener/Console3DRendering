@@ -3,8 +3,6 @@ package rendering3D;
 import classes3D.LightSource;
 import classes3D.R3Point;
 import classes3D.Triangle;
-import functionalInterfaces.R3Norm;
-import other.MiscFunctions;
 import rendering2D.ShadeHandling;
 import zBuffered2DRendering.ZFigure;
 

@@ -1,5 +1,7 @@
 package other;
 
+import java.util.ArrayList;
+
 public class MiscFunctions {
 	public static int nthDigit(int num, int n) {
 		num = Math.abs(num);
@@ -68,7 +70,7 @@ public class MiscFunctions {
 	}
 
 	//Java's default modulus returns a negative number when a is negative for some reason.
-	public static double mod(double a, double n) {
+	public static int mod(int a, int n) {
 		if (a >= 0) {
 			return a % n;
 		} else {
@@ -95,5 +97,13 @@ public class MiscFunctions {
 	public static boolean nearlyEquals(double a, double b) {
 		return Math.abs(a - b) < Constants.EPSILON;
 	}
-	
+
+	// When index is out of bounds, returns the element at that index mod length
+	public static <T> T cyclicGet(T[] arr, int index) {
+		return arr[mod(index, arr.length)];
+	}
+
+	public static <T> T cyclicGet(ArrayList<T> arr, int index) {
+		return arr.get(mod(index, arr.size()));
+	}
 }
