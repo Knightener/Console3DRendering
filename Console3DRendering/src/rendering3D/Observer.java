@@ -1,5 +1,7 @@
 package rendering3D;
 
+import java.util.ArrayList;
+
 import classes2D.R2Point;
 import classes3D.R3Matrix;
 import classes3D.R3Point;
@@ -124,11 +126,7 @@ public class Observer {
 		}
 		
 		if (f2 > Constants.EPSILON) {
-
-			double ratio = f1 / (f1 - f2);
-
-			// Intersection between the line from p1 and p2 and the plane forward = 0
-			R3Point start = new R3Point(r1 + ratio * (r2 - r1), d1 + ratio * (d2 - d1), Constants.EPSILON);
+			R3Point start = p1.forward0Intersection(p2);
 
 			return view.borderedLine(start.project(fov,shade),p2.project(fov,shade), borderShade);
 	
@@ -275,6 +273,34 @@ public class Observer {
 	
 		return triangleDefault(perspective(p1), perspective(p2), perspective(p3), shade);
 		
+	}
+
+	/* Points assumed to lie on a plane. Will lead to visual artifacts otherwise */
+	public ZFigure polygon(ArrayList<R3Point> points, int shade) {
+
+		ArrayList<ZPixel> viewedPolygon = new ArrayList<ZPixel>();
+
+		int length = points.size();
+
+		for (int i = 0; i < length; i++) {
+
+			R3Point curr = points.get(i);
+			R3Point next = points.get((i + 1)%length);
+
+			double currF = curr.getForward();
+			double nextF = next.getForward();
+
+			if (currF > Constants.EPSILON) {
+				viewedPolygon.add(curr.project(fov, shade));
+			}
+
+			// If currF and nextF differ in sign, this intersection is added.
+			if (currF > Constants.EPSILON ^ nextF > Constants.EPSILON) {
+				viewedPolygon.add(curr.forward0Intersection(next).project(fov, shade));
+			}
+		}
+
+		return view.polygon(viewedPolygon);
 	}
 
 	public void renderDirectly(RelativeSimplex simplex) {

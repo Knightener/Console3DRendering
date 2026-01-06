@@ -116,6 +116,23 @@ public class R3Point {
 		return "(" + right + "," + down + "," + forward + ")";
 	}
 
+	/*
+	 * Intersects the the line formed by this and point with the plane forward =
+	 * epsilon. This is a commonly used expression for 3D rendering.
+	 */
+	public R3Point forward0Intersection(R3Point point) {
+
+		double ratio = forward / (forward - point.forward);
+
+		/*
+		 * This is very slightly off the actual intersection point, however, the
+		 * difference is negligible in most cases
+		 */
+		return new R3Point(right + ratio * (point.right - right), down + ratio * (point.down - down),
+				Constants.EPSILON);
+
+	}
+
 	public void normalize(R3Norm norm) {
 		scale(1 / norm.n(this));
 	}
@@ -144,7 +161,6 @@ public class R3Point {
 		this.forward = forward;
 	}
 	
-
 	public R3Point(R3Point point) {
 		right = point.right;
 		down = point.down;

@@ -373,11 +373,17 @@ public class ZImage extends ImageBase {
 	 * set of points may lead to visual artifacts.
 	 */
 	public ZFigure polygon(ArrayList<ZPixel> points) {
+		
 
-		double slope = 0;
 		
 		int length = points.size();
 
+		if (length < 3) {
+			return new ZFigure();
+		}
+		
+		double slope = 0;
+		
 		// Index of the left/right most points in the list of points
 		int leftMostIndex = 0;
 		int rightMostIndex = 0;
@@ -420,18 +426,19 @@ public class ZImage extends ImageBase {
 
 		}
 
-		// Line formed when winding counter clockwise through polygon from leftMost to rightMost
+		// Line formed when winding counter clockwise through polygon from leftMost to
+		// rightMost
 		ZFigure CounterClockWise = new ZFigure();
 
 		// Line formed when winding clockwise through polygon from leftMost to rightMost
 		ZFigure ClockWise = new ZFigure();
 
-		for (int i = leftMostIndex; i % length != rightMostIndex; i++) {
+		for (int i = leftMostIndex; i != rightMostIndex; i = (i + 1) % length) {
 			ClockWise.add(lWHRCut(points.get(i), points.get((i + 1) % length)));
 		}
 
-		for (int i = leftMostIndex; i % length != rightMostIndex; i--) {
-			CounterClockWise.add(lWHRCut(points.get(i), points.get((i - 1) % length)));
+		for (int i = leftMostIndex; i != rightMostIndex; i = MiscFunctions.mod((i - 1), length)) {
+			CounterClockWise.add(lWHRCut(points.get(i), points.get(MiscFunctions.mod((i - 1), length))));
 		}
 
 		ZFigure polygon = new ZFigure();
