@@ -130,6 +130,7 @@ public class Observer {
 
 			return view.borderedLine(start.project(fov,shade),p2.project(fov,shade), borderShade);
 	
+			
 		}
 
 		return new ZFigure();

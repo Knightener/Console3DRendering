@@ -28,8 +28,8 @@ public class Form {
 
 			RelativeSimplex curr = components.get(i);
 
-			if (curr instanceof RelativeTriangle) {
-				components.add(((RelativeTriangle) curr).getUnitNormal());
+			if (curr instanceof RelativePolygon) {
+				components.add(((RelativePolygon) curr).getUnitNormal());
 			}
 		}
 	}
