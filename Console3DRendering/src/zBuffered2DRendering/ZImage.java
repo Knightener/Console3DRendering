@@ -443,8 +443,17 @@ public class ZImage extends ImageBase {
 
 		ZFigure polygon = new ZFigure();
 
+		/*
+		 * In most cases, clockwise and counterclockwise will have equal lengths.
+		 * However, there are rare edge cases where they aren't, so to avoid the code
+		 * halting I have added a try-catch block
+		 */
 		for (int i = 0; i < ClockWise.size(); i++) {
-			polygon.add(verticalLine(ClockWise.get(i), CounterClockWise.get(i), slope));
+			try {
+				polygon.add(verticalLine(ClockWise.get(i), CounterClockWise.get(i), slope));
+			} catch (IndexOutOfBoundsException e) {
+				break;
+			}
 		}
 
 		return polygon;

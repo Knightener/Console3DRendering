@@ -133,6 +133,16 @@ public class R3Point {
 
 	}
 
+	/*
+	 * Returns the linear combination s*v1 + t*v2. This is one of those methods that
+	 * can be generalized much further with relative ease, however, I don't see
+	 * myself needing much more than a linear combination of two 3D vectors for this
+	 * project.
+	 */
+	public static R3Point linearCombination(double s, double t, R3Point v1, R3Point v2) {
+		return new R3Point(s * v1.right + t * v2.right, s * v1.down + t * v2.down, s * v1.forward + t * v2.forward);
+	}
+
 	public void normalize(R3Norm norm) {
 		scale(1 / norm.n(this));
 	}

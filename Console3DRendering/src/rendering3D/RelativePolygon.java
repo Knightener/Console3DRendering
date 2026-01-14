@@ -1,83 +1,88 @@
 package rendering3D;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import classes2D.R2Point;
 import classes3D.LightSource;
 import classes3D.R3Point;
 import classes3D.Triangle;
 import functionalInterfaces.R3Norm;
-import other.MiscFunctions;
-import rendering2D.ShadeHandling;
 import zBuffered2DRendering.ZFigure;
 
 public class RelativePolygon extends RelativeSimplex {
 
 	int shade;
 
-	protected ArrayList<R3Point> points;
+	/*
+	 * Stores the points using two variables u and v representing their position on
+	 * the plane. Rotation and translation invariant
+	 */
+	protected ArrayList<R2Point> uVPoints;
+
+	// Stores the vertices of the polygon as viewed by the observer.
 	protected ArrayList<R3Point> perceivedPoints;
-	
+
 	// Represents the orientation of the actual polygon.
 	protected R3Point orientation;
 
+	// Represents the offset of the plane the polygon lies on from the origin
+	protected R3Point offset;
+
+	// Vectors that specify the directions of the plane. Forms an orthogonal basis with orientation.
+	protected R3Point vectorA;
+	protected R3Point vectorB;
+
+	protected R3Point perceivedOffset;
+	protected R3Point perceivedVectorA;
+	protected R3Point perceivedVectorB;
+	
 	protected RelativePolygon() {
 
 	}
 
 	/*
-	 * Polygon assumed to lie entirely on some plane and be convex. The latter
-	 * condition would be quite expensive to check an throw an exception for, so it
-	 * is not checked. However, adding a non convex polygon would lead to visual
-	 * artifacts.
+	 * Polygon assumed to lie entirely on some plane and be convex. 
 	 */
-	public RelativePolygon(ArrayList<R3Point> points, int shade) {
+	public RelativePolygon(List<R3Point> points, int shade) {
 
 		if (points.size() < 3) {
 			throw new IllegalArgumentException("Polygon must have at least 3 points");
 		}
 
-		this.points = new ArrayList<R3Point>(points);
+		this.shade = shade;
+		
 		this.perceivedPoints = new ArrayList<R3Point>(points);
 		
-		orientation = points.get(1).difference(points.get(0)).cross(points.get(2).difference(points.get(0)));
+		offset = points.get(0);
+		
+		vectorA = points.get(1).difference(offset);
+		
+		orientation = vectorA.cross(points.get(2).difference(offset));
 		
 		orientation.normalize(R3Norm.EUCLIDIAN);
+		vectorA.normalize(R3Norm.EUCLIDIAN);
+
+		vectorB = vectorA.cross(orientation);
+
+		uVPoints = new ArrayList<R2Point>();
+
+		perceivedVectorA = new R3Point(vectorA);
+		perceivedVectorB = new R3Point(vectorB);
+		perceivedOffset = new R3Point(offset);
 		
-		// Checks if the polygon lies on a plane. 
-		for (int i = 3; i < points.size(); i++) {
-			if (!MiscFunctions.nearlyEquals(orientation.dot(points.get(i)), 0)) {
-				
-				throw new IllegalArgumentException("Polygon must lie on a plane");
-			}
-		}
-		
-	}
+		for (int i = 0; i < points.size(); i++) {
 
-	public RelativePolygon(Triangle triangle, int shade) {
-
-		points = new ArrayList<R3Point>();
-
-		points.add(new R3Point(triangle.getPointA()));
-		points.add(new R3Point(triangle.getPointB()));
-		points.add(new R3Point(triangle.getPointC()));
-
-		perceivedPoints = new ArrayList<R3Point>(points);
-		
-		orientation = triangle.getOrientation();
-
-		this.shade = shade;
-	}
-
-	public RelativePolygon(Triangle triangle, LightSource lightSource) {
-		this(triangle, lightSource.shade(triangle));
+			R3Point adjusted = points.get(i).difference(offset);
+			
+			uVPoints.add(new R2Point(adjusted.dot(vectorA),adjusted.dot(vectorB)));
+			
+		}	
 	}
 
 	public RelativePolygon(R3Point pointA, R3Point pointB, R3Point pointC, int shade) {
-		this(new Triangle(pointA, pointB, pointC), shade);
-	}
-
-	public RelativePolygon(R3Point pointA, R3Point pointB, R3Point pointC, LightSource lightSource) {
-		this(new Triangle(pointA, pointB, pointC), lightSource);
+		this(Arrays.asList(pointA, pointB, pointC), shade);
 	}
 
 	public void determineMostAndLeastForward() {
@@ -87,9 +92,9 @@ public class RelativePolygon extends RelativeSimplex {
 
 		double currForward;
 
-		for (int i = 1; i < points.size(); i++) {
+		for (int i = 1; i < perceivedPoints.size(); i++) {
 
-			currForward = points.get(i).getForward();
+			currForward = perceivedPoints.get(i).getForward();
 
 			if (currForward > mostForward) {
 				mostForward = currForward;
@@ -100,31 +105,48 @@ public class RelativePolygon extends RelativeSimplex {
 	}
 
 	public void updatePerspective(Observer observer) {
-		
-		
-		for(int i = 0; i < points.size(); i++) {
-			perceivedPoints.set(i, observer.perspective(points.get(i)));
+
+		perceivedVectorA = observer.rotate(vectorA);
+		perceivedVectorB = observer.rotate(vectorB);
+		perceivedOffset = observer.perspective(offset);
+
+		R2Point curr;
+
+		for (int i = 0; i < uVPoints.size(); i++) {
+			curr = uVPoints.get(i);
+
+			perceivedPoints.set(i,
+				R3Point.linearCombination(curr.getRight(), curr.getDown(), perceivedVectorA, perceivedVectorB));
 		}
-		
+
+		for (R3Point point : perceivedPoints) {
+			point.translate(perceivedOffset);
+		}
+
 	}
-	
+
 	public ZFigure viewedBy(Observer observer) {
-		return observer.polygon(perceivedPoints, shade);	
+		return observer.polygon(perceivedPoints, shade);
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.
 	public RelativeLine getUnitNormal() {
-		
-		R3Point vectorTail = new R3Point();
 
-		for (R3Point point : points) {
-			vectorTail.translate(point);
+		R2Point uVVectorTail = new R2Point();
+
+		for (R2Point point : uVPoints) {
+			uVVectorTail.translate(point);
 		}
 
-		vectorTail.scale(1 / (double) points.size());
+		uVVectorTail.scale(1 / (double) uVPoints.size());
 
-		R3Point vectorTip = new R3Point(vectorTail);		
+		R3Point vectorTail = R3Point.linearCombination(
+			uVVectorTail.getRight(), uVVectorTail.getDown(), vectorA, vectorB);
 		
+		vectorTail.translate(offset);
+		
+		R3Point vectorTip = new R3Point(vectorTail);
+
 		vectorTip.translate(orientation);
 
 		return new RelativeLine(vectorTail, vectorTip);

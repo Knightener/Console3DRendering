@@ -20,7 +20,7 @@ public class Observer {
 	R3Point position;
 	
 	// Stored for convenience
-	R3Point negativePosition;
+	R3Point negativeRotatedPosition;
 
 	/*
 	 * The rotation matrix that will be applied to points when they are observed.
@@ -50,8 +50,6 @@ public class Observer {
 		}
 		this.view = view;
 		this.position = position;
-		this.negativePosition = new R3Point(position);
-		negativePosition.scale(-1);
 		this.fov = fov;
 
 		double sinT = Math.sin(theta);
@@ -62,6 +60,9 @@ public class Observer {
 		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, 
 			-cosT * sinP, cosT * cosP);
 
+		this.negativeRotatedPosition = new R3Point(position);
+		negativeRotatedPosition.scale(-1);
+		negativeRotatedPosition = rotation.transform(negativeRotatedPosition);
 	}
 
 	public R2Point lookAt(R3Point point) {
@@ -72,12 +73,12 @@ public class Observer {
 	public R3Point perspective(R3Point point) {
 		return rotation.transform(point.difference(position));
 	}
-
-	// Updates the point to be relative from the observer
-	public void updatePerspective(R3Point point) {
-		point.translate(negativePosition);
-		rotation.updateTransform(point);
+	
+	// Rotates the point via the observer's rotation matrix
+	public R3Point rotate(R3Point point) {
+		return rotation.transform(point);
 	}
+
 
 	public ZImage getView() {
 		return view;
