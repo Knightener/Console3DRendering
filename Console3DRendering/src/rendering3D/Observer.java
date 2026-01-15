@@ -19,9 +19,6 @@ public class Observer {
 
 	R3Point position;
 	
-	// Stored for convenience
-	R3Point negativeRotatedPosition;
-
 	/*
 	 * The rotation matrix that will be applied to points when they are observed.
 	 * 
@@ -60,9 +57,6 @@ public class Observer {
 		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, 
 			-cosT * sinP, cosT * cosP);
 
-		this.negativeRotatedPosition = new R3Point(position);
-		negativeRotatedPosition.scale(-1);
-		negativeRotatedPosition = rotation.transform(negativeRotatedPosition);
 	}
 
 	public R2Point lookAt(R3Point point) {

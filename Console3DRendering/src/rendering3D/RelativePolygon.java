@@ -15,6 +15,10 @@ public class RelativePolygon extends RelativeSimplex {
 
 	int shade;
 
+	// Unique integer assigned to each polygon.
+	private int ID;
+	
+	private static int currentGreatestID = 1;
 	/*
 	 * Stores the points using two variables u and v representing their position on
 	 * the plane. Rotation and translation invariant
@@ -72,6 +76,8 @@ public class RelativePolygon extends RelativeSimplex {
 		perceivedVectorB = new R3Point(vectorB);
 		perceivedOffset = new R3Point(offset);
 		
+		ID = currentGreatestID++;
+		
 		for (int i = 0; i < points.size(); i++) {
 
 			R3Point adjusted = points.get(i).difference(offset);
@@ -85,6 +91,10 @@ public class RelativePolygon extends RelativeSimplex {
 		this(Arrays.asList(pointA, pointB, pointC), shade);
 	}
 
+	public int getID() {
+		return ID;
+	}
+	
 	public void determineMostAndLeastForward() {
 		
 		mostForward = perceivedPoints.get(0).getForward();

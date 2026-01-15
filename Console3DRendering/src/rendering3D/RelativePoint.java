@@ -30,5 +30,5 @@ public class RelativePoint extends RelativeSimplex {
 	public ZFigure viewedBy(Observer observer) {
 		return observer.point(perceived, ShadeHandling.getMaxPossibleShade());
 	}
-	
+
 }

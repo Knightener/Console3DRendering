@@ -14,7 +14,9 @@ public abstract class ImageBase {
 	 * account for the Z buffer. Although the changes to the methods are minor, they
 	 * cannot be implemented using only the output of the original drawing methods.
 	 */
-	protected int[][] image;
+
+	protected int[][] image;	
+	
 	protected int imageRows;
 	protected int imageCols;
 
@@ -99,7 +101,7 @@ public abstract class ImageBase {
 	 * 
 	 * The cleaner way to do this would be to make an ImageBorders class and put all
 	 * the drawing methods over there, but unfortunately Java's lack of multiple
-	 * inheritance stops of from doing this.
+	 * inheritance stops us from doing this.
 	 */
 	protected ImageBase() {
 

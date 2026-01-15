@@ -17,10 +17,15 @@ public class ZImage extends ImageBase {
 	 */
 	double[][] zBuffer;
 
+	/*
+	 * Stores the ID of the polygon from which the pixel came from. 0 if the pixel
+	 * did not come from a polygon.
+	 */
+	int[][] polygonID;
+
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
 		super(leftEnd, rightEnd, upEnd, downEnd);
 		zBuffer = new double[imageRows][imageCols];
-		
 
 	}
 
