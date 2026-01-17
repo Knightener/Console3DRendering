@@ -13,36 +13,45 @@ public class RelativeLine extends RelativeSimplex {
 	int shade;
 	private int borderShade;
 
-	private RelativePoint pointA;
-	private RelativePoint pointB;
+	private R3Point pointA;
+	private R3Point pointB;
+	
+	private R3Point perceivedA;
+	private R3Point perceivedB;
 
-	public RelativeLine(R3Point pointA, R3Point pointB, int shade, int borderShade) {
+	public RelativeLine(R3Point pointA, R3Point pointB, int shade, int borderShade, Observer observer) {
 
-		this.pointA = new RelativePoint(pointA);
-		this.pointB = new RelativePoint(pointB);
+		super(observer);
+		
+		this.pointA = pointA;
+		this.pointB = pointB;
 		
 		this.shade = shade;
 		this.borderShade = borderShade;
+		
+		updatePerspective();
 	}
 
-	public RelativeLine(R3Point pointA, R3Point pointB) {
-		this(pointA, pointB, ShadeHandling.getMaxPossibleShade(), 0);
+	public RelativeLine(R3Point pointA, R3Point pointB, Observer observer) {
+		this(pointA, pointB, ShadeHandling.getMaxPossibleShade(), 0, observer);
 	}
 
-	public ZFigure viewedBy(Observer observer) {
-		return observer.lineDefault(pointA.perceived, pointB.perceived, shade, borderShade);
+	public ZFigure viewed() {
+		return getObserver().lineDefault(perceivedA, perceivedB, shade, borderShade);
 	}
 
 	public void determineMostAndLeastForward() {
 		
-		leastForward = Math.min(pointA.mostForward,pointB.mostForward);
-		mostForward = Math.max(pointA.mostForward,pointB.mostForward);
+		leastForward = Math.min(perceivedA.getForward(),perceivedB.getForward());
+		mostForward = Math.max(perceivedA.getForward(),perceivedB.getForward());
 	}
 
-	public void updatePerspective(Observer observer) {
+	public void updatePerspective() {
 
-		pointA.updatePerspective(observer);
-		pointB.updatePerspective(observer);
+		Observer observer = getObserver();
+		
+		perceivedA = observer.perspective(pointA);
+		perceivedB = observer.perspective(pointB);
 		
 		determineMostAndLeastForward();
 	}

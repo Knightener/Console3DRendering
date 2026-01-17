@@ -9,6 +9,11 @@ public class Form {
 		this.components = components;
 	}
 
+	public void updatePerspective() {
+		for (RelativeSimplex component : components) {
+			component.updatePerspective();
+		}
+	}
 	/*
 	 * The further forward simplexes are rendered first, so the closer simplexes
 	 * overlap them.

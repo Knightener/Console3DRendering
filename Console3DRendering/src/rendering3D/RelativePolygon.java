@@ -2,12 +2,11 @@ package rendering3D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import classes2D.R2Point;
-import classes3D.LightSource;
 import classes3D.R3Point;
-import classes3D.Triangle;
 import functionalInterfaces.R3Norm;
 import zBuffered2DRendering.ZFigure;
 
@@ -15,10 +14,6 @@ public class RelativePolygon extends RelativeSimplex {
 
 	int shade;
 
-	// Unique integer assigned to each polygon.
-	private int ID;
-	
-	private static int currentGreatestID = 1;
 	/*
 	 * Stores the points using two variables u and v representing their position on
 	 * the plane. Rotation and translation invariant
@@ -42,15 +37,21 @@ public class RelativePolygon extends RelativeSimplex {
 	protected R3Point perceivedVectorA;
 	protected R3Point perceivedVectorB;
 	
-	protected RelativePolygon() {
-
-	}
+	/*
+	 * perceivedVectorA/B's forward component multiplied by the FOV of whatever
+	 * observer is associated with this polygon. These three variables are stored to
+	 * cut down multiplications for the findUV method.
+	 */
+	private double v13F;
+	private double v23F;
 
 	/*
 	 * Polygon assumed to lie entirely on some plane and be convex. 
 	 */
-	public RelativePolygon(List<R3Point> points, int shade) {
+	public RelativePolygon(List<R3Point> points, int shade, Observer observer) {
 
+		super(observer);
+		
 		if (points.size() < 3) {
 			throw new IllegalArgumentException("Polygon must have at least 3 points");
 		}
@@ -72,29 +73,32 @@ public class RelativePolygon extends RelativeSimplex {
 
 		uVPoints = new ArrayList<R2Point>();
 
-		perceivedVectorA = new R3Point(vectorA);
-		perceivedVectorB = new R3Point(vectorB);
-		perceivedOffset = new R3Point(offset);
-		
-		ID = currentGreatestID++;
-		
 		for (int i = 0; i < points.size(); i++) {
 
 			R3Point adjusted = points.get(i).difference(offset);
-			
-			uVPoints.add(new R2Point(adjusted.dot(vectorA),adjusted.dot(vectorB)));
-			
-		}	
+
+			uVPoints.add(new R2Point(adjusted.dot(vectorA), adjusted.dot(vectorB)));
+
+		}
+		
+		updatePerspective();
+		updateVN3F();
+
+		
 	}
 
-	public RelativePolygon(R3Point pointA, R3Point pointB, R3Point pointC, int shade) {
-		this(Arrays.asList(pointA, pointB, pointC), shade);
+	public RelativePolygon(R3Point pointA, R3Point pointB, R3Point pointC, int shade, Observer observer) {
+		this(Arrays.asList(pointA, pointB, pointC), shade, observer);
 	}
 
-	public int getID() {
-		return ID;
+	private void updateVN3F() {
+		
+		Observer observer = getObserver();
+		
+		v13F = perceivedVectorA.getForward()*observer.getFov();
+		v23F = perceivedVectorB.getForward()*observer.getFov();
+		
 	}
-	
 	public void determineMostAndLeastForward() {
 		
 		mostForward = perceivedPoints.get(0).getForward();
@@ -114,8 +118,10 @@ public class RelativePolygon extends RelativeSimplex {
 		}
 	}
 
-	public void updatePerspective(Observer observer) {
+	public void updatePerspective() {
 
+		Observer observer = getObserver();
+		
 		perceivedVectorA = observer.rotate(vectorA);
 		perceivedVectorB = observer.rotate(vectorB);
 		perceivedOffset = observer.perspective(offset);
@@ -133,10 +139,27 @@ public class RelativePolygon extends RelativeSimplex {
 			point.translate(perceivedOffset);
 		}
 
+		updateVN3F();
 	}
 
-	public ZFigure viewedBy(Observer observer) {
-		return observer.polygon(perceivedPoints, shade);
+	/*
+	 * Given a pixel that is assumed to be projected by a given observer and comes
+	 * from this polygon, finds (an approximation of) the coordinates of this points
+	 * in u-v space.
+	 */
+	public R2Point findUV(int right, int down, double zBuffer) {
+		R2Point uvPoint = new R2Point(
+			perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + v13F,
+			perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + v23F);
+		
+		uvPoint.scale(1/zBuffer);
+		
+		return uvPoint;
+
+	}
+
+	public ZFigure viewed() {
+		return getObserver().polygon(perceivedPoints, shade);
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.
@@ -159,6 +182,6 @@ public class RelativePolygon extends RelativeSimplex {
 
 		vectorTip.translate(orientation);
 
-		return new RelativeLine(vectorTail, vectorTip);
+		return new RelativeLine(vectorTail, vectorTip, getObserver());
 	}
 }

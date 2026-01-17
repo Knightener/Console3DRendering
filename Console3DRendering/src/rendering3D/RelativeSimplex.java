@@ -1,5 +1,7 @@
 package rendering3D;
 
+import java.util.HashMap;
+
 import other.MiscFunctions;
 import zBuffered2DRendering.ZFigure;
 
@@ -12,8 +14,29 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	 * is to assist in rendering something which has both lines and triangles.
 	 */
 
+	// Unique integer assigned to each simplex. The first 12 integers store the associated observer's ID.
+	private int ID;
+	private static int currentGreatestID = 1;
+	
+	// Returns the simplex associated with the given ID.
+	private static HashMap<Integer, RelativeSimplex> IDMap = new HashMap<Integer, RelativeSimplex>();
+
+	
 	double leastForward;
 	double mostForward;
+	
+	public RelativeSimplex(Observer observer) {
+		ID = currentGreatestID++ + (observer.getID() << 20);
+		IDMap.put(ID, this);
+	}
+	
+	public Observer getObserver() {
+		return Observer.get(ID >> 20);
+	}
+	
+	public @SuppressWarnings("unchecked") static <T extends RelativeSimplex> T get(int ID) {
+		return (T)IDMap.get(ID);
+	}
 	
 	/* This function determines the order in which the simplexes will be rendered.
 	 * 
@@ -46,7 +69,7 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	}
 
 	// Updates the simplex to be relative to the observer's perspective 
-	abstract void updatePerspective(Observer observer);
+	abstract void updatePerspective();
 
 	/*
 	 * Since leastForward and mostForward aren't independent of the observer, they
@@ -54,6 +77,6 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	 */
 	abstract void determineMostAndLeastForward();
 
-	abstract ZFigure viewedBy(Observer observer);
+	abstract ZFigure viewed();
 
 }

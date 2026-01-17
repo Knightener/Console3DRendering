@@ -1,6 +1,7 @@
 package rendering3D;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import classes2D.R2Point;
 import classes3D.R3Matrix;
@@ -12,6 +13,11 @@ import zBuffered2DRendering.ZPixel;
 
 public class Observer {
 
+	private static HashMap<Integer, Observer> IDMap = new HashMap<Integer,Observer>();
+	private static int currentGreatestID = 1;
+	
+	private int ID;
+	
 	// What the observer is seeing.
 	ZImage view;
 
@@ -32,6 +38,7 @@ public class Observer {
 	 */
 	R3Matrix rotation;
 
+	
 	/*
 	 * Theta rotates the observer to the left and phi rotates the observer up. Phi
 	 * is restricted to the interval -pi/2 , pi/2 to avoid flipping the observer
@@ -42,21 +49,14 @@ public class Observer {
 	 */
 	public Observer(R3Point position, double theta, double phi, ZImage view, double fov) {
 
-		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
-			throw new IllegalArgumentException();
-		}
 		this.view = view;
-		this.position = position;
+		this.position = new R3Point(position);
 		this.fov = fov;
 
-		double sinT = Math.sin(theta);
-		double cosT = Math.cos(theta);
-		double sinP = Math.sin(phi);
-		double cosP = Math.cos(phi);
+		setOrientation(theta, phi);
 
-		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, 
-			-cosT * sinP, cosT * cosP);
-
+		ID = currentGreatestID++;
+		IDMap.put(ID, this);
 	}
 
 	public R2Point lookAt(R3Point point) {
@@ -73,25 +73,42 @@ public class Observer {
 		return rotation.transform(point);
 	}
 
-
 	public ZImage getView() {
 		return view;
 	}
 
-	// Added because it feels more natural to have the observer "act on" the simplex.
-	public void updatePerspective(RelativeSimplex simplex) {
-		simplex.updatePerspective(this);
-	}
-	
-	public void updatePerspective(Form form) {
-		
-		for (RelativeSimplex face : form.components) {
-			updatePerspective(face);
+	public void setOrientation(double theta, double phi) {
+
+		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
+			throw new IllegalArgumentException();
 		}
 		
-		form.determineRenderingOrder();
-	}
+		double sinT = Math.sin(theta);
+		double cosT = Math.cos(theta);
+		double sinP = Math.sin(phi);
+		double cosP = Math.cos(phi);
 
+		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, 
+			-cosT * sinP, cosT * cosP);
+
+	}
+	
+	public void setPosition(R3Point position) {
+		this.position = position;
+	}
+	
+
+	public int getID() {
+		return ID;
+	}
+	
+	public static Observer get(int ID) {
+		return IDMap.get(ID);
+	}
+	
+	public double getFov() {
+		return this.fov;
+	}
 	// Everything past this point is drawing methods
 
 	// Draws a point
@@ -300,7 +317,7 @@ public class Observer {
 	}
 
 	public void renderDirectly(RelativeSimplex simplex) {
-		view.draw(simplex.viewedBy(this));
+		view.draw(simplex.viewed());
 	}
 
 	public void renderDirectly(Form form) {

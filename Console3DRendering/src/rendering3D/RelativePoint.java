@@ -9,7 +9,10 @@ public class RelativePoint extends RelativeSimplex {
 	private R3Point point;
 	R3Point perceived;
 	
-	public RelativePoint(R3Point point) {
+	public RelativePoint(R3Point point, Observer observer) {
+		
+		super(observer);
+		
 		this.point = new R3Point(point);
 		perceived = point;
 	}
@@ -23,12 +26,12 @@ public class RelativePoint extends RelativeSimplex {
 		return new R3Point(point);
 	}
 	
-	public void updatePerspective(Observer observer) {
-		perceived = observer.perspective(point);
+	public void updatePerspective() {
+		perceived = getObserver().perspective(point);
 	}
 	
-	public ZFigure viewedBy(Observer observer) {
-		return observer.point(perceived, ShadeHandling.getMaxPossibleShade());
+	public ZFigure viewed() {
+		return getObserver().point(perceived, ShadeHandling.getMaxPossibleShade());
 	}
 
 }
