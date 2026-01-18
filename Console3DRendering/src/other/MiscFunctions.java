@@ -71,10 +71,11 @@ public class MiscFunctions {
 
 	//Java's default modulus returns a negative number when a is negative for some reason.
 	public static int mod(int a, int n) {
-		if (a >= 0) {
-			return a % n;
+		int mod = a % n;
+		if (mod >= 0) {
+			return mod;
 		} else {
-			return n + a % n;
+			return n + mod;
 		}
 
 	}

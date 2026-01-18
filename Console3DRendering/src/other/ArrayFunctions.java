@@ -17,6 +17,19 @@ public class ArrayFunctions {
 		return copy;
 	}
 
+	public static double[][] copy(double[][] arr) {
+
+		int length = arr.length;
+		double[][] copy = new double[length][];
+
+		for (int i = 0; i < length; i++) {
+			copy[i] = new double[arr[i].length];
+			for (int j = 0; j < arr[i].length; j++) {
+				copy[i][j] = arr[i][j];
+			}
+		}
+		return copy;
+	}
 	
 	public static int longest(int[][] arr) {
 

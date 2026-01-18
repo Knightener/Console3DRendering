@@ -6,11 +6,15 @@ public class ZPixel extends Pixel {
 	
 	public double zBuffer;
 
+	// ID of the polygon from which the pixel came from (if it came from a polygon).
+	public int polygonID;
+	
 	public ZPixel() {
 		super();
 		zBuffer = 0;
 	}
 
+	
 	public ZPixel(int right, int down, int shade, double zBuffer) {
 		super(right, down, shade);
 		this.zBuffer = zBuffer;
@@ -24,6 +28,14 @@ public class ZPixel extends Pixel {
 	public ZPixel(Pixel pixel, double zBuffer) {
 		super(pixel);
 		this.zBuffer = zBuffer;
+	}
+	
+	public void setPolygonID(int polygonID) {
+		this.polygonID = polygonID;
+	}
+	
+	public int getPolygonID() {
+		return polygonID;
 	}
 	
 	public void setZBuffer(double zBuffer) {

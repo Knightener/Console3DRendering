@@ -107,7 +107,7 @@ public class Observer {
 	}
 	
 	public double getFov() {
-		return this.fov;
+		return fov;
 	}
 	// Everything past this point is drawing methods
 

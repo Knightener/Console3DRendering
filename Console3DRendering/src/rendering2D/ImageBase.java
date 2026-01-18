@@ -208,5 +208,12 @@ public abstract class ImageBase {
 		return furthestOut;
 	}
 
+	public int getImageCols() {
+		return imageCols;
+	}
+
+	public int getImageRows() {
+		return imageRows;
+	}
 
 }

@@ -38,6 +38,10 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 		return (T)IDMap.get(ID);
 	}
 	
+	public int getID() {
+		return ID;
+	}
+	
 	/* This function determines the order in which the simplexes will be rendered.
 	 * 
 	 * The closer simplex is determined to be "greater". The further simplex is

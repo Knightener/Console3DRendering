@@ -2,17 +2,18 @@ package rendering3D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import classes2D.R2Point;
 import classes3D.R3Point;
 import functionalInterfaces.R3Norm;
+import texturing.Texture;
 import zBuffered2DRendering.ZFigure;
+import zBuffered2DRendering.ZPixel;
 
 public class RelativePolygon extends RelativeSimplex {
 
-	int shade;
+	Texture texture;
 
 	/*
 	 * Stores the points using two variables u and v representing their position on
@@ -36,19 +37,21 @@ public class RelativePolygon extends RelativeSimplex {
 	protected R3Point perceivedOffset;
 	protected R3Point perceivedVectorA;
 	protected R3Point perceivedVectorB;
-	
+
 	/*
 	 * perceivedVectorA/B's forward component multiplied by the FOV of whatever
-	 * observer is associated with this polygon. These three variables are stored to
-	 * cut down multiplications for the findUV method.
+	 * observer is associated with this polygon, and -percievedVectorA/B dot offset.
+	 * 
+	 * These variables are stored to cut down operations for the findUV method.
 	 */
 	private double v13F;
 	private double v23F;
+	private R2Point v12DotOffset;
 
 	/*
-	 * Polygon assumed to lie entirely on some plane and be convex. 
+	 * Polygon assumed to lie entirely on some plane and be convex.
 	 */
-	public RelativePolygon(List<R3Point> points, int shade, Observer observer) {
+	public RelativePolygon(List<R3Point> points, Observer observer, Texture texture) {
 
 		super(observer);
 		
@@ -56,7 +59,7 @@ public class RelativePolygon extends RelativeSimplex {
 			throw new IllegalArgumentException("Polygon must have at least 3 points");
 		}
 
-		this.shade = shade;
+		this.texture = texture;
 		
 		this.perceivedPoints = new ArrayList<R3Point>(points);
 		
@@ -82,25 +85,27 @@ public class RelativePolygon extends RelativeSimplex {
 		}
 		
 		updatePerspective();
-		updateVN3F();
+		updateFindUVVariables();
 
-		
 	}
 
-	public RelativePolygon(R3Point pointA, R3Point pointB, R3Point pointC, int shade, Observer observer) {
-		this(Arrays.asList(pointA, pointB, pointC), shade, observer);
+	public RelativePolygon(R3Point pointA, R3Point pointB, R3Point pointC, Observer observer, Texture texture) {
+		this(Arrays.asList(pointA, pointB, pointC), observer, texture);
 	}
 
-	private void updateVN3F() {
-		
+	private void updateFindUVVariables() {
+
 		Observer observer = getObserver();
-		
-		v13F = perceivedVectorA.getForward()*observer.getFov();
-		v23F = perceivedVectorB.getForward()*observer.getFov();
+
+		v13F = perceivedVectorA.getForward() * observer.getFov();
+		v23F = perceivedVectorB.getForward() * observer.getFov();
+
+		v12DotOffset = new R2Point(-perceivedVectorA.dot(perceivedOffset), -perceivedVectorB.dot(perceivedOffset));
 		
 	}
+
 	public void determineMostAndLeastForward() {
-		
+
 		mostForward = perceivedPoints.get(0).getForward();
 		leastForward = mostForward;
 
@@ -139,7 +144,7 @@ public class RelativePolygon extends RelativeSimplex {
 			point.translate(perceivedOffset);
 		}
 
-		updateVN3F();
+		updateFindUVVariables();
 	}
 
 	/*
@@ -148,18 +153,30 @@ public class RelativePolygon extends RelativeSimplex {
 	 * in u-v space.
 	 */
 	public R2Point findUV(int right, int down, double zBuffer) {
+
 		R2Point uvPoint = new R2Point(
 			perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + v13F,
 			perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + v23F);
+
 		
 		uvPoint.scale(1/zBuffer);
 		
+		uvPoint.translate(v12DotOffset);
+		
 		return uvPoint;
-
 	}
 
+	public int determineShade(int right, int down, double zBuffer) {
+		return texture.determineShadeAt(findUV(right, down, zBuffer));
+	}
+	
 	public ZFigure viewed() {
-		return getObserver().polygon(perceivedPoints, shade);
+		
+		ZFigure polygon = getObserver().polygon(perceivedPoints, 1);
+
+		polygon.change(pixel -> ((ZPixel) pixel).setPolygonID(getID()));
+		
+		return polygon;
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.

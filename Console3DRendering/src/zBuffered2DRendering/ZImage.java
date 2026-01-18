@@ -7,6 +7,8 @@ import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ImageBase;
 import rendering2D.ShadeHandling;
+import rendering3D.RelativePolygon;
+import rendering3D.RelativeSimplex;
 
 public class ZImage extends ImageBase {
 
@@ -26,13 +28,14 @@ public class ZImage extends ImageBase {
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
 		super(leftEnd, rightEnd, upEnd, downEnd);
 		zBuffer = new double[imageRows][imageCols];
+		polygonID = new int[imageRows][imageCols];
 
 	}
 
 	public ZImage(int[][] arr, int left, int up) {
 		super(arr, left, up);
 		zBuffer = new double[imageRows][imageCols];
-		
+		polygonID = new int[imageRows][imageCols];
 	}
 	
 	private ZImage() {
@@ -59,6 +62,7 @@ public class ZImage extends ImageBase {
 		
 		image = new int[imageRows][imageCols];
 		zBuffer = new double[imageRows][imageCols];
+		polygonID = new int[imageRows][imageCols];
 	}
 
 	
@@ -80,10 +84,22 @@ public class ZImage extends ImageBase {
 
 				zBuffer[currDown][currRight] = currZBuffer;
 				image[currDown][currRight] = pixel.getShade();
+				polygonID[currDown][currRight] = pixel.getPolygonID();
 			}
 		}		
 	}
 	
+	public void texturize() {
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				
+				if (polygonID[i][j] != 0)  {
+					
+					image[i][j] = RelativeSimplex.<RelativePolygon>get(polygonID[i][j]).determineShade(j+leftBound, i+upBound, zBuffer[i][j]);
+				}
+			}
+		}
+	}
 	// Everything past this point is drawing methods
 
 	/*
