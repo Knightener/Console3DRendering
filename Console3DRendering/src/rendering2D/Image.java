@@ -10,6 +10,10 @@ import zBuffered2DRendering.ZPixel;
 
 public class Image extends ImageBase {
 
+	/*
+	 * Note: some the functions of the same name in ZImage may draw completely
+	 * different figures.
+	 */
 	public Image(ImageBase image) {
 		super(image);
 	}

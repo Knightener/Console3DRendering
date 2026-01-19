@@ -4,8 +4,13 @@ import other.ArrayFunctions;
 
 public class TextureBuilder {
 
+	/*
+	 * Intermediate class before Texture. Stores shades as doubles between 0 and 1
+	 * (where 0 is no shade and 1 is full shade). Will extend capabilities and add
+	 * methods for editing textures.
+	 */
 	private double[][] texture;
-	
+
 	private int rows;
 	private int cols;
 

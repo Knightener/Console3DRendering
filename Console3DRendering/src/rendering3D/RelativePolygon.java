@@ -39,14 +39,16 @@ public class RelativePolygon extends RelativeSimplex {
 	protected R3Point perceivedVectorB;
 
 	/*
-	 * perceivedVectorA/B's forward component multiplied by the FOV of whatever
-	 * observer is associated with this polygon, and -percievedVectorA/B dot offset.
+	 * vA/BFis perceivedVectorA/B's forward component multiplied by the FOV of whatever
+	 * observer is associated with this polygon. 
+	 * 
+	 * vABDotOffset is (-percievedVectorA dot perceivedOffset,-percievedVectorB dot perceivedOffset).
 	 * 
 	 * These variables are stored to cut down operations for the findUV method.
 	 */
-	private double v13F;
-	private double v23F;
-	private R2Point v12DotOffset;
+	private double vAF;
+	private double vBF;
+	private R2Point vABDotOffset;
 
 	/*
 	 * Polygon assumed to lie entirely on some plane and be convex.
@@ -85,7 +87,7 @@ public class RelativePolygon extends RelativeSimplex {
 		}
 		
 		updatePerspective();
-		updateFindUVVariables();
+
 
 	}
 
@@ -93,14 +95,14 @@ public class RelativePolygon extends RelativeSimplex {
 		this(Arrays.asList(pointA, pointB, pointC), observer, texture);
 	}
 
-	private void updateFindUVVariables() {
+	private void findUVVariables() {
 
 		Observer observer = getObserver();
 
-		v13F = perceivedVectorA.getForward() * observer.getFov();
-		v23F = perceivedVectorB.getForward() * observer.getFov();
+		vAF = perceivedVectorA.getForward() * observer.getFov();
+		vBF = perceivedVectorB.getForward() * observer.getFov();
 
-		v12DotOffset = new R2Point(-perceivedVectorA.dot(perceivedOffset), -perceivedVectorB.dot(perceivedOffset));
+		vABDotOffset = new R2Point(-perceivedVectorA.dot(perceivedOffset), -perceivedVectorB.dot(perceivedOffset));
 		
 	}
 
@@ -123,6 +125,7 @@ public class RelativePolygon extends RelativeSimplex {
 		}
 	}
 
+	
 	public void updatePerspective() {
 
 		Observer observer = getObserver();
@@ -144,7 +147,7 @@ public class RelativePolygon extends RelativeSimplex {
 			point.translate(perceivedOffset);
 		}
 
-		updateFindUVVariables();
+		findUVVariables();
 	}
 
 	/*
@@ -155,13 +158,13 @@ public class RelativePolygon extends RelativeSimplex {
 	public R2Point findUV(int right, int down, double zBuffer) {
 
 		R2Point uvPoint = new R2Point(
-			perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + v13F,
-			perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + v23F);
+			perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + vAF,
+			perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + vBF);
 
 		
 		uvPoint.scale(1/zBuffer);
 		
-		uvPoint.translate(v12DotOffset);
+		uvPoint.translate(vABDotOffset);
 		
 		return uvPoint;
 	}

@@ -4,6 +4,9 @@ import functionalInterfaces.RealFunction;
 
 public class ShadeHandling {
 
+	// This class is for determining a mapping from [0,1] to shading characters.
+	
+	// Shade cutoffs.
 	private double[] shadePartition;
 
 	public static final String[] DEFAULT_SHADES = { "  ", " ░", "░░", "░▒", "▒▒", "▒▓", "▓▓", "▓█", "██" };
@@ -21,7 +24,11 @@ public class ShadeHandling {
 	}
 
 	public int determineShade(double x, int maxShade) {
+		return Math.min(maxShade, determineShade(x));
+	}
 
+	public int determineShade(double x) {
+		
 		if (x < 0 || x > 1) {
 			throw new IllegalArgumentException();
 		}
@@ -32,17 +39,17 @@ public class ShadeHandling {
 			numPointsPassed++;
 		}
 
-		return Math.min(maxShade, numPointsPassed);
+		return numPointsPassed;
 	}
 
-	public int determineShade(double x) {
-
-		return determineShade(x, maxPossibleShade);
-	}
-
-	public void adjustShades(RealFunction gauge) {
+	/*
+	 * Adjusts the shade partition using an increasing function with domain and
+	 * range [0,1]. Bringing down the cutoffs will make shades appear stronger, and
+	 * bringing them up will make them appear lighter.
+	 */
+	public void adjustShades(RealFunction adjustment) {
 		for (int i = 0; i < shadePartition.length; i++) {
-			shadePartition[i] = gauge.f(shadePartition[i]);
+			shadePartition[i] = adjustment.f(shadePartition[i]);
 		}
 	}
 

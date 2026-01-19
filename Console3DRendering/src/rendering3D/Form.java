@@ -14,12 +14,13 @@ public class Form {
 			component.updatePerspective();
 		}
 	}
+
 	/*
 	 * The further forward simplexes are rendered first, so the closer simplexes
 	 * overlap them.
 	 * 
-	 * This method will return an inaccurate result if any two components intersect
-	 * (besides the edges).
+	 * This method of rendering is currently unused, however, I plan to eventually
+	 * use a hybrid method of both zBuffering and depth sorting to optimize.
 	 */
 	public void determineRenderingOrder() {
 		Collections.sort(components);
