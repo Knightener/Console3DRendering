@@ -18,6 +18,9 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	private int ID;
 	private static int currentGreatestID = 1;
 	
+	// Number of integers of ID dedicated to the component.
+	private static int componentLength = 20;
+	
 	// Returns the simplex associated with the given ID.
 	private static HashMap<Integer, RelativeSimplex> IDMap = new HashMap<Integer, RelativeSimplex>();
 
@@ -26,12 +29,12 @@ public abstract class RelativeSimplex implements Comparable<RelativeSimplex>{
 	double mostForward;
 	
 	public RelativeSimplex(Observer observer) {
-		ID = currentGreatestID++ + (observer.getID() << 20);
+		ID = currentGreatestID++ + (observer.getID() << componentLength);
 		IDMap.put(ID, this);
 	}
 	
 	public Observer getObserver() {
-		return Observer.get(ID >> 20);
+		return Observer.get(ID >> componentLength);
 	}
 	
 	public @SuppressWarnings("unchecked") static <T extends RelativeSimplex> T get(int ID) {
