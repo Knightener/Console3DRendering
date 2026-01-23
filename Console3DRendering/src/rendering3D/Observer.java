@@ -13,18 +13,18 @@ import zBuffered2DRendering.ZPixel;
 
 public class Observer {
 
-	private static HashMap<Integer, Observer> IDMap = new HashMap<Integer,Observer>();
+	private static HashMap<Integer, Observer> IDMap = new HashMap<Integer, Observer>();
 	private static int currentGreatestID = 1;
-	
+
 	private int ID;
-	
+
 	// What the observer is seeing.
 	ZImage view;
 
 	double fov;
 
 	R3Point position;
-	
+
 	/*
 	 * The rotation matrix that will be applied to points when they are observed.
 	 * 
@@ -38,7 +38,6 @@ public class Observer {
 	 */
 	R3Matrix rotation;
 
-	
 	/*
 	 * Theta rotates the observer to the left and phi rotates the observer up. Phi
 	 * is restricted to the interval -pi/2 , pi/2 to avoid flipping the observer
@@ -67,7 +66,7 @@ public class Observer {
 	public R3Point perspective(R3Point point) {
 		return rotation.transform(point.difference(position));
 	}
-	
+
 	// Rotates the point via the observer's rotation matrix
 	public R3Point rotate(R3Point point) {
 		return rotation.transform(point);
@@ -82,7 +81,7 @@ public class Observer {
 		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
 			throw new IllegalArgumentException();
 		}
-		
+
 		double sinT = Math.sin(theta);
 		double cosT = Math.cos(theta);
 		double sinP = Math.sin(phi);
@@ -92,20 +91,19 @@ public class Observer {
 			-cosT * sinP, cosT * cosP);
 
 	}
-	
+
 	public void setPosition(R3Point position) {
 		this.position = position;
 	}
-	
 
 	public int getID() {
 		return ID;
 	}
-	
+
 	public static Observer get(int ID) {
 		return IDMap.get(ID);
 	}
-	
+
 	public double getFov() {
 		return fov;
 	}
@@ -113,36 +111,37 @@ public class Observer {
 
 	// Draws a point
 	public ZFigure point(R3Point p, int shade) {
-		
+
 		ZFigure point = new ZFigure();
-		
+
 		if (p.getForward() > Constants.EPSILON) {
 			point.add(p.project(fov, shade));
 		}
 		return point;
 	}
-	// Observer assumed to be in default state, p1 assumed to be further back than p2.
+
+	// Observer assumed to be in default state, p1 assumed to be further back than
+	// p2.
 	public ZFigure lineDefaultAuxiliary(R3Point p1, R3Point p2, int shade, int borderShade) {
-	
+
 		double r1 = p1.getRight();
 		double r2 = p2.getRight();
-	
+
 		double d1 = p1.getDown();
 		double d2 = p2.getDown();
-	
+
 		double f1 = p1.getForward();
 		double f2 = p2.getForward();
-				
+
 		if (f1 > Constants.EPSILON) {
 			return view.borderedLine(p1.project(fov, shade), p2.project(fov, shade), borderShade);
 		}
-		
+
 		if (f2 > Constants.EPSILON) {
 			R3Point start = p1.forward0Intersection(p2);
 
-			return view.borderedLine(start.project(fov,shade),p2.project(fov,shade), borderShade);
-	
-			
+			return view.borderedLine(start.project(fov, shade), p2.project(fov, shade), borderShade);
+
 		}
 
 		return new ZFigure();
@@ -150,7 +149,7 @@ public class Observer {
 
 	// Observer assumed to be in default state.
 	public ZFigure lineDefault(R3Point p1, R3Point p2, int shade, int borderShade) {
-		
+
 		if (p2.getForward() > p1.getForward()) {
 			return lineDefaultAuxiliary(p1, p2, shade, borderShade);
 		}
@@ -173,22 +172,22 @@ public class Observer {
 		double r1 = p1.getRight();
 		double r2 = p2.getRight();
 		double r3 = p3.getRight();
-	
+
 		double d1 = p1.getDown();
 		double d2 = p2.getDown();
 		double d3 = p3.getDown();
-	
+
 		double f1 = p1.getForward();
 		double f2 = p2.getForward();
 		double f3 = p3.getForward();
-				
+
 		if (f1 > Constants.EPSILON) {
-			return view.jaggedTriangle(p1.project(fov,shade), p2.project(fov,shade), p3.project(fov,shade));
+			return view.jaggedTriangle(p1.project(fov, shade), p2.project(fov, shade), p3.project(fov, shade));
 		}
-		
+
 		if (f2 > Constants.EPSILON) {
 			ZFigure triangle = new ZFigure();
-	
+
 			/*
 			 * The idea is to find a far enough point that acts as a start for the line from
 			 * p1 to p2 and p1 to p3, since the line can't be projected directly due to
@@ -197,16 +196,16 @@ public class Observer {
 			 * The exact derivation is just a bunch of algebra, but the idea is to intersect
 			 * the line from p1 to p2/p3 with the plane forward = 0.
 			 */
-			
+
 			R3Point start12 = new R3Point(r2 - r1, d2 - d1, 0);
 			R3Point start13 = new R3Point(r3 - r1, d3 - d1, 0);
-	
+
 			start12.scale(f1 / (f1 - f2));
 			start13.scale(f1 / (f1 - f3));
-	
+
 			start12.translate(r1, d1, Constants.EPSILON);
 			start13.translate(r1, d1, Constants.EPSILON);
-			
+
 			/*
 			 * These return far enough points that can act as vertices for the triangle.
 			 * Note that this could lead to visual artifacts if the triangle is very flat,
@@ -214,55 +213,54 @@ public class Observer {
 			 */
 			ZPixel proj12 = start12.project(fov, shade);
 			ZPixel proj13 = start13.project(fov, shade);
-	
+
 			ZPixel proj2 = p2.project(fov, shade);
 			ZPixel proj3 = p3.project(fov, shade);
 
 			/*
-			 * I'm not exactly sure why this specific order of points works, but it 
-			 * returned a full triangle when tested.
+			 * I'm not exactly sure why this specific order of points works, but it returned
+			 * a full triangle when tested.
 			 */
 			triangle.add(view.jaggedTriangle(proj12, proj13, proj3));
-	
+
 			triangle.add(view.jaggedTriangle(proj12, proj3, proj2));
-	
+
 			return triangle;
 		}
-	
+
 		if (f3 > Constants.EPSILON) {
-	
+
 			/*
 			 * Similar concept to the previous case, but actually simpler since the
 			 * projected triangle will have 3 sides instead of 4.
 			 */
 			R3Point start23 = new R3Point(r2 - r3, d2 - d3, 0);
 			R3Point start13 = new R3Point(r3 - r1, d3 - d1, 0);
-	
+
 			start23.scale(f3 / (f3 - f2));
 			start13.scale(f1 / (f1 - f3));
-	
+
 			start23.translate(r3, d3, Constants.EPSILON);
 			start13.translate(r1, d1, Constants.EPSILON);
-			
-			ZPixel proj23 = start23.project(fov,shade);
-			ZPixel proj13 = start13.project(fov,shade);
-			
-			ZPixel proj3 = p3.project(fov,shade);
-	
+
+			ZPixel proj23 = start23.project(fov, shade);
+			ZPixel proj13 = start13.project(fov, shade);
+
+			ZPixel proj3 = p3.project(fov, shade);
+
 			return view.jaggedTriangle(proj13, proj23, proj3);
 		}
-		
+
 		return new ZFigure();
-	
+
 	}
 
 	public ZFigure triangleDefault(R3Point p1, R3Point p2, R3Point p3, int shade) {
-		
+
 		boolean f2f3 = p2.getForward() <= p3.getForward();
 		boolean f1f3 = p1.getForward() <= p3.getForward();
 		boolean f1f2 = p1.getForward() <= p2.getForward();
-	
-	
+
 		// Same justification as the 2d version of this method
 		if (f1f2) {
 			if (f2f3) {
@@ -283,9 +281,9 @@ public class Observer {
 	}
 
 	public ZFigure triangle(R3Point p1, R3Point p2, R3Point p3, int shade) {
-	
+
 		return triangleDefault(perspective(p1), perspective(p2), perspective(p3), shade);
-		
+
 	}
 
 	/* Points assumed to lie on a plane. Will lead to visual artifacts otherwise */
@@ -298,7 +296,7 @@ public class Observer {
 		for (int i = 0; i < length; i++) {
 
 			R3Point curr = points.get(i);
-			R3Point next = points.get((i + 1)%length);
+			R3Point next = points.get((i + 1) % length);
 
 			double currF = curr.getForward();
 			double nextF = next.getForward();
@@ -316,16 +314,14 @@ public class Observer {
 		return view.polygon(viewedPolygon);
 	}
 
-	public void renderDirectly(RelativeSimplex simplex) {
-		view.draw(simplex.viewed());
+	public void renderDirectly(RelativeComponent component) {
+		view.draw(component.viewed());
 	}
 
 	public void renderDirectly(Form form) {
-		for (RelativeSimplex face : form.components) {
+		for (RelativeComponent face : form.components) {
 			renderDirectly(face);
 		}
 	}
-	
-	
-	
+
 }

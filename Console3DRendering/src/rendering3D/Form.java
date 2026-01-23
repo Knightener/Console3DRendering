@@ -3,14 +3,14 @@ import java.util.*;
 
 public class Form {
 
-	ArrayList<RelativeSimplex> components;
+	ArrayList<RelativeComponent> components;
 
-	public Form(ArrayList<RelativeSimplex> components) {
+	public Form(ArrayList<RelativeComponent> components) {
 		this.components = components;
 	}
 
 	public void updatePerspective() {
-		for (RelativeSimplex component : components) {
+		for (RelativeComponent component : components) {
 			component.updatePerspective();
 		}
 	}
@@ -32,7 +32,7 @@ public class Form {
 
 		for (int i = 0; i < size; i++) {
 
-			RelativeSimplex curr = components.get(i);
+			RelativeComponent curr = components.get(i);
 
 			if (curr instanceof RelativePolygon) {
 				components.add(((RelativePolygon) curr).getUnitNormal());

@@ -11,7 +11,7 @@ import texturing.Texture;
 import zBuffered2DRendering.ZFigure;
 import zBuffered2DRendering.ZPixel;
 
-public class RelativePolygon extends RelativeSimplex {
+public class RelativePolygon extends RelativeComponent {
 
 	Texture texture;
 

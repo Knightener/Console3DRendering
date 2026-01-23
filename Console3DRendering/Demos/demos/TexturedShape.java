@@ -6,7 +6,7 @@ import classes3D.R3Point;
 import rendering3D.Form;
 import rendering3D.Observer;
 import rendering3D.RelativePolygon;
-import rendering3D.RelativeSimplex;
+import rendering3D.RelativeComponent;
 import texturing.Texture;
 import texturing.TexturePresets;
 import zBuffered2DRendering.ZImage;
@@ -49,7 +49,7 @@ public class TexturedShape {
 		RelativePolygon t3 = new RelativePolygon(observer,texture,p1,p2,q2,q1);
 		RelativePolygon t4 = new RelativePolygon(observer,texture,p3,p1,q1,q3);
 
-		ArrayList<RelativeSimplex> f = new ArrayList<RelativeSimplex>();
+		ArrayList<RelativeComponent> f = new ArrayList<RelativeComponent>();
 
 		f.add(t1);
 		f.add(t2);

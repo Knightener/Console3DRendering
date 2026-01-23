@@ -4,7 +4,7 @@ import classes3D.R3Point;
 import rendering2D.ShadeHandling;
 import zBuffered2DRendering.ZFigure;
 
-public class RelativePoint extends RelativeSimplex {
+public class RelativePoint extends RelativeComponent {
 
 	private R3Point point;
 	R3Point perceived;

@@ -8,7 +8,7 @@ import rendering2D.Image;
 import rendering2D.ImageBase;
 import rendering2D.ShadeHandling;
 import rendering3D.RelativePolygon;
-import rendering3D.RelativeSimplex;
+import rendering3D.RelativeComponent;
 
 public class ZImage extends ImageBase {
 
@@ -95,7 +95,7 @@ public class ZImage extends ImageBase {
 				
 				if (polygonID[i][j] != 0)  {
 					
-					image[i][j] = RelativeSimplex.<RelativePolygon>get(polygonID[i][j]).determineShade(j+leftBound, i+upBound, zBuffer[i][j]);
+					image[i][j] = RelativeComponent.<RelativePolygon>get(polygonID[i][j]).determineShade(j+leftBound, i+upBound, zBuffer[i][j]);
 				}
 			}
 		}

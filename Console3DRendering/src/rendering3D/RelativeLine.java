@@ -4,7 +4,7 @@ import classes3D.R3Point;
 import rendering2D.ShadeHandling;
 import zBuffered2DRendering.ZFigure;
 
-public class RelativeLine extends RelativeSimplex {
+public class RelativeLine extends RelativeComponent {
 
 	/*
 	 * Lines require a second integer to specify the shade of it's border when
