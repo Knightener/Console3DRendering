@@ -53,7 +53,7 @@ public class RelativePolygon extends RelativeSimplex {
 	/*
 	 * Polygon assumed to lie entirely on some plane and be convex.
 	 */
-	public RelativePolygon(List<R3Point> points, Observer observer, Texture texture) {
+	public RelativePolygon(Observer observer, Texture texture, List<R3Point> points) {
 
 		super(observer);
 		
@@ -90,9 +90,8 @@ public class RelativePolygon extends RelativeSimplex {
 
 
 	}
-
-	public RelativePolygon(R3Point pointA, R3Point pointB, R3Point pointC, Observer observer, Texture texture) {
-		this(Arrays.asList(pointA, pointB, pointC), observer, texture);
+	public RelativePolygon(Observer observer, Texture texture, R3Point...points) {
+		this(observer,texture,Arrays.asList(points));
 	}
 
 	private void findUVVariables() {
