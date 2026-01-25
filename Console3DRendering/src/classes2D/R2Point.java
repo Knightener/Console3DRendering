@@ -1,13 +1,13 @@
 package classes2D;
+import java.util.ArrayList;
+
+import functionalInterfaces.RealFunction;
+import interfaces.NormedVectorSpace;
 import rendering2D.Pixel;
 import rendering2D.ShadeHandling;
 
-import java.util.*;
 
-import functionalInterfaces.*;
-
-
-public class R2Point {
+public class R2Point implements NormedVectorSpace<R2Point> {
 
 		private double right;
 		private double down;
@@ -61,21 +61,22 @@ public class R2Point {
 		}
 
 		public void translate(R2Point vector) {
-
 			right += vector.right;
 			down += vector.down;
 		}
 		
-		public void scale(double r) {
-
-			right *= r;
-			down *= r;
+		public void scale(double factor) {
+			right *= factor;
+			down *= factor;
 		}
 		
+		public R2Point sum(R2Point vector) {
+			return new R2Point(right + vector.right, down + vector.down);
+		}
+		
+		public R2Point difference(R2Point vector) {
 
-		public R2Point difference(R2Point point) {
-
-			return new R2Point(right - point.right, down - point.down);
+			return new R2Point(right - vector.right, down - vector.down);
 		}
 
 		public void round() {
@@ -139,14 +140,6 @@ public class R2Point {
 		public double dot(R2Point vector) {
 			return vector.right * right + vector.down * down;
 		}
-		
-		public void normalize(R2Norm norm) {
-			scale(1 / norm.n(this));
-		}
-		
-		public R2Point add(R2Point point) {
-			return new R2Point(right + point.right, down + point.down);
-		}
 
 		public void setRight(double right) {
 			this.right = right;
@@ -156,5 +149,16 @@ public class R2Point {
 			this.down = down;
 		}
 		
+		public double chebyshev() {
+			return Math.max(Math.abs(right), Math.abs(down));
+		}
+		
+		public double euclidian() {
+			return Math.hypot(right, down);
+		}
+		
+		public double taxicab() {
+			return Math.abs(right) + Math.abs(down);
+		}
 		
 	}

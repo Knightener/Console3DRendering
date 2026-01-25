@@ -1,7 +1,5 @@
 package classes3D;
 
-import functionalInterfaces.R3Norm;
-
 public class Triangle {
 
 	private R3Point pointA;
@@ -22,7 +20,7 @@ public class Triangle {
 		this.pointC = pointC;
 		
 		orientation = pointB.difference(pointA).cross(pointC.difference(pointA));
-		orientation.normalize(R3Norm.EUCLIDIAN);
+		orientation.normalize();
 	}
 
 	public R3Point getPointA() {

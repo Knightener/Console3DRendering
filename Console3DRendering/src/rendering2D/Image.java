@@ -1,12 +1,8 @@
 package rendering2D;
 
 import classes2D.R2Point;
-import functionalInterfaces.R2Metric;
 import functionalInterfaces.RealFunction;
-import other.Constants;
 import other.MiscFunctions;
-import zBuffered2DRendering.ZFigure;
-import zBuffered2DRendering.ZPixel;
 
 public class Image extends ImageBase {
 
@@ -92,22 +88,22 @@ public class Image extends ImageBase {
 	public static Figure lineFull(R2Point p1, R2Point p2, int maxShade) {
 		
 		Figure line = new Figure();
-	
+
 		/*
 		 * Chebyshev metric is used here because it minimizes the number of steps while
 		 * still ensuring that the sample of points gets close enough to every grid
 		 * square that the line passes
 		 */
-		double numSteps = Math.ceil(R2Metric.CHEBYSHEV.d(p1, p2));
+		double numSteps = Math.ceil(p1.chebyshev(p2));
 		R2Point stepVector = p2.difference(p1);
 		stepVector.scale(1 / numSteps);
-	
+
 		R2Point movingPoint = new R2Point(p1);
-	
+
 		for (int i = 0; i < numSteps; i++) {
 			line.add(movingPoint, maxShade);
 			movingPoint.translate(stepVector);
-	
+
 		}
 		return line;
 	}
@@ -124,7 +120,7 @@ public class Image extends ImageBase {
 	
 		Figure line = new Figure();
 	
-		double numSteps = Math.ceil(R2Metric.CHEBYSHEV.d(p1, p2));
+		double numSteps = Math.ceil(p1.chebyshev(p2));
 		R2Point stepVector = p2.difference(p1);
 	
 		R2Point movingPoint = new R2Point(p1);
@@ -238,16 +234,15 @@ public class Image extends ImageBase {
 				 * line gets drawn because the first and second elements borderIntersections are
 				 * identical
 				 */
-				if (!(currIndex == 1
-						&& R2Metric.CHEBYSHEV.d(borderIntersections[0], intersection) < Constants.EPSILON)) {
-	
+				if (!(currIndex == 1 && borderIntersections[0].nearlyEquals(intersection))) {
+
 					borderIntersections[currIndex] = intersection;
 					currIndex++;
-	
+
 				}
 			}
 		}
-	
+
 		if (MiscFunctions.between(downBound, d1, d2)) {
 			double intersectionRight = r1 + (downBound - d1) * ratio2;
 	

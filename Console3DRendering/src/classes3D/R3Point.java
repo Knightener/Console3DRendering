@@ -1,13 +1,12 @@
 package classes3D;
 
 import classes2D.R2Point;
-import functionalInterfaces.R2Norm;
-import functionalInterfaces.R3Norm;
+import interfaces.NormedVectorSpace;
 import other.Constants;
 import zBuffered2DRendering.ZPixel;
 
 
-public class R3Point {
+public class R3Point implements NormedVectorSpace<R3Point>{
 
 	/*
 	 * This project uses points and vectors interchangeably. The difference is
@@ -57,44 +56,24 @@ public class R3Point {
 		return null;
 	}
 
-	/*
-	 * If forward is zero, a direction vector pointing towards this is returned. This
-	 * helps with drawing lines.
-	 */
-	public R2Point projectAlt(double fov) {
-		if (forward > 0) {
-			double ratio = fov / forward;
-			
-			R2Point point = new R2Point(right,down);
-			point.scale(ratio);
-			
-			return point;
-		}
-		if ((right != 0 || down != 0) && -Constants.EPSILON < forward && forward < Constants.EPSILON) {
-			R2Point point = new R2Point(right, down);
-			
-			point.normalize(R2Norm.CHEBYSHEV);
-
-			return point;
-		} else {
-			return null;
-		}
-	}
-
-	public R3Point difference(R3Point point) {
-		return new R3Point(right - point.right, down - point.down, forward - point.forward);
+	public R3Point sum(R3Point factor) {
+		return new R3Point(right + factor.right, down + factor.down, forward + factor.forward);
 	}
 	
-	public void scale(double r) {
-		right *= r;
-		down *= r;
-		forward *= r;
+	public R3Point difference(R3Point factor) {
+		return new R3Point(right - factor.right, down - factor.down, forward - factor.forward);
 	}
 	
-	public void translate(R3Point point) {
-		right += point.right;
-		down += point.down;
-		forward += point.forward;
+	public void scale(double factor) {
+		right *= factor;
+		down *= factor;
+		forward *= factor;
+	}
+	
+	public void translate(R3Point vector) {
+		right += vector.right;
+		down += vector.down;
+		forward += vector.forward;
 	}
 	
 	public void translate(double right, double down, double forward) {
@@ -142,10 +121,6 @@ public class R3Point {
 	public static R3Point linearCombination(double s, double t, R3Point v1, R3Point v2) {
 		return new R3Point(s * v1.right + t * v2.right, s * v1.down + t * v2.down, s * v1.forward + t * v2.forward);
 	}
-
-	public void normalize(R3Norm norm) {
-		scale(1 / norm.n(this));
-	}
 	
 	public double getRight() {
 		return right;
@@ -175,5 +150,17 @@ public class R3Point {
 		right = point.right;
 		down = point.down;
 		forward = point.forward;
+	}
+
+	public double chebyshev() {
+		return Math.max(Math.max(Math.abs(right), Math.abs(down)), Math.abs(forward));
+	}
+
+	public double euclidian() {
+		return Math.sqrt(dot(this));
+	}
+
+	public double taxicab() {
+		return Math.abs(right) + Math.abs(down) + Math.abs(forward);
 	}
 }

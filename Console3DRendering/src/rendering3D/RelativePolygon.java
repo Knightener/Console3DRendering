@@ -6,7 +6,6 @@ import java.util.List;
 
 import classes2D.R2Point;
 import classes3D.R3Point;
-import functionalInterfaces.R3Norm;
 import texturing.Texture;
 import zBuffered2DRendering.ZFigure;
 import zBuffered2DRendering.ZPixel;
@@ -71,8 +70,8 @@ public class RelativePolygon extends RelativeComponent {
 		
 		orientation = vectorA.cross(points.get(2).difference(offset));
 		
-		orientation.normalize(R3Norm.EUCLIDIAN);
-		vectorA.normalize(R3Norm.EUCLIDIAN);
+		orientation.normalize();
+		vectorA.normalize();
 
 		vectorB = vectorA.cross(orientation);
 

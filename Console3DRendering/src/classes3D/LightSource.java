@@ -1,6 +1,5 @@
 package classes3D;
 
-import functionalInterfaces.R3Norm;
 import rendering2D.ShadeHandling;
 
 public class LightSource {
@@ -22,7 +21,7 @@ public class LightSource {
 
 		direction = new R3Point(vector);
 		
-		direction.normalize(R3Norm.EUCLIDIAN);
+		direction.normalize();
 	}
 
 	/*
