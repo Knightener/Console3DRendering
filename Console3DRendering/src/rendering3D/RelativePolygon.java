@@ -68,12 +68,23 @@ public class RelativePolygon extends RelativeComponent {
 		
 		vectorA = points.get(1).difference(offset);
 		
-		orientation = vectorA.cross(points.get(2).difference(offset));
+		orientation = points.get(1).difference(offset).cross(points.get(2).difference(offset));
 		
 		orientation.normalize();
-		vectorA.normalize();
-
-		vectorB = vectorA.cross(orientation);
+	
+		
+		try {
+			
+			vectorA = orientation.cross(new R3Point(0, -1, 0));
+			vectorA.normalize();
+			vectorB = vectorA.cross(orientation);
+			
+		} catch (ArithmeticException e) {
+			// Code only gets here if the polygon is orthogonal to the vertical axis
+			
+			vectorA = new R3Point(1,0,0);
+			vectorB = new R3Point(0,0,1);
+		}
 
 		uVPoints = new ArrayList<R2Point>();
 

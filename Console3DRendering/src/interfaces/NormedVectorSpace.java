@@ -23,7 +23,14 @@ public interface NormedVectorSpace<T> extends VectorSpace<T> {
 	}
 
 	public default void normalize() {
-		scale(1 / euclidian());
+		
+		double length = euclidian();
+		
+		if (length == 0) {
+			throw new ArithmeticException("Vector cannot be 0");
+		}
+		
+		scale(1 / length);
 	}
 	
 	public default boolean nearlyEquals(T point) {
