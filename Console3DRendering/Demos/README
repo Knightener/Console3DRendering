@@ -1,11 +1,21 @@
-NOTE: 
 
-I haven't tested these demos on systems other than mine, so I am not sure what 
-they might look. I have chosen the numbers in these demos as what I thought best fit
-my best system. It might look off in yours.
+I haven't tested these demos on systems other than mine, so I am not sure how 
+they might look on yours. I have chosen the numbers in these demos as what I thought best fit
+my best system. It might look off in yours. 
+
+You may adjust the numbers as you please. I recommend adjusting the dimensions of the declared image 
+and the fov (last parameter) of the declared observer as these don't change what the demo is trying 
+to show but might make it look better on your screen. If you choose to adjust the image, make sure
+it is still centered on (0,0) (that is, it is of the form new ZImage(-x,x,-y,y) for positive
+integers x,y). You should also adjust your console font size, as the default one is way too big
+for this project. 
 
 For reference, here is a video of me running the TexturedShape demo. My console font 
 size is 5 and my screen resolution is 1600 x 1000.
 
 https://files.catbox.moe/jnjyyf.mp4
 
+One last note: these demos don't display the full functionality of my project as I only started developing
+them recently. I will start making demos as I add new features. 
+
+Thank you for checking out my project!
