@@ -19,7 +19,11 @@ public class TexturedShape {
 	 */
 	public static void main(String args[]) {
 
-		// Dimensions of the printed image.
+		/*
+		 * Dimensions of the printed image. You may adjust this to fit your screen. The
+		 * first two coordinates are the horizontal span, and the last two coordinates
+		 * are the vertical span (note y axis is flipped).
+		 */
 		ZImage image = new ZImage(-60, 60, -50, 50);
 
 		// Front face vertices.
@@ -62,6 +66,7 @@ public class TexturedShape {
 
 			theta += 0.05;
 
+			// The observer is moving in a circle around the shape. 
 			position = new R3Point(4 * Math.sin(theta), 0, -4 * Math.cos(theta));
 
 			observer.setPosition(position);
@@ -70,6 +75,8 @@ public class TexturedShape {
 			form.updatePerspective();
 			observer.renderDirectly(form);
 			image.texturize();
+			
+			// You could change this to image.displayCoordinates().
 			image.display();
 			image.clear();
 			
