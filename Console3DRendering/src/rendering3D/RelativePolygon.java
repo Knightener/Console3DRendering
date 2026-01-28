@@ -134,14 +134,18 @@ public class RelativePolygon extends RelativeComponent {
 		}
 	}
 
-	
-	public void updatePerspective() {
-
+	// Updates the 3 vectors that determine the plane.
+	public void updatePlaneVectors() {
 		Observer observer = getObserver();
 		
 		perceivedVectorA = observer.rotate(vectorA);
 		perceivedVectorB = observer.rotate(vectorB);
 		perceivedOffset = observer.perspective(offset);
+	}
+	
+	public void updatePerspective() {
+
+		updatePlaneVectors();
 
 		R2Point curr;
 
