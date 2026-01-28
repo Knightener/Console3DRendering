@@ -6,6 +6,7 @@ import java.util.List;
 
 import classes2D.R2Point;
 import classes3D.R3Point;
+import other.Constants;
 import texturing.Texture;
 import zBuffered2DRendering.ZFigure;
 import zBuffered2DRendering.ZPixel;
@@ -92,6 +93,10 @@ public class RelativePolygon extends RelativeComponent {
 
 			R3Point adjusted = points.get(i).difference(offset);
 
+			// Checks if all points lie on the same plane
+			if (adjusted.dot(orientation) > Constants.EPSILON) {
+				throw new IllegalArgumentException("All points must lie in one plane");
+			}
 			uVPoints.add(new R2Point(adjusted.dot(vectorA), adjusted.dot(vectorB)));
 
 		}
