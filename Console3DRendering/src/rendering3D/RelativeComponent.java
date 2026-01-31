@@ -2,7 +2,6 @@ package rendering3D;
 
 import java.util.HashMap;
 
-import other.MiscFunctions;
 import zBuffered2DRendering.ZFigure;
 
 public abstract class RelativeComponent implements Comparable<RelativeComponent>{

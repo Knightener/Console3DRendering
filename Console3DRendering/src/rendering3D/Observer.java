@@ -124,20 +124,11 @@ public class Observer {
 	// p2.
 	public ZFigure lineDefaultAuxiliary(R3Point p1, R3Point p2, int shade, int borderShade) {
 
-		double r1 = p1.getRight();
-		double r2 = p2.getRight();
-
-		double d1 = p1.getDown();
-		double d2 = p2.getDown();
-
-		double f1 = p1.getForward();
-		double f2 = p2.getForward();
-
-		if (f1 > Constants.EPSILON) {
+		if (p1.getForward() > Constants.EPSILON) {
 			return view.borderedLine(p1.project(fov, shade), p2.project(fov, shade), borderShade);
 		}
 
-		if (f2 > Constants.EPSILON) {
+		if (p2.getForward() > Constants.EPSILON) {
 			R3Point start = p1.forward0Intersection(p2);
 
 			return view.borderedLine(start.project(fov, shade), p2.project(fov, shade), borderShade);
