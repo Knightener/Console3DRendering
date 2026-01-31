@@ -1,6 +1,10 @@
 package classes2D;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import rendering2D.Figure;
+import rendering2D.Pixel;
 
 public class CardinalConvexRegion {
 
@@ -56,11 +60,9 @@ public class CardinalConvexRegion {
 		rowOffsets.add(start);
 	}
 
-	/*
-	 * Returns the shade at the specified coordinates of the region.
-	 * VerticallyConvex assumed to be true.
-	 */
-	private int shadeAtAux(int right, int down) {
+
+	// VerticallyConvex assumed to be true.
+	private int getShadeAux(int right, int down) {
 		int a = right - regionOffset;
 		int b = down - rowOffsets.get(a);
 		try {
@@ -70,11 +72,56 @@ public class CardinalConvexRegion {
 		}
 	}
 
-	public int shadeAt(int right, int down) {
+	// VerticallyConvex assumed to be true.
+	public void setShadeAux(int right, int down, int shade) {
+		int a = right - regionOffset;
+		int b = down - rowOffsets.get(a);
+		try {
+			region.get(a)[b] = shade;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Coordinates must be within region");
+		}
+	}
+
+	// Returns the shade at the specified coordinates of the region.
+	public int getShade(int right, int down) {
 		if (verticallyConvex) {
-			return shadeAtAux(right, down);
+			return getShadeAux(right, down);
 		} else
-			return shadeAtAux(down, right);
+			return getShadeAux(down, right);
+	}
+
+	// Sets the shade at the specified coordinates to a new shade.
+	public void setShade(int right, int down, int shade) {
+		if (verticallyConvex) {
+			setShadeAux(right, down, shade);
+		} else
+			setShadeAux(down, right, shade);
+	}
+
+	public Figure convertToFigure() {
+
+		Figure figure = new Figure();
+
+		for (int i = 0; i < region.size(); i++) {
+			int[] curr = region.get(i);
+			for (int j = 0; j < curr.length; j++) {
+
+				if (verticallyConvex) {
+					figure.add(new Pixel(i + regionOffset, j + rowOffsets.get(i), curr[j]));
+				} else {
+					figure.add(new Pixel(j + rowOffsets.get(i), i + regionOffset, curr[j]));
+				}
+			}
+		}
+
+		return figure;
+	}
+
+	public void constantShade(int shade) {
+		for (int[] row : region) {
+			Arrays.setAll(row, x -> shade);
+		}
 	}
 
 }
