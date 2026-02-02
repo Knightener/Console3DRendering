@@ -2,6 +2,7 @@ package classes2D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.BiFunction;
 
 import rendering2D.Figure;
 import rendering2D.Pixel;
@@ -19,26 +20,25 @@ public class CardinalConvexRegion {
 	 */
 
 	// If true, the region is vertically convex. Else, it is horizontally convex.
-	public boolean verticallyConvex;
+	private boolean verticallyConvex;
 
 	/*
 	 * Rows are vertical lines if verticallyConvex is true. Else, they are
 	 * horizontal lines.
-	 * 
 	 */
-	public ArrayList<int[]> region;
+	private ArrayList<int[]> region;
 
 	/*
 	 * Vertical offset of each row of region if verticallyConvex is true. Else,
 	 * horizontal offset.
 	 */
-	public ArrayList<Integer> rowOffsets;
+	private ArrayList<Integer> rowOffsets;
 
 	/*
 	 * Horizontal offset of entire region if verticallyConvex is true. Else,
 	 * vertical offset.
 	 */
-	public int regionOffset;
+	private int regionOffset;
 
 	public CardinalConvexRegion(int regionOffset, boolean verticallyConvex) {
 		this.regionOffset = regionOffset;
@@ -63,9 +63,10 @@ public class CardinalConvexRegion {
 
 	// VerticallyConvex assumed to be true.
 	private int getShadeAux(int right, int down) {
-		int a = right - regionOffset;
-		int b = down - rowOffsets.get(a);
+
 		try {
+			int a = right - regionOffset;
+			int b = down - rowOffsets.get(a);
 			return region.get(a)[b];
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Coordinates must be within region");
@@ -73,10 +74,10 @@ public class CardinalConvexRegion {
 	}
 
 	// VerticallyConvex assumed to be true.
-	public void setShadeAux(int right, int down, int shade) {
-		int a = right - regionOffset;
-		int b = down - rowOffsets.get(a);
+	private void setShadeAux(int right, int down, int shade) {
 		try {
+			int a = right - regionOffset;
+			int b = down - rowOffsets.get(a);
 			region.get(a)[b] = shade;
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Coordinates must be within region");
@@ -99,6 +100,7 @@ public class CardinalConvexRegion {
 			setShadeAux(down, right, shade);
 	}
 
+	// Returns a figure representing the region.
 	public Figure convertToFigure() {
 
 		Figure figure = new Figure();
@@ -118,10 +120,25 @@ public class CardinalConvexRegion {
 		return figure;
 	}
 
+	// Sets every pixel of the region to shade.
 	public void constantShade(int shade) {
-		for (int[] row : region) {
-			Arrays.setAll(row, x -> shade);
+		shade((x, y) -> shade);
+	}
+
+	public void shade(BiFunction<Integer, Integer, Integer> shadeFunction) {
+		for (int i = 0; i < region.size(); i++) {
+			int[] curr = region.get(i);
+			for (int j = 0; j < curr.length; j++) {
+
+				if (verticallyConvex) {
+					curr[j] = shadeFunction.apply(i + regionOffset, j + rowOffsets.get(i));
+				} else {
+					curr[j] = shadeFunction.apply(j + rowOffsets.get(i), i + regionOffset);
+				}
+			}
 		}
 	}
+	
+	 
 
 }
