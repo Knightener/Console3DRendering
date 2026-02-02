@@ -1,9 +1,10 @@
 package classes2D;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 
+import other.MiscFunctions;
 import rendering2D.Figure;
 import rendering2D.Pixel;
 
@@ -60,7 +61,12 @@ public class CardinalConvexRegion {
 		rowOffsets.add(start);
 	}
 
-
+	// Equivalent to addLine(a,a)
+	public void addPoint(int a) {
+		region.add(new int[1]);
+		rowOffsets.add(a);
+	}
+	
 	// VerticallyConvex assumed to be true.
 	private int getShadeAux(int right, int down) {
 
@@ -139,6 +145,134 @@ public class CardinalConvexRegion {
 		}
 	}
 	
+	/*
+	 * Returns an integer array representing the horizontal component of every point
+	 * on the line. The line is fully drawn, except p2. p1 assumed to be further
+	 * left.
+	 */
+	public static int[] lineWithoutHorizontalRepetition(Pixel p1, Pixel p2) {
+
+		// difference
+		int rightDist = p2.getRight() - p1.getRight();
+		int downDif = p2.getDown() - p1.getDown();
+
+		if (rightDist == 0) {
+			return new int[0];
+		}
+		
+		int[] line = new int[rightDist];
+
+		// direction
+		int downDir = MiscFunctions.sign(downDif);
+
+		int minDownStep = downDif / rightDist;
+
+		// remaining down distance that will need to be distributed across iterations.
+		int excess = Math.abs(downDif) % rightDist;
+
+		int currMod = excess;
+		for (int i = 0; i < rightDist - 1; i++) {
+
+			line[i + 1] = line[i] + minDownStep;
+
+			currMod += excess;
+			if (currMod >= rightDist) {
+				currMod -= rightDist;
+				line[i + 1] += downDir;
+			}
+		}
+		
+		for (int i = 0; i < rightDist; i++) {
+			line[i] += p1.getDown();
+		}
+		return line;
+	}
+
+	/*
+	 * Draws a polygon. 
+	 * 
+	 * Polygon must be vertically convex.
+	 */
+	public static CardinalConvexRegion polygon(List<Pixel> vertices) {
+
+		int numberVertices = vertices.size();
+
+		if (numberVertices < 3) {
+			return new CardinalConvexRegion(0, true);
+		}
+
+		// Index of the left/right most points in the list of points
+		int leftMostIndex = 0;
+		int rightMostIndex = 0;
+
+		// Finds leftMostIndex/rightMostIndex
+		for (int i = 1; i < numberVertices; i++) {
+
+			double curr = vertices.get(i).getRight();
+
+			if (curr < vertices.get(leftMostIndex).getRight()) {
+				leftMostIndex = i;
+			}
+
+			if (curr > vertices.get(rightMostIndex).getRight()) {
+				rightMostIndex = i;
+			}
+		}
+
+		int length = vertices.get(rightMostIndex).getRight() - vertices.get(leftMostIndex).getRight();
+
+		/*
+		 * Line formed when winding counter clockwise through polygon from leftMost to
+		 * rightMost
+		 */
+		int[] counterClockwise = new int[length];
+
+		// Line formed when winding clockwise through polygon from leftMost to rightMost
+		int[] clockwise = new int[length];
+
+		int currIndex = 0;
+		int[] currLine;
+
+		try {
+			for (int i = leftMostIndex; i != rightMostIndex; i = (i + 1) % numberVertices) {
+
+				currLine = lineWithoutHorizontalRepetition(vertices.get(i), 
+						vertices.get((i + 1) % numberVertices));
+
+				for (int j = 0; j < currLine.length; j++) {
+					clockwise[currIndex++] = currLine[j];
+				}
+			}
+
+			currIndex = 0;
+
+			for (int i = leftMostIndex; i != rightMostIndex; i = MiscFunctions.mod((i - 1), numberVertices)) {
+
+				currLine = lineWithoutHorizontalRepetition(vertices.get(i),
+						vertices.get(MiscFunctions.mod((i - 1), numberVertices)));
+
+				for (int j = 0; j < currLine.length; j++) {
+					counterClockwise[currIndex++] = currLine[j];
+				}
+			}
+
+		} catch (NegativeArraySizeException e) {
+			// This happens because the line tries to go backwards.
+			throw new IllegalArgumentException("Polygon must be vertically convex.");
+		}
+
+		CardinalConvexRegion polygon = new CardinalConvexRegion(vertices.get(leftMostIndex).getRight(), true);
+
+		for (int i = 0; i < length; i++) {
+			polygon.addLine(clockwise[i], counterClockwise[i]);
+		}
+
+		// End point.
+		polygon.addPoint(vertices.get(rightMostIndex).getDown());
+
+		return polygon;
+
+	}
 	 
 
 }

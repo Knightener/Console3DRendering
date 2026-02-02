@@ -158,7 +158,11 @@ public abstract class ImageBase {
 			throw new IllegalArgumentException();
 		}
 
+		try {
 		image[down - upBound][right - leftBound] = shade;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			
+		}
 	}
 
 	public int getShade(int right, int down) {

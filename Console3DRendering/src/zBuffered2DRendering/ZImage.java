@@ -447,13 +447,16 @@ public class ZImage extends ImageBase {
 
 		}
 
-		// Line formed when winding counter clockwise through polygon from leftMost to
-		// rightMost
+		/*
+		 * Line formed when winding counter clockwise through polygon from leftMost to
+		 * rightMost
+		 */
 		ZFigure CounterClockWise = new ZFigure();
 
 		// Line formed when winding clockwise through polygon from leftMost to rightMost
 		ZFigure ClockWise = new ZFigure();
 
+		
 		for (int i = leftMostIndex; i != rightMostIndex; i = (i + 1) % length) {
 			ClockWise.add(lWHRCut(points.get(i), points.get((i + 1) % length)));
 		}

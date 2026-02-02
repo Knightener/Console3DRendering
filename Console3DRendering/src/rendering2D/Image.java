@@ -1,5 +1,8 @@
 package rendering2D;
 
+import java.util.List;
+
+import classes2D.CardinalConvexRegion;
 import classes2D.R2Point;
 import functionalInterfaces.RealFunction;
 import other.MiscFunctions;
