@@ -451,18 +451,18 @@ public class ZImage extends ImageBase {
 		 * Line formed when winding counter clockwise through polygon from leftMost to
 		 * rightMost
 		 */
-		ZFigure CounterClockWise = new ZFigure();
+		ZFigure counterClockwise = new ZFigure();
 
 		// Line formed when winding clockwise through polygon from leftMost to rightMost
-		ZFigure ClockWise = new ZFigure();
+		ZFigure clockwise = new ZFigure();
 
 		
 		for (int i = leftMostIndex; i != rightMostIndex; i = (i + 1) % length) {
-			ClockWise.add(lWHRCut(points.get(i), points.get((i + 1) % length)));
+			clockwise.add(lWHRCut(points.get(i), points.get((i + 1) % length)));
 		}
 
 		for (int i = leftMostIndex; i != rightMostIndex; i = MiscFunctions.mod((i - 1), length)) {
-			CounterClockWise.add(lWHRCut(points.get(i), points.get(MiscFunctions.mod((i - 1), length))));
+			counterClockwise.add(lWHRCut(points.get(i), points.get(MiscFunctions.mod((i - 1), length))));
 		}
 
 		ZFigure polygon = new ZFigure();
@@ -472,9 +472,9 @@ public class ZImage extends ImageBase {
 		 * However, there are rare edge cases where they aren't, so to avoid the code
 		 * halting I have added a try-catch block
 		 */
-		for (int i = 0; i < ClockWise.size(); i++) {
+		for (int i = 0; i < clockwise.size(); i++) {
 			try {
-				polygon.add(verticalLine(ClockWise.get(i), CounterClockWise.get(i), slope));
+				polygon.add(verticalLine(clockwise.get(i), counterClockwise.get(i), slope));
 			} catch (IndexOutOfBoundsException e) {
 				break;
 			}
