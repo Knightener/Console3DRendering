@@ -1,46 +1,27 @@
 package rendering2D;
 
-public class Pixel {
+import classes2D.IntPoint;
 
-	private int right;
-	private int down;
+public class Pixel extends IntPoint {
+
 	private int shade;
-	
+
 	public Pixel(int right, int down, int shade) {
+		super(right, down);
 		if (shade < 0 || shade > ShadeHandling.getMaxPossibleShade()) {
 			throw new IllegalArgumentException();
 		}
-		this.right = right;
-		this.down = down;
 		this.shade = shade;
 	}
 
 	public Pixel() {
-		right = 0;
-		down = 0;
+		super();
 		shade = 0;
 	}
 
 	public Pixel(Pixel pixel) {
-		right = pixel.right;
-		down = pixel.down;
+		super(pixel);
 		shade = pixel.shade;
-	}
-	
-	public int getRight() {
-		return right;
-	}
-
-	public void moveRight(int delta) {
-		right += delta;
-	}
-	
-	public void moveDown(int delta) {
-		down += delta;
-	}
-	
-	public int getDown() {
-		return down;
 	}
 
 	public void translate(Pixel pixel) {
@@ -51,32 +32,15 @@ public class Pixel {
 		return shade;
 	}
 	
+	@Override
 	public String toString() {
-		return right + " " + down + " | " + shade;
+		return super.toString() + " | " + shade;
 	}
 
 	public void setShade(int shade) {
 		this.shade = shade;
 	}
 	
-	public void flip() {
-		int rightCopy = right;
-		right = down;
-		down = rightCopy;
-	}
-	
-	public void scale(int r) {
-		right *= r;
-		down *= r;
-	}
-
-	public void setRight(int right) {
-		this.right = right;
-	}
-
-	public void setDown(int down) {
-		this.down = down;
-	}
 	
 	
 	
