@@ -90,6 +90,16 @@ public class MiscFunctions {
 		}
 	}
 	
+	// Returns the closest integer thats furthest from zero.
+	public static int furthestRound(double a) {
+		if (a >= 0) {
+			return (int) Math.ceil(a);
+		} else {
+			return (int) Math.floor(a);
+		}
+	}
+	
+	
 	// Returns true if x is between a and b
 	public static boolean between(double x, double a, double b) {
 		return (a <= x && x <= b) || (a >= x && x >= b);

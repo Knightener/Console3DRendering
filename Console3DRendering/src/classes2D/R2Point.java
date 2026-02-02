@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import functionalInterfaces.RealFunction;
 import interfaces.NormedVectorSpace;
+import other.MiscFunctions;
 import rendering2D.Pixel;
 import rendering2D.ShadeHandling;
 
@@ -93,15 +94,23 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 		private int shadeArea(R2Point point, int maxShade) {
 			return shadeHandling.determineShade(areaRectangle(point), maxShade);
 		}
-		
+
 		public Pixel truncate(int shade) {
-			return new Pixel((int)right,(int)down,shade);
+			return new Pixel((int) right, (int) down, shade);
 		}
-		
+
+		public IntPoint floor() {
+			return new IntPoint((int) Math.floor((right)), (int) Math.floor((down)));
+		}
+
+		public IntPoint floor(double scale) {
+			return new IntPoint((int) Math.floor((scale * right)), (int) Math.floor((scale * down)));
+		}
+
 		public Pixel[] approximate() {
 			return view(ShadeHandling.getMaxPossibleShade());
 		}
-		
+
 		public Pixel[] view(int maxShade) {
 			Pixel[] points = new Pixel[4];
 			
