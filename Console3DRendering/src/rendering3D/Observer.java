@@ -315,4 +315,9 @@ public class Observer {
 		}
 	}
 
+	public void renderDirectly(Mesh mesh) {
+		for (RelativePolygon face : mesh.faces) {
+			renderDirectly(face);
+		}
+	}
 }

@@ -145,7 +145,13 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 	public void setForward(double forward) {
 		this.forward = forward;
 	}
-	
+
+	public void set(R3Point point) {
+		right = point.right;
+		down = point.down;
+		forward = point.forward;
+	}
+
 	public R3Point(R3Point point) {
 		right = point.right;
 		down = point.down;
