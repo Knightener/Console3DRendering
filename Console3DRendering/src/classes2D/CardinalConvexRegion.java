@@ -3,6 +3,7 @@ package classes2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import other.MiscFunctions;
 import rendering2D.Figure;
@@ -40,7 +41,7 @@ public class CardinalConvexRegion {
 	 * vertical offset.
 	 */
 	private int regionOffset;
-
+	
 	public CardinalConvexRegion(int regionOffset, boolean verticallyConvex) {
 		this.regionOffset = regionOffset;
 		this.verticallyConvex = verticallyConvex;
@@ -65,6 +66,33 @@ public class CardinalConvexRegion {
 	public void addPoint(int a) {
 		region.add(new int[1]);
 		rowOffsets.add(a);
+	}
+
+	// Extends the row at index to include a, b. New points will have the shade 0.
+	public void extendRow(int a, int b, int rowIndex) {
+		
+		int[] row = region.get(rowIndex);
+		
+		int start = rowOffsets.get(rowIndex);
+		int end = start + row.length - 1; 
+
+		// If both are 0, the row is unchanged.
+		int startDiff = Math.max(start - Math.min(a, b), 0);
+		int endDiff = Math.max(Math.max(a, b) - end, 0);
+
+		int[] newRow = new int[row.length + startDiff + endDiff];
+		for (int i = 0; i < row.length; i++) {
+			newRow[i + startDiff] = row[i];
+		}
+		
+		region.set(rowIndex, newRow);
+		rowOffsets.set(rowIndex, start - startDiff);
+		
+	}
+	
+	// Reflects the region along x = y
+	public void reflect() {
+		verticallyConvex = !verticallyConvex;
 	}
 	
 	// VerticallyConvex assumed to be true.
@@ -127,10 +155,11 @@ public class CardinalConvexRegion {
 	}
 
 	// Sets every pixel of the region to shade.
-	public void constantShade(int shade) {
+	public void shade(int shade) {
 		shade((x, y) -> shade);
 	}
 
+	// Shades pixels according to their position.
 	public void shade(BiFunction<Integer, Integer, Integer> shadeFunction) {
 		for (int i = 0; i < region.size(); i++) {
 			int[] curr = region.get(i);
@@ -145,12 +174,20 @@ public class CardinalConvexRegion {
 		}
 	}
 	
+	// Shades pixels according to their current shade.
+	public void shade(Function<Integer,Integer> shadeFunction) {
+		for (int row[] : region) {
+			for (int i = 0; i < row.length ; i++) {
+				row[i] = shadeFunction.apply(row[i]);
+			}
+		}
+	}
 	/*
 	 * Returns an integer array representing the horizontal component of every point
 	 * on the line. The line is fully drawn, except p2. p1 assumed to be further
 	 * left.
 	 */
-	public static int[] lineWithoutHorizontalRepetition(Pixel p1, Pixel p2) {
+	public static int[] lineWithoutHorizontalRepetition(IntPoint p1, IntPoint p2) {
 
 		// difference
 		int rightDist = p2.getRight() - p1.getRight();
@@ -190,10 +227,9 @@ public class CardinalConvexRegion {
 
 	/*
 	 * Draws a polygon. 
-	 * 
 	 * Polygon must be vertically convex.
 	 */
-	public static CardinalConvexRegion polygon(List<Pixel> vertices) {
+	public static CardinalConvexRegion polygon(List<IntPoint> vertices) {
 
 		int numberVertices = vertices.size();
 
