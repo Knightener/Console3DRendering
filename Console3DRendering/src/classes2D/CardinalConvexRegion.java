@@ -196,7 +196,7 @@ public class CardinalConvexRegion {
 		}
 		
 		if (n < 0) {
-			for (int i = region.size() - 1; i > 0; i--) {
+			for (int i = region.size() - 1; i >= 0; i--) {
 
 				int start = Integer.MAX_VALUE;
 				int end = Integer.MIN_VALUE;

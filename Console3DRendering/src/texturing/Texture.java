@@ -9,13 +9,13 @@ public class Texture {
 	private static ShadeHandling shadeHandling = new ShadeHandling();
 
 	// Array of shades.
-	int[][] texture;
+	private int[][] texture;
 
-	int rows;
-	int cols;
+	private int rows;
+	private int cols;
 
 	// 1/scaleFactor is how much the texture is scaled up.
-	double scaleFactor;
+	private double scaleFactor;
 
 	public Texture(TextureBuilder textureBuilder, double scale) {
 
@@ -43,6 +43,10 @@ public class Texture {
 		this(new TextureBuilder(texturePreset), scale);
 	}
 
+	public double getScaleFactor() {
+		return scaleFactor;
+	}
+	
 	// Extends the texture to all of ZxZ by tessellation. 
 	public int determineShadeAt(int right, int down) {
 		return texture[MiscFunctions.mod(down, rows)][MiscFunctions.mod(right, cols)];
