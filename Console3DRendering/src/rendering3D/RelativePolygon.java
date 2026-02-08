@@ -110,7 +110,7 @@ public class RelativePolygon extends RelativeComponent {
 		this(observer,texture,Arrays.asList(points));
 	}
 
-	private void findUVVariables() {
+	public void findUVVariables() {
 
 		Observer observer = getObserver();
 
