@@ -1,6 +1,8 @@
 package classes2D;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -32,7 +34,8 @@ public class CardinalConvexRegion {
 
 	/*
 	 * Vertical offset of each row of region if verticallyConvex is true. Else,
-	 * horizontal offset.
+	 * horizontal offset. Can contain null elements, which signifies that the 
+	 * row is empty. 
 	 */
 	private ArrayList<Integer> rowOffsets;
 
@@ -108,8 +111,13 @@ public class CardinalConvexRegion {
 		}
 	}
 
-	// Extends the row at index to include a and b. New points will have the shade 0.
-	public void extendRow(int rowIndex, int a, int b) {
+	/*
+	 * Extends the row at index to include all of the points. New points will have
+	 * the shade 0.
+	 */
+	public void extendRow(int rowIndex, int... points) {
+
+		IntSummaryStatistics stat = Arrays.stream(points).summaryStatistics();
 
 		if (rowOffsets.get(rowIndex) != null) {
 			int[] row = region.get(rowIndex);
@@ -118,8 +126,8 @@ public class CardinalConvexRegion {
 			int end = start + row.length - 1;
 
 			// If both are 0, the row is unchanged.
-			int startDiff = Math.max(start - Math.min(a, b), 0);
-			int endDiff = Math.max(Math.max(a, b) - end, 0);
+			int startDiff = Math.max(start - stat.getMin(), 0);
+			int endDiff = Math.max(stat.getMax() - end, 0);
 
 			int[] newRow = new int[row.length + startDiff + endDiff];
 			for (int i = 0; i < row.length; i++) {
@@ -129,14 +137,88 @@ public class CardinalConvexRegion {
 			region.set(rowIndex, newRow);
 			rowOffsets.set(rowIndex, start - startDiff);
 		} else {
-			int start = Math.min(a, b);
-			int end = Math.max(a, b);
+			int start = stat.getMin();
+			int end = stat.getMax();
 
 			region.set(rowIndex, new int[end - start + 1]);
 			rowOffsets.set(rowIndex, start);
 		}
 	}
-	
+
+	/*
+	 * Extends all columns by n. Columns aren't well defined in this class, this is
+	 * just to highlight the fact that it extends the shape in the direction
+	 * orthogonal to extendRows. Note that in some cases, it might include points
+	 * that are not found by extending a point in the region by n
+	 * horizontally/vertically (whichever is orthogonal to verticallyConvex) that
+	 * are added to maintain convexity.
+	 */
+	public void extendColumns(int n) {
+
+		int absN = Math.abs(n);
+
+		// Starts and ends with n nulls.
+		Integer[] allStarts = new Integer[region.size() + (absN << 1)];
+		Integer[] allEnds = new Integer[region.size() + (absN << 1)];
+
+		for (int i = 0; i < region.size(); i++) {
+			allStarts[i + absN] = rowOffsets.get(i);
+			if (rowOffsets.get(i) != null) {
+				allEnds[i + absN] = rowOffsets.get(i) + region.get(i).length - 1;
+			}
+		}
+
+		addBlanks(n);
+		
+		if (n > 0) {
+			for (int i = 0; i < region.size(); i++) {
+
+				int start = Integer.MAX_VALUE;
+				int end = Integer.MIN_VALUE;
+
+				/*
+				 * Finds the minimum start and maximum ends in the window from i to n behind i
+				 * (note that because allStarts and allEnds start with n nulls, the window i - n
+				 * to i becomes i to i + n).
+				 */
+				for (int j = i; j <= i + n; j++) {
+					if (allStarts[j] != null) {
+						start = (start < allStarts[j]) ? start : allStarts[j];
+						end = (end > allEnds[j]) ? end : allEnds[j];
+					}
+				}
+
+				// This only happens if all starts and ends in the window were null.
+				if (start != Integer.MAX_VALUE) {
+					extendRow(i, start, end);
+				}
+			}
+		}
+		
+		if (n < 0) {
+			for (int i = region.size() - 1; i > 0; i--) {
+
+				int start = Integer.MAX_VALUE;
+				int end = Integer.MIN_VALUE;
+
+				/*
+				 * Finds the minimum start and maximum ends in the window from i to n in front
+				 * of i
+				 */
+				for (int j = i; j <= i - n; j++) {
+					if (allStarts[j] != null) {
+						start = (start < allStarts[j]) ? start : allStarts[j];
+						end = (end > allEnds[j]) ? end : allEnds[j];
+					}
+				}
+
+				if (start != Integer.MAX_VALUE) {
+					extendRow(i, start, end);
+				}
+			}
+		}
+	}
+
 	// Reflects the region along x = y.
 	public void reflect() {
 		verticallyConvex = !verticallyConvex;
@@ -354,7 +436,6 @@ public class CardinalConvexRegion {
 		polygon.addPoint(vertices.get(rightMostIndex).getDown());
 
 		return polygon;
-
 	}
 	 
 
