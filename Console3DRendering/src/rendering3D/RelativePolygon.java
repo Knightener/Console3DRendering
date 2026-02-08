@@ -7,13 +7,14 @@ import java.util.List;
 import classes2D.R2Point;
 import classes3D.R3Point;
 import other.Constants;
+import texturing.PolygonTexture;
 import texturing.Texture;
 import zBuffered2DRendering.ZFigure;
 import zBuffered2DRendering.ZPixel;
 
 public class RelativePolygon extends RelativeComponent {
 
-	Texture texture;
+	PolygonTexture texture;
 
 	/*
 	 * Stores the points using two variables u and v representing their position on
@@ -55,13 +56,11 @@ public class RelativePolygon extends RelativeComponent {
 	 */
 	public RelativePolygon(Observer observer, Texture texture, List<R3Point> points) {
 
-		super(observer);
+		super(observer); 
 		
 		if (points.size() < 3) {
 			throw new IllegalArgumentException("Polygon must have at least 3 points");
 		}
-
-		this.texture = texture;
 		
 		this.perceivedPoints = new ArrayList<R3Point>(points);
 		
@@ -100,6 +99,8 @@ public class RelativePolygon extends RelativeComponent {
 			uVPoints.add(new R2Point(adjusted.dot(vectorA), adjusted.dot(vectorB)));
 
 		}
+		
+		this.texture = new PolygonTexture(uVPoints, texture);
 		
 		updatePerspective();
 

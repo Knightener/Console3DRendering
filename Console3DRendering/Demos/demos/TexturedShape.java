@@ -25,7 +25,7 @@ public class TexturedShape {
 		 * are the vertical span (note y axis is flipped).
 		 */
 		ZImage image = new ZImage(-60, 60, -50, 50);
-
+		
 		// Front face vertices.
 		R3Point p1 = new R3Point(0, -1, 1);
 		R3Point p2 = new R3Point(-1, 1, 1);
@@ -37,7 +37,7 @@ public class TexturedShape {
 		R3Point q3 = new R3Point(1, 1, -1);
 		
 		// Texture of the shape.
-		Texture texture = new Texture(TexturePresets.CHECKERBOARD, 0.6);
+		Texture texture = new Texture(TexturePresets.CHECKERBOARD, 0.5);
 	
 		// Observer's position.
 		R3Point position = new R3Point(0, 0, 0);
