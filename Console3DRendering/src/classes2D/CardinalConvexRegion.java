@@ -68,12 +68,28 @@ public class CardinalConvexRegion {
 		rowOffsets.add(a);
 	}
 
-	// Extends all the rows by x. 
-	public void extendRows(int x) {
-		if (x >= 0) {
+	// Adds n blank arrays either behind or after region (depending on sign).
+	public void addBlanks(int n) {
+		if (n >= 0) {
+			for (int i = 0; i < n; i++) {
+				region.add(new int[0]);
+				rowOffsets.add(null);
+			}
+		} else {
+			for (int i = 0; i < -n; i++) {
+				region.addFirst(new int[0]);
+				rowOffsets.addFirst(null);
+			}
+			regionOffset += n;
+		}
+	}
+
+	// Extends all the rows by n. 
+	public void extendRows(int n) {
+		if (n >= 0) {
 			for (int i = 0; i < region.size(); i++) {
 				int[] row = region.get(i);
-				int[] newRow = new int[row.length + x];
+				int[] newRow = new int[row.length + n];
 				for (int j = 0; j < row.length; j++) {
 					newRow[j] = row[j];
 				}
@@ -82,12 +98,12 @@ public class CardinalConvexRegion {
 		} else {
 			for (int i = 0; i < region.size(); i++) {
 				int[] row = region.get(i);
-				int[] newRow = new int[row.length - x];
+				int[] newRow = new int[row.length - n];
 				for (int j = 0; j < row.length; j++) {
-					newRow[j - x] = row[j];
+					newRow[j - n] = row[j];
 				}
 				region.set(i, newRow);
-				rowOffsets.set(i, rowOffsets.get(i) + x);
+				rowOffsets.set(i, rowOffsets.get(i) + n);
 			}
 		}
 	}
@@ -95,23 +111,30 @@ public class CardinalConvexRegion {
 	// Extends the row at index to include a and b. New points will have the shade 0.
 	public void extendRow(int rowIndex, int a, int b) {
 
-		int[] row = region.get(rowIndex);
+		if (rowOffsets.get(rowIndex) != null) {
+			int[] row = region.get(rowIndex);
 
-		int start = rowOffsets.get(rowIndex);
-		int end = start + row.length - 1;
+			int start = rowOffsets.get(rowIndex);
+			int end = start + row.length - 1;
 
-		// If both are 0, the row is unchanged.
-		int startDiff = Math.max(start - Math.min(a, b), 0);
-		int endDiff = Math.max(Math.max(a, b) - end, 0);
+			// If both are 0, the row is unchanged.
+			int startDiff = Math.max(start - Math.min(a, b), 0);
+			int endDiff = Math.max(Math.max(a, b) - end, 0);
 
-		int[] newRow = new int[row.length + startDiff + endDiff];
-		for (int i = 0; i < row.length; i++) {
-			newRow[i + startDiff] = row[i];
+			int[] newRow = new int[row.length + startDiff + endDiff];
+			for (int i = 0; i < row.length; i++) {
+				newRow[i + startDiff] = row[i];
+			}
+
+			region.set(rowIndex, newRow);
+			rowOffsets.set(rowIndex, start - startDiff);
+		} else {
+			int start = Math.min(a, b);
+			int end = Math.max(a, b);
+
+			region.set(rowIndex, new int[end - start + 1]);
+			rowOffsets.set(rowIndex, start);
 		}
-
-		region.set(rowIndex, newRow);
-		rowOffsets.set(rowIndex, start - startDiff);
-		
 	}
 	
 	// Reflects the region along x = y.
