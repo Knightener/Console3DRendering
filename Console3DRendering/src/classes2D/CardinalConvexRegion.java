@@ -68,13 +68,37 @@ public class CardinalConvexRegion {
 		rowOffsets.add(a);
 	}
 
-	// Extends the row at index to include a, b. New points will have the shade 0.
-	public void extendRow(int a, int b, int rowIndex) {
-		
+	// Extends all the rows by x. 
+	public void extendRows(int x) {
+		if (x >= 0) {
+			for (int i = 0; i < region.size(); i++) {
+				int[] row = region.get(i);
+				int[] newRow = new int[row.length + x];
+				for (int j = 0; j < row.length; j++) {
+					newRow[j] = row[j];
+				}
+				region.set(i, newRow);
+			}
+		} else {
+			for (int i = 0; i < region.size(); i++) {
+				int[] row = region.get(i);
+				int[] newRow = new int[row.length - x];
+				for (int j = 0; j < row.length; j++) {
+					newRow[j - x] = row[j];
+				}
+				region.set(i, newRow);
+				rowOffsets.set(i, rowOffsets.get(i) + x);
+			}
+		}
+	}
+
+	// Extends the row at index to include a and b. New points will have the shade 0.
+	public void extendRow(int rowIndex, int a, int b) {
+
 		int[] row = region.get(rowIndex);
-		
+
 		int start = rowOffsets.get(rowIndex);
-		int end = start + row.length - 1; 
+		int end = start + row.length - 1;
 
 		// If both are 0, the row is unchanged.
 		int startDiff = Math.max(start - Math.min(a, b), 0);
@@ -84,13 +108,13 @@ public class CardinalConvexRegion {
 		for (int i = 0; i < row.length; i++) {
 			newRow[i + startDiff] = row[i];
 		}
-		
+
 		region.set(rowIndex, newRow);
 		rowOffsets.set(rowIndex, start - startDiff);
 		
 	}
 	
-	// Reflects the region along x = y
+	// Reflects the region along x = y.
 	public void reflect() {
 		verticallyConvex = !verticallyConvex;
 	}
