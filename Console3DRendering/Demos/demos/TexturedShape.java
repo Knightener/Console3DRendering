@@ -1,12 +1,8 @@
 package demos;
 
-import java.util.ArrayList;
-
 import classes3D.R3Point;
-import rendering3D.Form;
+import rendering3D.Mesh;
 import rendering3D.Observer;
-import rendering3D.RelativeComponent;
-import rendering3D.RelativePolygon;
 import texturing.Texture;
 import texturing.TexturePresets;
 import zBuffered2DRendering.ZImage;
@@ -47,20 +43,14 @@ public class TexturedShape {
 		
 		Observer observer = new Observer(position, theta, 0, image, 70);
 
-		// Faces of the shape.
-		RelativePolygon t1 = new RelativePolygon(observer,texture,p1,p2,p3);
-		RelativePolygon t2 = new RelativePolygon(observer,texture,q1,q2,q3);
-		RelativePolygon t3 = new RelativePolygon(observer,texture,p1,p2,q2,q1);
-		RelativePolygon t4 = new RelativePolygon(observer,texture,p3,p1,q1,q3);
-
-		ArrayList<RelativeComponent> f = new ArrayList<RelativeComponent>();
-
-		f.add(t1);
-		f.add(t2);
-		f.add(t3);
-		f.add(t4);
-
-		Form form = new Form(f);
+		// The shape.
+		Mesh shape = new Mesh(observer,p1,p2,p3,q1,q2,q3);
+		
+		// Adding faces.
+		shape.createFace(texture, 0,1,2);
+		shape.createFace(texture, 3,4,5);
+		shape.createFace(texture, 0,1,4,3);
+		shape.createFace(texture, 2,0,3,5);
 		
 		while (true) {
 
@@ -72,14 +62,14 @@ public class TexturedShape {
 			observer.setPosition(position);
 			observer.setOrientation(theta, 0);
 
-			form.updatePerspective();
-			observer.renderDirectly(form);
+			shape.updatePerspective();
+			observer.renderDirectly(shape);
 			image.texturize();
 			
 			// You could change this to image.displayCoordinates().
 			image.display();
 			image.clear();
-			
+
 			try {
 				Thread.sleep(100);
 			} catch (Exception e) {
