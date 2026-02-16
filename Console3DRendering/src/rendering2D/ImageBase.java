@@ -127,16 +127,18 @@ public abstract class ImageBase {
 		}
 		return shadeArr;
 	}
+	
 
 	public void display() {
-		String[][] shadeArr = convert();
-
+		StringBuilder imageString = new StringBuilder();
+		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				System.out.print(shadeArr[i][j]);
+				imageString.append(ShadeHandling.shades[image[i][j]]);
 			}
-			System.out.println();
+			imageString.append('\n');
 		}
+		System.out.print(imageString);
 	}
 
 	public void displayCoordinates() {
