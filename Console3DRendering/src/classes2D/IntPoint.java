@@ -35,6 +35,7 @@ public class IntPoint {
 		return down;
 	}
 	
+	@Override
 	public String toString() {
 		return right + " " + down;
 	}
@@ -57,5 +58,13 @@ public class IntPoint {
 	public void setDown(int down) {
 		this.down = down;
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof IntPoint)) {
+			return false;
+		}
+		IntPoint point = (IntPoint) obj;
+		return (point.right == right) && (point.down == down);
+	}
 }

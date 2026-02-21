@@ -1,6 +1,6 @@
 package other;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MiscFunctions {
 	public static int nthDigit(int num, int n) {
@@ -109,12 +109,14 @@ public class MiscFunctions {
 		return Math.abs(a - b) < Constants.EPSILON;
 	}
 
-	// When index is out of bounds, returns the element at that index mod length
-	public static <T> T cyclicGet(T[] arr, int index) {
-		return arr[mod(index, arr.length)];
-	}
-
-	public static <T> T cyclicGet(ArrayList<T> arr, int index) {
-		return arr.get(mod(index, arr.size()));
+	// Remove obj if already present, adds obj if not.
+	public static <T> void xorAdd(List<T> list, T obj) {
+		for (int i = 0; i < list.size(); i++) {
+			if (obj.equals(list.get(i))) {
+				list.remove(i);
+				return;
+			}
+		}
+		list.add(obj);
 	}
 }
