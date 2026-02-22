@@ -9,6 +9,10 @@ public class Form {
 		this.components = components;
 	}
 
+	public Form() {
+		this.components = new ArrayList<RelativeComponent>();
+	}
+	
 	public void updatePerspective() {
 		for (RelativeComponent component : components) {
 			component.updatePerspective();
@@ -24,6 +28,10 @@ public class Form {
 	 */
 	public void determineRenderingOrder() {
 		Collections.sort(components);
+	}
+	
+	public void add(RelativeComponent component) {
+		components.add(component);
 	}
 
 	public void addNormals() {

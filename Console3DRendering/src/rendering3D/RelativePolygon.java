@@ -68,7 +68,8 @@ public class RelativePolygon extends RelativeComponent {
 		
 		vectorA = points.get(1).difference(offset);
 		
-		orientation = points.get(1).difference(offset).cross(points.get(2).difference(offset));
+		// (A-B)x(B-C)
+		orientation = points.get(0).difference(points.get(1)).cross(points.get(1).difference(points.get(2)));
 		
 		orientation.normalize();
 	

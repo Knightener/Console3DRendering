@@ -129,7 +129,7 @@ public class Mesh extends ObserverDependant {
 			curr = border.get(i);
 			for (int j = 0; j < length; j++) {
 				// Overlapping edge found
-				if (curr.getRight() == indices[j] && curr.getDown() == indices[(j + 1) % length]) {
+				if (curr.getDown() == indices[j] && curr.getRight() == indices[(j + 1) % length]) {
 					unrestrictedCreateFace(texture, indices);
 					addToBorder(indices);
 					return true;
@@ -139,9 +139,16 @@ public class Mesh extends ObserverDependant {
 		return false;
 	}
 
+	/*
+	 * Adds a face to the mesh if and only if it is adjacent to the border. In other
+	 * words, it must be adjacent to an edge that only has a singular polygon. This
+	 * is to ensure consistent winding, and hence normals. The initial face will
+	 * determine which side of the mesh is the interior and which side is the
+	 * exterior.
+	 */
 	public void createFace(Texture texture, int... indices) {
 
-		// Initial face if mesh has none. 
+		// Initial face if mesh has none.
 		if (faceIndices.isEmpty()) {
 			unrestrictedCreateFace(texture, indices);
 			addToBorder(indices);
@@ -163,7 +170,7 @@ public class Mesh extends ObserverDependant {
 			return;
 		}
 
-		throw new IllegalArgumentException("Face is not adjacent to any polygon.");
+		throw new IllegalArgumentException("Face is not adjacent to border.");
 	}
 
 	public void updatePerspective() {
@@ -183,6 +190,14 @@ public class Mesh extends ObserverDependant {
 		}
 	}
 	
+	// Returns a form with all normals.
+	public Form getAllNormals() {
+		Form normals = new Form();
+		for (RelativePolygon face : faces) {
+			normals.add(face.getUnitNormal());
+		}
+		return normals;
+	}
 	
 	
 	
