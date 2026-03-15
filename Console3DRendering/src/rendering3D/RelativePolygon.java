@@ -39,6 +39,7 @@ public class RelativePolygon extends RelativeComponent {
 	protected R3Point perceivedVectorA;
 	protected R3Point perceivedVectorB;
 
+	private boolean isTextured; 
 	/*
 	 * vA/BFis perceivedVectorA/B's forward component multiplied by the FOV of whatever
 	 * observer is associated with this polygon. 
@@ -52,11 +53,14 @@ public class RelativePolygon extends RelativeComponent {
 	private R2Point vABDotOffset;
 
 	/*
-	 * Polygon assumed to lie entirely on some plane and be convex.
+	 * Polygon assumed to lie entirely on some plane and be convex. Set texture to
+	 * null to obtain an untextured polygon.
 	 */
 	public RelativePolygon(Observer observer, Texture texture, List<R3Point> points) {
 
 		super(observer); 
+		
+		isTextured = texture != null; 
 		
 		if (points.size() < 3) {
 			throw new IllegalArgumentException("Polygon must have at least 3 points");
@@ -70,12 +74,14 @@ public class RelativePolygon extends RelativeComponent {
 		
 		// (A-B)x(B-C)
 		orientation = points.get(0).difference(points.get(1)).cross(points.get(1).difference(points.get(2)));
-		
-		orientation.normalize();
-	
-		
+
 		try {
-			
+			orientation.normalize();
+		} catch (ArithmeticException e) {
+			throw new IllegalArgumentException("Polygon cannot have edge overlap");
+		}
+
+		try {
 			vectorA = orientation.cross(new R3Point(0, -1, 0));
 			vectorA.normalize();
 			vectorB = vectorA.cross(orientation);
@@ -101,7 +107,9 @@ public class RelativePolygon extends RelativeComponent {
 
 		}
 		
-		this.texture = new PolygonTexture(uVPoints, texture);
+		if (isTextured) {
+			this.texture = new PolygonTexture(uVPoints, texture);
+		}
 		
 		updatePerspective();
 
@@ -167,7 +175,9 @@ public class RelativePolygon extends RelativeComponent {
 			point.translate(perceivedOffset);
 		}
 
-		findUVVariables();
+		if (isTextured) {
+			findUVVariables();
+		}
 	}
 
 	/*
@@ -176,7 +186,7 @@ public class RelativePolygon extends RelativeComponent {
 	 * in u-v space.
 	 */
 	public R2Point findUV(int right, int down, double zBuffer) {
-
+		checkTextured();
 		R2Point uvPoint = new R2Point(
 			perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + vAF,
 			perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + vBF);
@@ -194,12 +204,13 @@ public class RelativePolygon extends RelativeComponent {
 	}
 	
 	public ZFigure viewed() {
-		
-		ZFigure polygon = getObserver().polygon(perceivedPoints, 1);
 
-		polygon.change(pixel -> ((ZPixel) pixel).setPolygonID(getID()));
-		
+		ZFigure polygon = getObserver().polygon(perceivedPoints, 2);
+		if (isTextured) {
+			polygon.change(pixel -> ((ZPixel) pixel).setPolygonID(getID()));
+		}
 		return polygon;
+
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.
@@ -223,5 +234,16 @@ public class RelativePolygon extends RelativeComponent {
 		vectorTip.translate(orientation);
 
 		return new RelativeLine(vectorTail, vectorTip, getObserver());
+	}
+	
+	// Returns true if the polygon is facing the point.
+	public boolean isFacing(R3Point point) {
+		return point.dot(orientation) < 0;
+	}
+	
+	private void checkTextured() {
+		if (!isTextured) {
+		throw new IllegalStateException("Polygon is untextured");
+		}
 	}
 }
