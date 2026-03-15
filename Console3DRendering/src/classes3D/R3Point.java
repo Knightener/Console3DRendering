@@ -169,4 +169,12 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 	public double taxicab() {
 		return Math.abs(right) + Math.abs(down) + Math.abs(forward);
 	}
+
+	// Returns a new point that represent this scaled by multiplier from origin.
+	public R3Point extendFrom(R3Point origin, double multiplier) {
+		return new R3Point(
+				multiplier * (right - origin.right) + origin.right,
+				multiplier * (down - origin.down) + origin.down,
+				multiplier * (forward - origin.forward) + origin.forward);
+	}
 }

@@ -48,8 +48,8 @@ public class TexturedShape {
 		
 		// Adding faces.
 		shape.createFace(texture, 0,1,2);
-		shape.createFace(texture, 3,4,5);
 		shape.createFace(texture, 0,1,4,3);
+		shape.createFace(texture, 3,4,5);
 		shape.createFace(texture, 2,0,3,5);
 		
 		while (true) {
