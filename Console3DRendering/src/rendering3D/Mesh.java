@@ -198,8 +198,27 @@ public class Mesh extends ObserverDependant {
 		}
 		return normals;
 	}
-	
-	
-	
-	
+
+	// Returns the border of the visible faces from point.
+	public List<R3Point> getVisibleBorder(R3Point point) {
+		ArrayList<IntPoint> borderIndices = new ArrayList<>();
+		int[] curr;
+		for (int i = 0; i < faces.size(); i++) {
+			if (faces.get(i).isFacing(point)) {
+				curr = faceIndices.get(i);
+				for (int j = 0; j < curr.length; j++) {
+					MiscFunctions.xorAdd(borderIndices, new IntPoint(curr[j], curr[(j + 1) % curr.length]));
+				}
+			}
+		}
+		ArrayList<R3Point> visibleBorder = new ArrayList<>();
+
+		// Note: edge.getDown() returns the same result 
+		for (IntPoint edge : borderIndices) {
+			visibleBorder.add(vertices.get(edge.getRight()));
+		}
+		
+		return visibleBorder;
+	}
+
 }
