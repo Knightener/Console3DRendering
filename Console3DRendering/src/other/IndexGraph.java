@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class IndexGraph{
+public class IndexGraph implements Iterable<Edge>{
 
 	/*
 	 * Implementation of a directed graph where the points are only named by their
@@ -70,5 +70,66 @@ public class IndexGraph{
 	}
 	
 
+	// Iterator for all the edges of the graph. 
+    @Override
+    public Iterator<Edge> iterator() {
+    	Iterator<Edge> it = new Iterator<>() {
+    		
+    		// Index of current point. 
+    		public int pointIndex = 0;
+    		
+    		// Index of current edge. 
+			public int edgeIndex = 0;
+
+			// This is for if the first point has no edges. 
+			{
+				findNextEdge();
+			}
+
+			@Override
+			public boolean hasNext() {
+				return pointIndex < numPoints;
+			}
+
+			@Override
+			public Edge next() {
+				Edge currEdge = new Edge(pointIndex, graph.get(pointIndex).get(edgeIndex));
+				findNextEdge();
+				return currEdge;
+			}
+           
+			// Finds the indices of the next valid edge. 
+			private void findNextEdge() {
+				
+				// While loop for if multiple points in a row have no edges.
+				while (pointIndex < numPoints) {
+					if (edgeIndex < graph.get(pointIndex).size()) {
+						edgeIndex++;
+						break;
+					} else {
+						pointIndex++;
+						edgeIndex = 0;
+					}
+				}
+			}
+    	};
+    	return it;
+    }
+    
+    @Override
+    public String toString() {
+    	StringBuilder graphString = new StringBuilder();
+
+		for (int i = 0; i < numPoints; i++) {
+			List<Integer> curr = graph.get(i);
+			graphString.append(i + ": ");
+			for (int element : curr) {
+				graphString.append(element + " ");
+			}
+			graphString.append("\n");
+		}
+		
+		return graphString.toString();
+    }
 
 }
