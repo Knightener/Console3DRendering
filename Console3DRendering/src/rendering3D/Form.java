@@ -1,5 +1,9 @@
 package rendering3D;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import classes3D.R3Point;
 
 public class Form {
 
@@ -12,7 +16,17 @@ public class Form {
 	public Form() {
 		this.components = new ArrayList<RelativeComponent>();
 	}
-	
+
+	// Constructs a form by connecting the points in a loop. 
+	public static Form connect(List<R3Point> points, Observer observer) {
+		Form connected = new Form();
+
+		for (int i = 0; i < points.size(); i++) {
+			connected.add(new RelativeLine(points.get(i), points.get((i + 1) % points.size()), observer));
+		}
+		
+		return connected; 
+	}
 	public void updatePerspective() {
 		for (RelativeComponent component : components) {
 			component.updatePerspective();
@@ -46,6 +60,10 @@ public class Form {
 				components.add(((RelativePolygon) curr).getUnitNormal());
 			}
 		}
+	}
+	
+	public int getSize() {
+		return components.size();
 	}
 
 }
