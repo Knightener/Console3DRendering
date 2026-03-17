@@ -24,10 +24,16 @@ public class IndexGraph implements Iterable<Edge>{
 
 	public IndexGraph(int numPoints) {
 		graph = new ArrayList<>();
+		for (int i = 0; i < numPoints; i++) {
+			graph.add(new ArrayList<>());
+		}
 		this.numPoints = numPoints;
 	}
 
-	// Initializes a graph such that adjacent elements of base are connected left-> right
+	/*
+	 * Initializes a graph such that adjacent elements of base are connected left->
+	 * right
+	 */
 	public IndexGraph(int[] base) {
 		this(Arrays.stream(base).max().getAsInt());
 		for (int i = 0; i < base.length; i++) {
@@ -67,6 +73,7 @@ public class IndexGraph implements Iterable<Edge>{
 	
 	public void addPoint() {
 		numPoints++;
+		graph.add(new ArrayList<>());
 	}
 	
 
@@ -83,7 +90,9 @@ public class IndexGraph implements Iterable<Edge>{
 
 			// This is for if the first point has no edges. 
 			{
-				findNextEdge();
+				if (graph.get(0).size() == 0) {
+					findNextEdge();
+				}
 			}
 
 			@Override
@@ -100,16 +109,18 @@ public class IndexGraph implements Iterable<Edge>{
            
 			// Finds the indices of the next valid edge. 
 			private void findNextEdge() {
-				
-				// While loop for if multiple points in a row have no edges.
-				while (pointIndex < numPoints) {
-					if (edgeIndex < graph.get(pointIndex).size()) {
-						edgeIndex++;
-						break;
-					} else {
+				if (edgeIndex < graph.get(pointIndex).size() - 1) {
+					edgeIndex++;
+				} else {
+					pointIndex++;
+					// If multiple points in a row are empty. 
+					while (pointIndex < numPoints) {
+						if (!graph.get(pointIndex).isEmpty()) {
+							break;
+						}
 						pointIndex++;
-						edgeIndex = 0;
 					}
+					edgeIndex = 0;
 				}
 			}
     	};
