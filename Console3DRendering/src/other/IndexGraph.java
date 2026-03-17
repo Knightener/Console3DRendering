@@ -1,11 +1,10 @@
 package other;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class IndexGraph implements Iterable<Edge>{
+public class IndexGraph implements Iterable<IndexEdge>{
 
 	/*
 	 * Implementation of a directed graph where the points are only named by their
@@ -13,9 +12,8 @@ public class IndexGraph implements Iterable<Edge>{
 	 */
 
 	// The index at i is a list of points connected to point i.
-	List<List<Integer>> graph;
-	int numPoints;
-	int numEdges;
+	private List<List<Integer>> graph;
+	private int numPoints;
 
 	public IndexGraph() {
 		graph = new ArrayList<>();
@@ -30,17 +28,6 @@ public class IndexGraph implements Iterable<Edge>{
 		this.numPoints = numPoints;
 	}
 
-	/*
-	 * Initializes a graph such that adjacent elements of base are connected left->
-	 * right
-	 */
-	public IndexGraph(int[] base) {
-		this(Arrays.stream(base).max().getAsInt());
-		for (int i = 0; i < base.length; i++) {
-			connect(base[i], base[(i + 1) % base.length]);
-		}
-	}
-
 	// Returns true if there is a connection between a and b. 
 	public boolean isConnected(int a, int b) {
 		if (a >= numPoints) { 
@@ -53,7 +40,6 @@ public class IndexGraph implements Iterable<Edge>{
 	public void connect(int a, int b) {
 		if (a < numPoints && b < numPoints) {
 			graph.get(a).add(b);
-			numEdges++;
 		} else {
 			throw new IndexOutOfBoundsException("Both points must be in range.");
 		}
@@ -62,7 +48,6 @@ public class IndexGraph implements Iterable<Edge>{
 	public void disconnect(int a, Integer b) {
 		try {
 			if (graph.get(a).remove(b)) {
-				numEdges--;
 				return;
 			}
 		} catch (Exception e) {
@@ -76,11 +61,15 @@ public class IndexGraph implements Iterable<Edge>{
 		graph.add(new ArrayList<>());
 	}
 	
+	public int getNumPoints() {
+		return numPoints;
+	}
+	
 
 	// Iterator for all the edges of the graph. 
     @Override
-    public Iterator<Edge> iterator() {
-    	Iterator<Edge> it = new Iterator<>() {
+    public Iterator<IndexEdge> iterator() {
+    	Iterator<IndexEdge> it = new Iterator<>() {
     		
     		// Index of current point. 
     		public int pointIndex = 0;
@@ -101,8 +90,8 @@ public class IndexGraph implements Iterable<Edge>{
 			}
 
 			@Override
-			public Edge next() {
-				Edge currEdge = new Edge(pointIndex, graph.get(pointIndex).get(edgeIndex));
+			public IndexEdge next() {
+				IndexEdge currEdge = new IndexEdge(pointIndex, graph.get(pointIndex).get(edgeIndex));
 				findNextEdge();
 				return currEdge;
 			}
