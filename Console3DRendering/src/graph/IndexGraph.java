@@ -1,10 +1,10 @@
-package other;
+package graph;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class IndexGraph implements Iterable<IndexEdge>{
+class IndexGraph implements Iterable<IndexEdge>{
 
 	/*
 	 * Implementation of a directed graph where the points are only named by their
@@ -65,7 +65,10 @@ public class IndexGraph implements Iterable<IndexEdge>{
 		return numPoints;
 	}
 	
-
+	public List<Integer> getConnections(int i) {
+		return graph.get(i);
+	}
+	
 	// Iterator for all the edges of the graph. 
     @Override
     public Iterator<IndexEdge> iterator() {
