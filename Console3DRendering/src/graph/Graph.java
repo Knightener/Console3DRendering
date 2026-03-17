@@ -22,6 +22,12 @@ public class Graph<T> implements Iterable<Edge<T>> {
 		graph = new IndexGraph();
 	}
 	
+	@SafeVarargs
+	public Graph(T...points) {
+		this();
+		addPoints(points);
+		
+	}
 	public boolean isConnected(T a, T b) {
 		try {
 			return graph.isConnected(elementToIdx.get(a), elementToIdx.get(b));
@@ -51,6 +57,13 @@ public class Graph<T> implements Iterable<Edge<T>> {
 		graph.addPoint();
 		idxToElement.add(point);
 		elementToIdx.put(point, currIdx);
+	}
+
+	@SafeVarargs
+	public final void addPoints(T... points) {
+		for (T element : points) {
+			addPoint(element);
+		}
 	}
 	
     @Override
