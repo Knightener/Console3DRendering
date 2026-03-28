@@ -102,13 +102,20 @@ public class IndexGraph implements Iterable<IndexEdge>{
 		List<Integer> curr;
 		for (int i = 0; i < other.numPoints; i++) {
 			curr = other.graph.get(i);
-
 			for (int j = 0; j < curr.size(); j++) {
 				removeOpposite(i, curr.get(j));
 			}
 		}
 	}
-	
+
+	// Same as the above method, but with a cycle represented as an array.
+	public void mergeOppositeOut(int[] cycle) {
+		for (int i = 0; i < cycle.length; i++) {
+			extend(cycle[i]);
+			removeOpposite(cycle[i], cycle[(i + 1) % cycle.length]);
+		}
+	}
+
 	// Iterator for all the edges of the graph. 
     @Override
     public Iterator<IndexEdge> iterator() {
