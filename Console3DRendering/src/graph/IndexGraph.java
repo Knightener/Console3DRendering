@@ -116,6 +116,39 @@ public class IndexGraph implements Iterable<IndexEdge>{
 		}
 	}
 
+	/*
+	 * Finds a cycle containing the point start. Note that this algorithm does not
+	 * necessarily always find a cycle even if there is one containing start.
+	 * However, an important class of graphs for which a cycle will always be found
+	 * are graphs without dead ends. I have optimized this algorithm for this
+	 * scenario as the main use case I have for this is to convert cyclic graphs
+	 * into arrays.
+	 */
+	public int[] findCycleFromStart(int start) {
+		ArrayList<Integer> cycle = new ArrayList<>();
+
+		int currentPoint = start;
+		int index = -1;
+
+		while (!graph.get(currentPoint).isEmpty()) {
+			
+			if (index == -1) {
+				cycle.add(currentPoint);
+			} else {
+				int[] cycleArr = new int[cycle.size() - index];
+				for (int i = 0; i < cycleArr.length; i++) {
+					cycleArr[i] = cycle.get(i + index);
+				}
+				return cycleArr;
+			}
+
+			currentPoint = graph.get(currentPoint).get(0);
+			index = cycle.indexOf(currentPoint);
+		}
+
+		throw new IllegalStateException("Graph has a dead end from start");
+	}
+
 	// Iterator for all the edges of the graph. 
     @Override
     public Iterator<IndexEdge> iterator() {
