@@ -238,7 +238,7 @@ public class RelativePolygon extends RelativeComponent {
 	
 	// Returns true if the polygon is facing the point.
 	public boolean isFacing(R3Point point) {
-		return point.dot(orientation) < 0;
+		return point.difference(offset).dot(orientation) > Constants.EPSILON;
 	}
 	
 	private void checkTextured() {

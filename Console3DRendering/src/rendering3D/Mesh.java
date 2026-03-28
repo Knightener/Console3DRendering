@@ -2,11 +2,14 @@ package rendering3D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import classes2D.IntPoint;
 import classes3D.R3Point;
-import other.MiscFunctions;
+import graph.IndexEdge;
+import graph.IndexGraph;
+import graph.UnorderedEdge;
 import texturing.Texture;
 
 public class Mesh extends ObserverDependant {
@@ -36,13 +39,13 @@ public class Mesh extends ObserverDependant {
 	 * In other words, this gives a face that is adjacent to a given vertex, as an
 	 * index of the list vertices.
 	 */
-	private List<IntPoint> associatedFace;
+	private List<IndexEdge> associatedFace;
 
 	/*
 	 * Edges (as indices of the vertices list) that are only adjacent to one
 	 * singular polygon.
 	 */
-	private List<IntPoint> border;
+	private IndexGraph border;
 
 	/*
 	 * Private nested class that allows for unrestricted manipulation of some of the
@@ -73,8 +76,8 @@ public class Mesh extends ObserverDependant {
 		relativeVertices = new ArrayList<R3Point>();
 		faceIndices = new ArrayList<int[]>();
 		faces = new ArrayList<MeshPolygon>();
-		associatedFace = new ArrayList<IntPoint>();
-		border = new ArrayList<IntPoint>();
+		associatedFace = new ArrayList<IndexEdge>();
+		border = new IndexGraph(vertices.size());
 
 		for (int i = 0; i < vertices.size(); i++) {
 			associatedFace.add(null);
@@ -109,31 +112,25 @@ public class Mesh extends ObserverDependant {
 
 		for (int i = 0; i < indices.length; i++) {
 			if (associatedFace.get(indices[i]) == null) {
-				associatedFace.set(indices[i], new IntPoint(faceIndices.size() - 1, i));
+				associatedFace.set(indices[i], new IndexEdge(faceIndices.size() - 1, i));
 			}
 		}
 	}
 
 	private void addToBorder(int... indices) {
-		for (int k = 0; k < indices.length; k++) {
-			MiscFunctions.xorAdd(border, new IntPoint(indices[k], indices[(k + 1) % indices.length]));
-		}
+		border.mergeNonOpposite(indices);
 	}
 
 	// Returns true if face was successfully added and false otherwise.
 	private boolean createFaceAux(Texture texture, int... indices) {
 
 		int length = indices.length;
-		IntPoint curr;
-		for (int i = 0; i < border.size(); i++) {
-			curr = border.get(i);
-			for (int j = 0; j < length; j++) {
-				// Overlapping edge found
-				if (curr.getDown() == indices[j] && curr.getRight() == indices[(j + 1) % length]) {
-					unrestrictedCreateFace(texture, indices);
-					addToBorder(indices);
-					return true;
-				}
+		for (int i = 0; i < length; i++) {
+			// Overlapping edge found
+			if (border.isConnected(indices[(i + 1) % length], indices[i])) {
+				unrestrictedCreateFace(texture, indices);
+				addToBorder(indices);
+				return true;
 			}
 		}
 		return false;
@@ -180,12 +177,12 @@ public class Mesh extends ObserverDependant {
 			face.findUVVariables();
 		}
 
-		IntPoint index;
+		IndexEdge index;
 
 		for (int i = 0; i < vertices.size(); i++) {
 			index = associatedFace.get(i);
 			if (index != null) {
-				relativeVertices.get(i).set(faces.get(index.getRight()).viewedVertex(index.getDown()));
+				relativeVertices.get(i).set(faces.get(index.from()).viewedVertex(index.to()));
 			}
 		}
 	}
@@ -201,24 +198,42 @@ public class Mesh extends ObserverDependant {
 
 	// Returns the border of the visible faces from point.
 	public List<R3Point> getVisibleBorder(R3Point point) {
-		ArrayList<IntPoint> borderIndices = new ArrayList<>();
-		int[] curr;
+
+		IndexGraph visibleBorderGraph = new IndexGraph(vertices.size());
+
 		for (int i = 0; i < faces.size(); i++) {
 			if (faces.get(i).isFacing(point)) {
-				curr = faceIndices.get(i);
-				for (int j = 0; j < curr.length; j++) {
-					MiscFunctions.xorAdd(borderIndices, new IntPoint(curr[j], curr[(j + 1) % curr.length]));
-				}
+				visibleBorderGraph.mergeNonOpposite(faceIndices.get(i));
 			}
 		}
+		
 		ArrayList<R3Point> visibleBorder = new ArrayList<>();
 
-		// Note: edge.getDown() returns the same result 
-		for (IntPoint edge : borderIndices) {
-			visibleBorder.add(vertices.get(edge.getRight()));
+		for (int n : visibleBorderGraph.findCycleFromStart(visibleBorderGraph.findConnectedPoint())) {
+			visibleBorder.add(vertices.get(n));
 		}
 		
 		return visibleBorder;
+	}
+
+	// Returns a wire frame representing the mesh.
+	public Form getWireFrame() {
+		Set<UnorderedEdge> wireFrameEdges = new HashSet<>();
+
+		for (int[] faceIndex : faceIndices) {
+			for (int i = 0; i < faceIndex.length; i++) {
+				wireFrameEdges.add(new UnorderedEdge(faceIndex[i], faceIndex[(i + 1) % faceIndex.length]));
+			}
+		}
+		
+		Form wireFrame = new Form();
+
+		for (UnorderedEdge edge : wireFrameEdges) {
+			wireFrame.add(new RelativeLine(vertices.get(edge.a()), vertices.get(edge.b()), getObserver()));
+		}
+
+		return wireFrame;
+
 	}
 
 }
