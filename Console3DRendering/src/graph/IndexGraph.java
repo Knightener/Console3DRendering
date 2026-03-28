@@ -45,8 +45,18 @@ public class IndexGraph implements Iterable<IndexEdge>{
 			throw new IndexOutOfBoundsException("Both points must be in range.");
 		}
 	}
+	
+	// Finds the first point of graph which leads to at least one other point.
+	public int findConnectedPoint() {
+		for (int i = 0; i < numPoints; i++) {
+			if (!graph.get(i).isEmpty()) {
+				return i;
+			}
+		}
+		throw new IllegalStateException("Graph has no connections.");
+	}
 
-	// Disconnects a and b. 
+	// Disconnects a and b.
 	public void disconnect(int a, Integer b) {
 		try {
 			if (graph.get(a).remove(b)) {
@@ -66,7 +76,7 @@ public class IndexGraph implements Iterable<IndexEdge>{
 	}
 	
 	// Adds a, b if and only if b,a is not present in graph. Else, removes a,b.
-	public void removeOpposite(int a, int b) {
+	public void addNonOpposite(int a, int b) {
 		if (graph.get(b).contains(a)) {
 			graph.get(b).remove(new Integer(a));
 
@@ -97,22 +107,21 @@ public class IndexGraph implements Iterable<IndexEdge>{
 	 * opposite directions. Overlapping edges that point the same direction are
 	 * kept.
 	 */
-	public void mergeOppositeOut(IndexGraph other) {
+	public void mergeNonOpposite(IndexGraph other) {
 		extend(other.numPoints);
 		List<Integer> curr;
 		for (int i = 0; i < other.numPoints; i++) {
 			curr = other.graph.get(i);
 			for (int j = 0; j < curr.size(); j++) {
-				removeOpposite(i, curr.get(j));
+				addNonOpposite(i, curr.get(j));
 			}
 		}
 	}
 
-	// Same as the above method, but with a cycle represented as an array.
-	public void mergeOppositeOut(int[] cycle) {
+	// Same as the above method, but with a cycle represented by an array.
+	public void mergeNonOpposite(int[] cycle) {
 		for (int i = 0; i < cycle.length; i++) {
-			extend(cycle[i]);
-			removeOpposite(cycle[i], cycle[(i + 1) % cycle.length]);
+			addNonOpposite(cycle[i], cycle[(i + 1) % cycle.length]);
 		}
 	}
 
