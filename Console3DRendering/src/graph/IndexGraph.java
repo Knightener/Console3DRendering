@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-class IndexGraph implements Iterable<IndexEdge>{
+import other.MiscFunctions;
+
+public class IndexGraph implements Iterable<IndexEdge>{
 
 	/*
 	 * Implementation of a directed graph where the points are only named by their
@@ -17,7 +19,6 @@ class IndexGraph implements Iterable<IndexEdge>{
 
 	public IndexGraph() {
 		graph = new ArrayList<>();
-		numPoints = 0;
 	}
 
 	public IndexGraph(int numPoints) {
@@ -45,6 +46,7 @@ class IndexGraph implements Iterable<IndexEdge>{
 		}
 	}
 
+	// Disconnects a and b. 
 	public void disconnect(int a, Integer b) {
 		try {
 			if (graph.get(a).remove(b)) {
@@ -55,7 +57,28 @@ class IndexGraph implements Iterable<IndexEdge>{
 		}
 		throw new IllegalArgumentException("No connection between " + a + " and " + b + ".");
 	}
+
+	// Extends the number of points if newPoints > numPoints. Else, does nothing.
+	public void extend(int newPoints) {
+		for (int i = numPoints; i < newPoints; i++) {
+			graph.add(new ArrayList<>());
+		}
+	}
 	
+	// Adds a, b if and only if b,a is not present in graph. Else, removes a,b.
+	public void removeOpposite(int a, int b) {
+		if (graph.get(b).contains(a)) {
+			graph.get(b).remove(new Integer(a));
+
+			// Same direction.
+		} else if (graph.get(a).contains(b)) {
+
+		} else {
+			graph.get(a).add(b);
+		}
+	}
+	
+	// Adds a point to the graph. 
 	public void addPoint() {
 		numPoints++;
 		graph.add(new ArrayList<>());
@@ -65,8 +88,25 @@ class IndexGraph implements Iterable<IndexEdge>{
 		return numPoints;
 	}
 	
-	public List<Integer> getConnections(int i) {
+	List<Integer> getConnections(int i) {
 		return graph.get(i);
+	}
+	
+	/*
+	 * Adds all edges of other to this but removes overlapping ones that point in
+	 * opposite directions. Overlapping edges that point the same direction are
+	 * kept.
+	 */
+	public void mergeOppositeOut(IndexGraph other) {
+		extend(other.numPoints);
+		List<Integer> curr;
+		for (int i = 0; i < other.numPoints; i++) {
+			curr = other.graph.get(i);
+
+			for (int j = 0; j < curr.size(); j++) {
+				removeOpposite(i, curr.get(j));
+			}
+		}
 	}
 	
 	// Iterator for all the edges of the graph. 

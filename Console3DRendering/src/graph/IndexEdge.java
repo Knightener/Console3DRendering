@@ -1,5 +1,5 @@
 package graph;
 
-record IndexEdge(int from, int to) {
+public record IndexEdge(int from, int to) {
 
 }

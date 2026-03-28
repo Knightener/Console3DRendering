@@ -1,6 +1,7 @@
 package other;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class MiscFunctions {
 	public static int nthDigit(int num, int n) {
@@ -119,4 +120,15 @@ public class MiscFunctions {
 		}
 		list.add(obj);
 	}
+
+	public static <T> void xorAdd(List<T> list, T obj, BiFunction<T, T, Boolean> condition) {
+		for (int i = 0; i < list.size(); i++) {
+			if (condition.apply(obj, list.get(i))) {
+				list.remove(i);
+				return;
+			}
+		}
+		list.add(obj);
+	}
+
 }

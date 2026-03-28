@@ -67,4 +67,12 @@ public class IntPoint {
 		IntPoint point = (IntPoint) obj;
 		return (point.right == right) && (point.down == down);
 	}
+
+	public boolean oppositeEquals(IntPoint point) {
+		return (point.right == down) && (point.down == right);
+	}
+
+	public boolean unorderedEquals(IntPoint point) {
+		return oppositeEquals(point) || equals(point);
+	}
 }
