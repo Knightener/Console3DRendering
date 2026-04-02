@@ -48,6 +48,7 @@ public class Observer {
 	 */
 	public Observer(R3Point position, double theta, double phi, ZImage view, double fov) {
 
+		
 		this.view = view;
 		this.position = new R3Point(position);
 		this.fov = fov;
