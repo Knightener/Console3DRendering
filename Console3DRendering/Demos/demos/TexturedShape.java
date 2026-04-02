@@ -38,7 +38,7 @@ public class TexturedShape {
 		// Observer's position.
 		R3Point position = new R3Point(0, 0, 0);
 		
-		// Observer's horizontal angle,
+		// Observer's horizontal angle.
 		double theta = 0;
 		
 		Observer observer = new Observer(position, theta, 0, image, 70);

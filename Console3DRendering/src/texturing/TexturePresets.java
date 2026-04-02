@@ -5,12 +5,18 @@ import other.ArrayFunctions;
 public enum TexturePresets {
 
 	// Some default textures to use as a base. Will expand soon.
-	
+
 	CHECKERBOARD(new double[][] { 
 		{ 1, 0 }, 
-		{ 0, 1 } });
-	
-	
+		{ 0, 1 } }),
+
+	BRICKS(new double[][] { 
+		{ 0, 0, 0.0, 0.0 },
+		{ 0, 0.5, 0.5, 0.5 }, 
+		{ 0, 0.5, 0.5, 0.5 }, 
+		{ 0, 0, 0, 0 }, 
+		{ 0.5, 0.5, 0, 0.5 },
+		{ 0.5, 0.5, 0, 0.5 } });
 
 	private double[][] texture;
 
