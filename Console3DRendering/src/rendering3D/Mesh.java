@@ -233,7 +233,23 @@ public class Mesh extends ObserverDependant {
 		}
 
 		return wireFrame;
-
 	}
+	
+	public Mesh getShadowVolume(R3Point lightSource, double extendMultiplier) {
+		List<R3Point> border = getVisibleBorder(lightSource);
+
+		int halfSize = border.size();
+
+		for (int i = 0; i < halfSize; i++) {
+			border.add(border.get(i).extendFrom(lightSource, extendMultiplier));
+		}
+
+		Mesh shadowVolume = new Mesh(getObserver(), border);
+		for (int i = 0; i < halfSize; i++) {
+			shadowVolume.createFace(null, i, (i + 1) % halfSize, (i + 1) % halfSize + halfSize, i + halfSize);
+		}
+		return shadowVolume;
+	}
+	
 
 }

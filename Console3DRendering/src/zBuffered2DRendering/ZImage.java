@@ -428,7 +428,8 @@ public class ZImage extends ImageBase {
 			 * plane on which the polygon lies on and the plane(s) right = x for any x (it
 			 * is independent of x).
 			 */
-			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / ((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
+			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
+					((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
 
 		}
 
