@@ -110,6 +110,21 @@ public class ZImage extends ImageBase {
 			this.renderInfo[adjustedDown][adjustedRight] = polygonID;
 		}
 	}
+	
+	// Flips bit on Z-fail.
+	public void writeToStencil(int right, int down, double zBuffer) {
+		int adjustedRight = right - leftBound;
+		int adjustedDown = down - upBound;
+
+		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
+			&& adjustedDown < imageRows && zBuffer > this.zBuffer[adjustedDown][adjustedRight]) {
+			stencil[adjustedRight][adjustedDown] = !stencil[adjustedRight][adjustedDown];
+		}
+	}
+	
+	public void writeToStencil(ZPixel pixel) {
+		writeToStencil(pixel.getRight(), pixel.getDown(), pixel.getZBuffer());
+	}
 
 	public void texturize() {
 		for (int i = 0; i < imageRows; i++) {
@@ -298,7 +313,7 @@ public class ZImage extends ImageBase {
 	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
 	 * the method to optimize the polygon method.
 	 */
-	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep) {
+	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
 		ZPixel movingPixel = new ZPixel(p1);
 
 		if (upBound > p1.getDown()) {
@@ -308,7 +323,11 @@ public class ZImage extends ImageBase {
 		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(), downBound - movingPixel.getDown() - 1);
 
 		for (int i = 0; i <= visibleLength; i++) {
-			draw(movingPixel);
+			if (writeToStencil) {
+				writeToStencil(movingPixel);
+			} else {
+				draw(movingPixel);
+			}
 			movingPixel.moveDown(1);
 			movingPixel.incrementZBuffer(zStep);
 		}
@@ -320,11 +339,11 @@ public class ZImage extends ImageBase {
 	 * calculated within the method and instead provided for the method call to
 	 * optimize the jaggedTriangle method.
 	 */
-	public void verticalLine(ZPixel p1, ZPixel p2, double zStep) {
+	public void verticalLine(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
 		if (p1.getDown() < p2.getDown()) {
-			verticalLineAuxiliary(p1, p2, zStep);
+			verticalLineAuxiliary(p1, p2, zStep, writeToStencil);
 		}
-		verticalLineAuxiliary(p2, p1, zStep);
+		verticalLineAuxiliary(p2, p1, zStep, writeToStencil);
 	}
 
 
@@ -334,7 +353,7 @@ public class ZImage extends ImageBase {
 	 * All points assumed to be in the same plane and convex. Putting in any other
 	 * set of points may lead to visual artifacts.
 	 */
-	public void polygon(ArrayList<ZPixel> points) {
+	public void polygon(ArrayList<ZPixel> points, boolean writeToStencil) {
 		int length = points.size();
 
 		if (length < 3) {
@@ -410,11 +429,15 @@ public class ZImage extends ImageBase {
 		 */
 		for (int i = 0; i < clockwise.size(); i++) {
 			try {
-				verticalLine(clockwise.get(i), counterClockwise.get(i), slope);
+				verticalLine(clockwise.get(i), counterClockwise.get(i), slope, writeToStencil);
 			} catch (IndexOutOfBoundsException e) {
 				break;
 			}
 		}
+	}
+
+	public void polygon(ArrayList<ZPixel> points) {
+		polygon(points, false);
 	}
 
 }
