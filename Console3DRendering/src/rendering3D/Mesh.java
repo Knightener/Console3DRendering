@@ -12,7 +12,7 @@ import graph.IndexGraph;
 import graph.UnorderedEdge;
 import texturing.Texture;
 
-public class Mesh extends ObserverDependant {
+public class Mesh {
 
 	/*
 	 * This class differs from form in that it can only store faces, and all faces
@@ -21,6 +21,8 @@ public class Mesh extends ObserverDependant {
 	 * redundant calculations that are found from adjacent faces.
 	 */
 
+	private Observer observer;
+	
 	// Vertices of the mesh.
 	private List<R3Point> vertices;
 
@@ -70,7 +72,7 @@ public class Mesh extends ObserverDependant {
 	}
 
 	public Mesh(Observer observer, List<R3Point> vertices) {
-		super(observer);
+		this.observer = observer;
 		this.vertices = vertices;
 
 		relativeVertices = new ArrayList<R3Point>();
@@ -98,7 +100,7 @@ public class Mesh extends ObserverDependant {
 		R3Point[] faceVertices = new R3Point[indices.length];
 		Arrays.setAll(faceVertices, i -> vertices.get(indices[i]));
 
-		MeshPolygon face = new MeshPolygon(getObserver(), texture, faceVertices);
+		MeshPolygon face = new MeshPolygon(observer, texture, faceVertices);
 
 		ArrayList<R3Point> perceivedFaceVertices = new ArrayList<R3Point>();
 
@@ -229,7 +231,7 @@ public class Mesh extends ObserverDependant {
 		Form wireFrame = new Form();
 
 		for (UnorderedEdge edge : wireFrameEdges) {
-			wireFrame.add(new RelativeLine(vertices.get(edge.a()), vertices.get(edge.b()), getObserver()));
+			wireFrame.add(new RelativeLine(vertices.get(edge.a()), vertices.get(edge.b()), observer));
 		}
 
 		return wireFrame;
@@ -244,7 +246,7 @@ public class Mesh extends ObserverDependant {
 			border.add(border.get(i).extendFrom(lightSource, extendMultiplier));
 		}
 
-		Mesh shadowVolume = new Mesh(getObserver(), border);
+		Mesh shadowVolume = new Mesh(observer, border);
 		for (int i = 0; i < halfSize; i++) {
 			shadowVolume.createFace(null, i, (i + 1) % halfSize, (i + 1) % halfSize + halfSize, i + halfSize);
 		}

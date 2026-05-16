@@ -9,8 +9,6 @@ import classes3D.R3Point;
 import other.Constants;
 import texturing.PolygonTexture;
 import texturing.Texture;
-import zBuffered2DRendering.ZFigure;
-import zBuffered2DRendering.ZPixel;
 
 public class RelativePolygon extends RelativeComponent {
 
@@ -117,8 +115,6 @@ public class RelativePolygon extends RelativeComponent {
 
 	public void findUVVariables() {
 
-		Observer observer = getObserver();
-
 		vAF = perceivedVectorA.getForward() * observer.getFov();
 		vBF = perceivedVectorB.getForward() * observer.getFov();
 
@@ -146,9 +142,7 @@ public class RelativePolygon extends RelativeComponent {
 	}
 
 	// Updates the 3 vectors that determine the plane.
-	public void updatePlaneVectors() {
-		Observer observer = getObserver();
-		
+	public void updatePlaneVectors() {		
 		perceivedVectorA = observer.rotate(vectorA);
 		perceivedVectorB = observer.rotate(vectorB);
 		perceivedOffset = observer.perspective(offset);
@@ -199,7 +193,7 @@ public class RelativePolygon extends RelativeComponent {
 	}
 
 	public void viewed() {
-		getObserver().polygon(perceivedPoints, 2, getID());
+		observer.polygon(perceivedPoints, 2, getID());
 
 	}
 
@@ -223,7 +217,7 @@ public class RelativePolygon extends RelativeComponent {
 
 		vectorTip.translate(orientation);
 
-		return new RelativeLine(vectorTail, vectorTip, getObserver());
+		return new RelativeLine(vectorTail, vectorTip, observer);
 	}
 	
 	// Returns true if the polygon is facing the point.

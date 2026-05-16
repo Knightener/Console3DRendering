@@ -1,8 +1,6 @@
 package rendering3D;
 
 import classes3D.R3Point;
-import rendering2D.ShadeHandling;
-import zBuffered2DRendering.ZFigure;
 
 public class RelativePoint extends RelativeComponent {
 
@@ -27,11 +25,11 @@ public class RelativePoint extends RelativeComponent {
 	}
 	
 	public void updatePerspective() {
-		perceived = getObserver().perspective(point);
+		perceived = observer.perspective(point);
 	}
 	
-	public ZFigure viewed() {
-		return getObserver().point(perceived, ShadeHandling.getMaxPossibleShade());
+	public void viewed() {
+		
 	}
 
 }

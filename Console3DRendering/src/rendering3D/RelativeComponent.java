@@ -1,8 +1,10 @@
 package rendering3D;
 
+import java.util.HashMap;
+
 import zBuffered2DRendering.ZFigure;
 
-public abstract class RelativeComponent extends ObserverDependant implements Comparable<RelativeComponent> {
+public abstract class RelativeComponent implements Comparable<RelativeComponent> {
 	/*
 	 * A component is either a line, a point, or a polygon. These will serve as the
 	 * basic building blocks for building scenes.
@@ -11,14 +13,33 @@ public abstract class RelativeComponent extends ObserverDependant implements Com
 	double leastForward;
 	double mostForward;
 	
+	protected Observer observer;
 
-	
+	private int ID;
+
+	private static int currentGreatestID = 1;
+
+	// Returns the component associated with the given ID.
+	private static HashMap<Integer, RelativeComponent> IDMap = new HashMap<Integer, RelativeComponent>();
+
 	public RelativeComponent(Observer observer) {
-		super(observer);
+		this.observer = observer;
+		ID = 2 * currentGreatestID++;
+		IDMap.put(ID, this);
 	}
 
 	public RelativeComponent(Observer observer, boolean isTextured) {
-		super(observer, isTextured);
+		this.observer = observer;
+		ID = 2 * currentGreatestID++ + (isTextured ? 1 : 0);
+		IDMap.put(ID, this);
+	}
+	
+	public @SuppressWarnings("unchecked") static <T extends RelativeComponent> T get(int ID) {
+		return (T)IDMap.get(ID);
+	}
+	
+	public int getID() {
+		return ID;
 	}
 
 	/*

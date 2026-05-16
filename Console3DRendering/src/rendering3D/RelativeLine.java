@@ -2,7 +2,6 @@ package rendering3D;
 
 import classes3D.R3Point;
 import rendering2D.ShadeHandling;
-import zBuffered2DRendering.ZFigure;
 
 public class RelativeLine extends RelativeComponent {
 
@@ -37,7 +36,7 @@ public class RelativeLine extends RelativeComponent {
 	}
 
 	public void viewed() {
-		getObserver().lineDefault(perceivedA, perceivedB, shade, borderShade);
+		observer.lineDefault(perceivedA, perceivedB, shade, borderShade);
 	}
 
 	public void determineMostAndLeastForward() {
@@ -47,9 +46,6 @@ public class RelativeLine extends RelativeComponent {
 	}
 
 	public void updatePerspective() {
-
-		Observer observer = getObserver();
-		
 		perceivedA = observer.perspective(pointA);
 		perceivedB = observer.perspective(pointB);
 		
