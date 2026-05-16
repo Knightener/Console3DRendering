@@ -37,22 +37,22 @@ public class CubeWireframe {
 			ZFigure figure = new ZFigure();
 
 			// x axis aligned lines.
-			figure.add(observer.line(p000, p100, 8, 3));
-			figure.add(observer.line(p001, p101, 8, 3));
-			figure.add(observer.line(p010, p110, 8, 3));
-			figure.add(observer.line(p011, p111, 8, 3));
+			observer.line(p000, p100, 8, 3);
+			observer.line(p001, p101, 8, 3);
+			observer.line(p010, p110, 8, 3);
+			observer.line(p011, p111, 8, 3);
 
 			// y axis aligned lines.
-			figure.add(observer.line(p000, p010, 8, 3));
-			figure.add(observer.line(p001, p011, 8, 3));
-			figure.add(observer.line(p100, p110, 8, 3));
-			figure.add(observer.line(p101, p111, 8, 3));
+			observer.line(p000, p010, 8, 3);
+			observer.line(p001, p011, 8, 3);
+			observer.line(p100, p110, 8, 3);
+			observer.line(p101, p111, 8, 3);
 
 			// z axis aligned lines
-			figure.add(observer.line(p000, p001, 8, 3));
-			figure.add(observer.line(p010, p011, 8, 3));
-			figure.add(observer.line(p100, p101, 8, 3));
-			figure.add(observer.line(p110, p111, 8, 3));
+			observer.line(p000, p001, 8, 3);
+			observer.line(p010, p011, 8, 3);
+			observer.line(p100, p101, 8, 3);
+			observer.line(p110, p111, 8, 3);
 
 			image.draw(figure);
 			image.display();
