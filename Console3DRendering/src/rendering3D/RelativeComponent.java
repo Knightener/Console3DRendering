@@ -49,6 +49,6 @@ public abstract class RelativeComponent extends ObserverDependant implements Com
 	 */
 	abstract void determineMostAndLeastForward();
 
-	abstract ZFigure viewed();
+	abstract void viewed();
 
 }

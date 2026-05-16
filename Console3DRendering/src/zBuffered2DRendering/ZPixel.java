@@ -20,9 +20,16 @@ public class ZPixel extends Pixel {
 		this.zBuffer = zBuffer;
 	}
 
+	public ZPixel(int right, int down, int shade, double zBuffer, int polygonID) {
+		super(right, down, shade);
+		this.zBuffer = zBuffer;
+		this.polygonID = polygonID;
+	}
+
 	public ZPixel(ZPixel pixel) {
 		super(pixel);
 		zBuffer = pixel.zBuffer;
+		polygonID = pixel.polygonID;
 	}
 
 	public ZPixel(Pixel pixel, double zBuffer) {

@@ -191,25 +191,19 @@ public class RelativePolygon extends RelativeComponent {
 			perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + vAF,
 			perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + vBF);
 
-		
-		uvPoint.scale(1/zBuffer);
-		
+		uvPoint.scale(1 / zBuffer);
+
 		uvPoint.translate(vABDotOffset);
-		
+
 		return uvPoint;
 	}
 
 	public int determineShade(int right, int down, double zBuffer) {
 		return texture.determineShadeAt(findUV(right, down, zBuffer));
 	}
-	
-	public ZFigure viewed() {
 
-		ZFigure polygon = getObserver().polygon(perceivedPoints, 2);
-		if (isTextured) {
-			polygon.change(pixel -> ((ZPixel) pixel).setPolygonID(getID()));
-		}
-		return polygon;
+	public void viewed() {
+		getObserver().polygon(perceivedPoints, 2, getID());
 
 	}
 

@@ -279,7 +279,7 @@ public class Observer {
 	}
 
 	/* Points assumed to lie on a plane. Will lead to visual artifacts otherwise */
-	public ZFigure polygon(ArrayList<R3Point> points, int shade) {
+	public void polygon(ArrayList<R3Point> points, int shade, int polygonID) {
 
 		ArrayList<ZPixel> viewedPolygon = new ArrayList<ZPixel>();
 
@@ -294,20 +294,20 @@ public class Observer {
 			double nextF = next.getForward();
 
 			if (currF > Constants.EPSILON) {
-				viewedPolygon.add(curr.project(fov, shade));
+				viewedPolygon.add(curr.project(fov, shade, polygonID));
 			}
 
 			// If currF and nextF differ in sign, this intersection is added.
 			if (currF > Constants.EPSILON ^ nextF > Constants.EPSILON) {
-				viewedPolygon.add(curr.forward0Intersection(next).project(fov, shade));
+				viewedPolygon.add(curr.forward0Intersection(next).project(fov, shade, polygonID));
 			}
 		}
 
-		return view.polygon(viewedPolygon);
+		view.polygon(viewedPolygon);
 	}
 
 	public void renderDirectly(RelativeComponent component) {
-		view.draw(component.viewed());
+		component.viewed();
 	}
 
 	public void renderDirectly(Form form) {

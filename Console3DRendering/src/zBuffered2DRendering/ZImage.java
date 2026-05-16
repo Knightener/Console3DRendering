@@ -2,6 +2,8 @@ package zBuffered2DRendering;
 
 import java.util.ArrayList;
 
+import javax.sound.midi.SysexMessage;
+
 import functionalInterfaces.RealFunction;
 import other.MiscFunctions;
 import rendering2D.Image;
@@ -86,9 +88,27 @@ public class ZImage extends ImageBase {
 				image[currDown][currRight] = pixel.getShade();
 				polygonID[currDown][currRight] = pixel.getPolygonID();
 			}
-		}		
+		}
 	}
-	
+
+	public void draw(ZPixel pixel) {
+		draw(pixel.getRight(), pixel.getDown(), pixel.getShade(), pixel.getZBuffer(),
+			pixel.getPolygonID());
+	}
+
+	public void draw(int right, int down, int shade, double zBuffer, int polygonID) {
+		int adjustedRight = right - leftBound;
+		int adjustedDown = down - upBound;
+
+		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
+			&& adjustedDown < imageRows && zBuffer > this.zBuffer[adjustedDown][adjustedRight]) {
+
+			this.zBuffer[adjustedDown][adjustedRight] = zBuffer;
+			image[adjustedDown][adjustedRight] = shade;
+			this.polygonID[adjustedDown][adjustedRight] = polygonID;
+		}
+	}
+
 	public void texturize() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
@@ -194,8 +214,6 @@ public class ZImage extends ImageBase {
 	 * Similar to the method of the same name in the image class, but the zBuffer is
 	 * linearly interpolated between points.
 	 * 
-	 * zStep is the slope delta zBuffer / delta right. This isn't calculated within the
-	 * method to optimize the polygon method. 
 	 */
 	private ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
 
@@ -235,7 +253,7 @@ public class ZImage extends ImageBase {
 			movingPixel.moveRight(1);
 			movingPixel.moveDown(minDownStep);
 			movingPixel.incrementZBuffer(zStep);
-			
+
 			currMod += excess;
 			
 			if (currMod >= rightDist) {
@@ -266,19 +284,21 @@ public class ZImage extends ImageBase {
 			
 			double ratio = ((double)(leftBound - r1))/(r2-r1);
 			
-			ZPixel start = new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)), p1.getShade(), z1 + ratio * (z2 - z1));
+			ZPixel start = new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)), p1.getShade(), z1 + ratio * (z2 - z1), p1.getPolygonID());
 			
 			return lineWithoutHorizontalRepetition(start,p2);
 		}
 		
 		return new ZFigure();
 	}
-	
-	private ZFigure verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep) {
-		ZFigure line = new ZFigure();
 
+	/*
+	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
+	 * the method to optimize the polygon method.
+	 */
+	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep) {
 		ZPixel movingPixel = new ZPixel(p1);
-		
+
 		if (upBound > p1.getDown()) {
 			movingPixel.setDown(upBound);
 			movingPixel.incrementZBuffer(zStep * (upBound - p1.getDown()));
@@ -286,12 +306,10 @@ public class ZImage extends ImageBase {
 		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(), downBound - movingPixel.getDown() - 1);
 
 		for (int i = 0; i <= visibleLength; i++) {
-			line.add(new ZPixel(movingPixel));
+			draw(movingPixel);
 			movingPixel.moveDown(1);
 			movingPixel.incrementZBuffer(zStep);
 		}
-
-		return line;
 	}
 
 	/*
@@ -300,11 +318,11 @@ public class ZImage extends ImageBase {
 	 * calculated within the method and instead provided for the method call to
 	 * optimize the jaggedTriangle method.
 	 */
-	public ZFigure verticalLine(ZPixel p1, ZPixel p2, double zStep) {
+	public void verticalLine(ZPixel p1, ZPixel p2, double zStep) {
 		if (p1.getDown() < p2.getDown()) {
-			return verticalLineAuxiliary(p1, p2, zStep);
+			verticalLineAuxiliary(p1, p2, zStep);
 		}
-		return verticalLineAuxiliary(p2, p1, zStep);
+		verticalLineAuxiliary(p2, p1, zStep);
 	}
 
 	public ZFigure jaggedTriangleAuxiliary(ZPixel p1, ZPixel p2, ZPixel p3) {
@@ -341,21 +359,21 @@ public class ZImage extends ImageBase {
 		 * component within the range visible by image.
 		 */
 
-			ZFigure line23 = lWHRCut(p2, p3);
-			ZFigure line13 = lWHRCut(p1, p3);
-			ZFigure line12 = lWHRCut(p1, p2);
+		ZFigure line23 = lWHRCut(p2, p3);
+		ZFigure line13 = lWHRCut(p1, p3);
+		ZFigure line12 = lWHRCut(p1, p2);
 
-			for (int i = 0; i < line12.size(); i++) {
-				triangle.add(verticalLine(line13.get(i), line12.get(i), slope));
+		for (int i = 0; i < line12.size(); i++) {
+			verticalLine(line13.get(i), line12.get(i), slope);
 
-			}
+		}
 
-			for (int i = 0; i < line23.size(); i++) {
-				triangle.add(verticalLine(line13.get(i + line12.size()), line23.get(i), slope));
+		for (int i = 0; i < line23.size(); i++) {
+			verticalLine(line13.get(i + line12.size()), line23.get(i), slope);
 
-			}
+		}
 
-			return triangle;
+		return triangle;
 
 	}
 
@@ -475,7 +493,7 @@ public class ZImage extends ImageBase {
 		 */
 		for (int i = 0; i < clockwise.size(); i++) {
 			try {
-				polygon.add(verticalLine(clockwise.get(i), counterClockwise.get(i), slope));
+				verticalLine(clockwise.get(i), counterClockwise.get(i), slope);
 			} catch (IndexOutOfBoundsException e) {
 				break;
 			}
