@@ -36,8 +36,8 @@ public class RelativeLine extends RelativeComponent {
 		this(pointA, pointB, ShadeHandling.getMaxPossibleShade(), 0, observer);
 	}
 
-	public ZFigure viewed() {
-		return getObserver().lineDefault(perceivedA, perceivedB, shade, borderShade);
+	public void viewed() {
+		getObserver().lineDefault(perceivedA, perceivedB, shade, borderShade);
 	}
 
 	public void determineMostAndLeastForward() {

@@ -140,17 +140,17 @@ public class Observer {
 	}
 
 	// Observer assumed to be in default state.
-	public ZFigure lineDefault(R3Point p1, R3Point p2, int shade, int borderShade) {
+	public void lineDefault(R3Point p1, R3Point p2, int shade, int borderShade) {
 
 		if (p2.getForward() > p1.getForward()) {
-			return lineDefaultAuxiliary(p1, p2, shade, borderShade);
+			view.draw(lineDefaultAuxiliary(p1, p2, shade, borderShade));
 		}
-		return lineDefaultAuxiliary(p2, p1, shade, borderShade);
+		view.draw(lineDefaultAuxiliary(p2, p1, shade, borderShade));
 	}
 
-	public ZFigure line(R3Point p1, R3Point p2, int shade, int borderShade) {
+	public void line(R3Point p1, R3Point p2, int shade, int borderShade) {
 
-		return lineDefault(perspective(p1), perspective(p2), shade, borderShade);
+		lineDefault(perspective(p1), perspective(p2), shade, borderShade);
 	}
 
 	/*

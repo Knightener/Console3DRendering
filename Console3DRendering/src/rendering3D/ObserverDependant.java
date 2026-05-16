@@ -11,7 +11,8 @@ public abstract class ObserverDependant {
 	
 	/*
 	 * Unique ID associated to each instance observerDependant. First n bits
-	 * dedicated to observer, where n is 32 - componentBits.
+	 * dedicated to observer, where n is 32 - componentBits. Last bit is 1 if polygon
+	 * is textured and 0 otherwise. 
 	 */
 	private int ID;
 
@@ -24,7 +25,12 @@ public abstract class ObserverDependant {
 	private static HashMap<Integer, ObserverDependant> IDMap = new HashMap<Integer, ObserverDependant>();
 
 	public ObserverDependant(Observer observer) {
-		ID = currentGreatestID++ + (observer.getID() << componentBits);
+		ID = 2*currentGreatestID++ + (observer.getID() << componentBits);
+		IDMap.put(ID, this);
+	}
+	
+	public ObserverDependant(Observer observer, boolean isTextured) {
+		ID = 2*currentGreatestID++ + (observer.getID() << componentBits) + (isTextured ? 1 : 0);
 		IDMap.put(ID, this);
 	}
 	

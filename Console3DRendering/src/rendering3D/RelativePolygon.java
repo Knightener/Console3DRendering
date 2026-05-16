@@ -38,8 +38,7 @@ public class RelativePolygon extends RelativeComponent {
 	protected R3Point perceivedOffset;
 	protected R3Point perceivedVectorA;
 	protected R3Point perceivedVectorB;
-
-	private boolean isTextured; 
+	
 	/*
 	 * vA/BFis perceivedVectorA/B's forward component multiplied by the FOV of whatever
 	 * observer is associated with this polygon. 
@@ -57,10 +56,7 @@ public class RelativePolygon extends RelativeComponent {
 	 * null to obtain an untextured polygon.
 	 */
 	public RelativePolygon(Observer observer, Texture texture, List<R3Point> points) {
-
-		super(observer); 
-		
-		isTextured = texture != null; 
+		super(observer, texture != null); 
 		
 		if (points.size() < 3) {
 			throw new IllegalArgumentException("Polygon must have at least 3 points");
@@ -107,7 +103,7 @@ public class RelativePolygon extends RelativeComponent {
 
 		}
 		
-		if (isTextured) {
+		if ((getID() & 1) == 1) {
 			this.texture = new PolygonTexture(uVPoints, texture);
 		}
 		
@@ -175,7 +171,7 @@ public class RelativePolygon extends RelativeComponent {
 			point.translate(perceivedOffset);
 		}
 
-		if (isTextured) {
+		if  ((getID() & 1) == 1) {
 			findUVVariables();
 		}
 	}
@@ -236,8 +232,8 @@ public class RelativePolygon extends RelativeComponent {
 	}
 	
 	private void checkTextured() {
-		if (!isTextured) {
-		throw new IllegalStateException("Polygon is untextured");
+		if  ((getID() & 1) == 0) {
+			throw new IllegalStateException("Polygon is untextured");
 		}
 	}
 }

@@ -17,12 +17,16 @@ public abstract class RelativeComponent extends ObserverDependant implements Com
 		super(observer);
 	}
 
+	public RelativeComponent(Observer observer, boolean isTextured) {
+		super(observer, isTextured);
+	}
+
 	/*
 	 * This function determines if a component is in front of some other component.
 	 * 
 	 * Returns 1 if every single point of this is in front of (has a smaller
-	 * forward) of every single point of component B, -1 if every point of
-	 * this is behind component, 0 otherwise.
+	 * forward) of every single point of component B, -1 if every point of this is
+	 * behind component, 0 otherwise.
 	 * 
 	 * This is not a total ordering.
 	 */

@@ -2,15 +2,13 @@ package zBuffered2DRendering;
 
 import java.util.ArrayList;
 
-import javax.sound.midi.SysexMessage;
-
 import functionalInterfaces.RealFunction;
 import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ImageBase;
 import rendering2D.ShadeHandling;
-import rendering3D.RelativePolygon;
 import rendering3D.RelativeComponent;
+import rendering3D.RelativePolygon;
 
 public class ZImage extends ImageBase {
 
@@ -113,7 +111,7 @@ public class ZImage extends ImageBase {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
 				
-				if (polygonID[i][j] != 0)  {
+				if ((polygonID[i][j] & 1) == 1)  {
 					
 					image[i][j] = RelativeComponent.<RelativePolygon>get(polygonID[i][j]).determineShade(j+leftBound, i+upBound, zBuffer[i][j]);
 				}
