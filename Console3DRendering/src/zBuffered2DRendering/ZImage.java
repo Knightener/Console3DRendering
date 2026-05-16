@@ -24,11 +24,14 @@ public class ZImage extends ImageBase {
 	 * did not come from a polygon.
 	 */
 	int[][] renderInfo;
+	
+	boolean[][] stencil;
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
 		super(leftEnd, rightEnd, upEnd, downEnd);
 		zBuffer = new double[imageRows][imageCols];
 		renderInfo = new int[imageRows][imageCols];
+		stencil = new boolean[imageRows][imageCols];
 
 	}
 
@@ -36,6 +39,7 @@ public class ZImage extends ImageBase {
 		super(arr, left, up);
 		zBuffer = new double[imageRows][imageCols];
 		renderInfo = new int[imageRows][imageCols];
+		stencil = new boolean[imageRows][imageCols];
 	}
 	
 	private ZImage() {
@@ -323,85 +327,6 @@ public class ZImage extends ImageBase {
 		verticalLineAuxiliary(p2, p1, zStep);
 	}
 
-	public ZFigure jaggedTriangleAuxiliary(ZPixel p1, ZPixel p2, ZPixel p3) {
-
-		double slope = 0;
-
-		{
-			int r1 = p1.getRight();
-			int r2 = p2.getRight();
-			int r3 = p3.getRight();
-
-			int d1 = p1.getDown();
-			int d2 = p2.getDown();
-			int d3 = p3.getDown();
-
-			double z1 = p1.getZBuffer();
-			double z2 = p2.getZBuffer();
-			double z3 = p3.getZBuffer();
-
-			/*
-			 * This is just the slope of the line (delta zBuffer / delta down) formed by
-			 * intersection of the plane determined by the triangle and the plane(s) right =
-			 * x for any x (it is independent of x). The derivation is not particularly
-			 * interesting
-			 */
-			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
-				((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
-
-		}
-		ZFigure triangle = new ZFigure();
-
-		/*
-		 * If the method gets this far, the leftmost point must have a horizontal
-		 * component within the range visible by image.
-		 */
-
-		ZFigure line23 = lWHRCut(p2, p3);
-		ZFigure line13 = lWHRCut(p1, p3);
-		ZFigure line12 = lWHRCut(p1, p2);
-
-		for (int i = 0; i < line12.size(); i++) {
-			verticalLine(line13.get(i), line12.get(i), slope);
-
-		}
-
-		for (int i = 0; i < line23.size(); i++) {
-			verticalLine(line13.get(i + line12.size()), line23.get(i), slope);
-
-		}
-
-		return triangle;
-
-	}
-
-	/*
-	 * zBuffer value is interpolated linearly for the points between p1, p2, p3
-	 */
-	public ZFigure jaggedTriangle(ZPixel p1, ZPixel p2, ZPixel p3) {
-
-		boolean r2r3 = p2.getRight() <= p3.getRight();
-		boolean r1r3 = p1.getRight() <= p3.getRight();
-		boolean r1r2 = p1.getRight() <= p2.getRight();
-
-		if (r1r2) {
-			if (r2r3) {
-				return jaggedTriangleAuxiliary(p1, p2, p3);
-			}
-			if (r1r3) {
-				return jaggedTriangleAuxiliary(p1, p3, p2);
-			}
-			return jaggedTriangleAuxiliary(p3, p1, p2);
-		}
-		if (r1r3) {
-			return jaggedTriangleAuxiliary(p2, p1, p3);
-		}
-		if (r2r3) {
-			return jaggedTriangleAuxiliary(p2, p3, p1);
-		}
-		return jaggedTriangleAuxiliary(p3, p2, p1);
-		
-	}
 
 	/*
 	 * Renders a polygon specified by points.
@@ -409,14 +334,11 @@ public class ZImage extends ImageBase {
 	 * All points assumed to be in the same plane and convex. Putting in any other
 	 * set of points may lead to visual artifacts.
 	 */
-	public ZFigure polygon(ArrayList<ZPixel> points) {
-		
-
-		
+	public void polygon(ArrayList<ZPixel> points) {
 		int length = points.size();
 
 		if (length < 3) {
-			return new ZFigure();
+			return;
 		}
 		
 		double slope = 0;
@@ -481,9 +403,6 @@ public class ZImage extends ImageBase {
 		for (int i = leftMostIndex; i != rightMostIndex; i = MiscFunctions.mod((i - 1), length)) {
 			counterClockwise.add(lWHRCut(points.get(i), points.get(MiscFunctions.mod((i - 1), length))));
 		}
-
-		ZFigure polygon = new ZFigure();
-
 		/*
 		 * In most cases, clockwise and counterclockwise will have equal lengths.
 		 * However, there are rare edge cases where they aren't, so to avoid the code
@@ -496,8 +415,6 @@ public class ZImage extends ImageBase {
 				break;
 			}
 		}
-
-		return polygon;
 	}
 
 }
