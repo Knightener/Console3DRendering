@@ -23,19 +23,19 @@ public class ZImage extends ImageBase {
 	 * Stores the ID of the polygon from which the pixel came from. 0 if the pixel
 	 * did not come from a polygon.
 	 */
-	int[][] polygonID;
+	int[][] renderInfo;
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
 		super(leftEnd, rightEnd, upEnd, downEnd);
 		zBuffer = new double[imageRows][imageCols];
-		polygonID = new int[imageRows][imageCols];
+		renderInfo = new int[imageRows][imageCols];
 
 	}
 
 	public ZImage(int[][] arr, int left, int up) {
 		super(arr, left, up);
 		zBuffer = new double[imageRows][imageCols];
-		polygonID = new int[imageRows][imageCols];
+		renderInfo = new int[imageRows][imageCols];
 	}
 	
 	private ZImage() {
@@ -62,7 +62,7 @@ public class ZImage extends ImageBase {
 		
 		image = new int[imageRows][imageCols];
 		zBuffer = new double[imageRows][imageCols];
-		polygonID = new int[imageRows][imageCols];
+		renderInfo = new int[imageRows][imageCols];
 	}
 
 	
@@ -84,14 +84,14 @@ public class ZImage extends ImageBase {
 
 				zBuffer[currDown][currRight] = currZBuffer;
 				image[currDown][currRight] = pixel.getShade();
-				polygonID[currDown][currRight] = pixel.getPolygonID();
+				renderInfo[currDown][currRight] = pixel.getRenderInfo();
 			}
 		}
 	}
 
 	public void draw(ZPixel pixel) {
 		draw(pixel.getRight(), pixel.getDown(), pixel.getShade(), pixel.getZBuffer(),
-			pixel.getPolygonID());
+			pixel.getRenderInfo());
 	}
 
 	public void draw(int right, int down, int shade, double zBuffer, int polygonID) {
@@ -103,7 +103,7 @@ public class ZImage extends ImageBase {
 
 			this.zBuffer[adjustedDown][adjustedRight] = zBuffer;
 			image[adjustedDown][adjustedRight] = shade;
-			this.polygonID[adjustedDown][adjustedRight] = polygonID;
+			this.renderInfo[adjustedDown][adjustedRight] = polygonID;
 		}
 	}
 
@@ -111,9 +111,9 @@ public class ZImage extends ImageBase {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
 				
-				if ((polygonID[i][j] & 1) == 1)  {
+				if ((renderInfo[i][j] & 1) == 1)  {
 					
-					image[i][j] = RelativeComponent.<RelativePolygon>get(polygonID[i][j]).determineShade(j+leftBound, i+upBound, zBuffer[i][j]);
+					image[i][j] = RelativeComponent.<RelativePolygon>get(renderInfo[i][j]).determineShade(j+leftBound, i+upBound, zBuffer[i][j]);
 				}
 			}
 		}
@@ -282,7 +282,7 @@ public class ZImage extends ImageBase {
 			
 			double ratio = ((double)(leftBound - r1))/(r2-r1);
 			
-			ZPixel start = new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)), p1.getShade(), z1 + ratio * (z2 - z1), p1.getPolygonID());
+			ZPixel start = new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)), p1.getShade(), z1 + ratio * (z2 - z1), p1.getRenderInfo());
 			
 			return lineWithoutHorizontalRepetition(start,p2);
 		}

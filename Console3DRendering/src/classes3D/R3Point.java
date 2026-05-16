@@ -58,7 +58,7 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 	
 	public ZPixel project(double fov, int shade, int polygonID) {
 		ZPixel pixel = project(fov, shade);
-		pixel.setPolygonID(polygonID);
+		pixel.setRenderInfo(polygonID);
 		return pixel;
 	}
 
