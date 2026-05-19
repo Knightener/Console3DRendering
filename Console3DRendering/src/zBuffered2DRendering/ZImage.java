@@ -93,6 +93,14 @@ public class ZImage extends ImageBase {
 			Arrays.fill(row, false);
 		}
 	}
+	
+	public void addStencil() {
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				
+			}
+		}
+	}
 
 	// Replaces a pixel iff the new pixel has a greater zBuffer
 	public void draw(ZFigure figure) {
