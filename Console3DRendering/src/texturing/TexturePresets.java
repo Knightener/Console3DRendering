@@ -16,7 +16,10 @@ public enum TexturePresets {
 		{ 0, 0.5, 0.5, 0.5 }, 
 		{ 0, 0, 0, 0 }, 
 		{ 0.5, 0.5, 0, 0.5 },
-		{ 0.5, 0.5, 0, 0.5 } });
+		{ 0.5, 0.5, 0, 0.5 } }),
+	
+	WHITE(new double[][] {
+		{1}});
 
 	private double[][] texture;
 
