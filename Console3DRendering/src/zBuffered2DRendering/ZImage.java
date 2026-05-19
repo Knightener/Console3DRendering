@@ -439,5 +439,4 @@ public class ZImage extends ImageBase {
 	public void polygon(ArrayList<ZPixel> points) {
 		polygon(points, false);
 	}
-
 }

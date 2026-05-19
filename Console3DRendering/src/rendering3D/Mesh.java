@@ -15,10 +15,11 @@ import texturing.Texture;
 public class Mesh {
 
 	/*
-	 * This class differs from form in that it can only store faces, and all faces
-	 * must be adjacent to only 1 or 2 faces (unless it only consists of one face,
-	 * in which case it can have 0 neighbors). Unlike form, it eliminates a lot of
-	 * redundant calculations that are found from adjacent faces.
+	 * This class differs from form in that it can only store faces, all edges must
+	 * be shared by only 1 or 2 faces, and all faces are connected (in the sense
+	 * that it is possible to traverse from any face to any other face). Unlike
+	 * form, it eliminates a lot of redundant calculations that are found from
+	 * adjacent faces.
 	 */
 
 	private Observer observer;
@@ -252,6 +253,5 @@ public class Mesh {
 		}
 		return shadowVolume;
 	}
-	
 
 }
