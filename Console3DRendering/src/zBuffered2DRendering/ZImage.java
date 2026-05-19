@@ -97,8 +97,14 @@ public class ZImage extends ImageBase {
 	public void addStencil() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				
+				renderInfo[i][j] += stencil[i][j] ? 1 : 0;
 			}
+		}
+	}
+	
+	public void clearStencil() {
+		for (boolean[] row : stencil) {
+			Arrays.fill(row, false);
 		}
 	}
 
