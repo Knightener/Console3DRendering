@@ -142,7 +142,7 @@ public class ZImage extends ImageBase {
 
 		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
 			&& adjustedDown < imageRows && zBuffer > this.zBuffer[adjustedDown][adjustedRight]) {
-			stencil[adjustedRight][adjustedDown] = !stencil[adjustedRight][adjustedDown];
+			stencil[adjustedDown][adjustedRight] = !stencil[adjustedDown][adjustedRight];
 		}
 	}
 	
