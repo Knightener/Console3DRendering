@@ -253,5 +253,11 @@ public class Mesh {
 		}
 		return shadowVolume;
 	}
+	
+	public void writeToStencil() {
+		for (RelativePolygon face : faces) {
+			face.writeToStencil();
+		}
+	}
 
 }

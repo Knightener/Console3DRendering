@@ -64,7 +64,7 @@ public class ZImage extends ImageBase {
 	}
 	
 	// Debug function. Returns an image with pixels colored according to their stencil value.
-	public Image getStencilImage(ShadeHandling shadeHandling, RealFunction sigmoid) {
+	public Image getStencilImage() {
 		
 		Image image = new Image(this);
 		

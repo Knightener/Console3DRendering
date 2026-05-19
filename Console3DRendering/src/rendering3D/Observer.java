@@ -186,7 +186,7 @@ public class Observer {
 	public void renderDirectly(RelativeComponent component) {
 		component.viewed();
 	}
-
+	
 	public void renderDirectly(Form form) {
 		for (RelativeComponent face : form.components) {
 			renderDirectly(face);
