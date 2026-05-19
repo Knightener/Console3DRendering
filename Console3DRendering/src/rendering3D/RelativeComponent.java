@@ -15,7 +15,7 @@ public abstract class RelativeComponent implements Comparable<RelativeComponent>
 	
 	protected Observer observer;
 
-	private int ID;
+	protected int ID;
 
 	private static int currentGreatestID = 1;
 

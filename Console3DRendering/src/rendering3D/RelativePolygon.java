@@ -109,8 +109,9 @@ public class RelativePolygon extends RelativeComponent {
 
 
 	}
-	public RelativePolygon(Observer observer, Texture texture, R3Point...points) {
-		this(observer,texture,Arrays.asList(points));
+
+	public RelativePolygon(Observer observer, Texture texture, R3Point... points) {
+		this(observer, texture, Arrays.asList(points));
 	}
 
 	public void findUVVariables() {
@@ -118,8 +119,9 @@ public class RelativePolygon extends RelativeComponent {
 		vAF = perceivedVectorA.getForward() * observer.getFov();
 		vBF = perceivedVectorB.getForward() * observer.getFov();
 
-		vABDotOffset = new R2Point(-perceivedVectorA.dot(perceivedOffset), -perceivedVectorB.dot(perceivedOffset));
-		
+		vABDotOffset = new R2Point(-perceivedVectorA.dot(perceivedOffset),
+			-perceivedVectorB.dot(perceivedOffset));
+
 	}
 
 	public void determineMostAndLeastForward() {
@@ -193,8 +195,11 @@ public class RelativePolygon extends RelativeComponent {
 	}
 
 	public void viewed() {
-		observer.polygon(perceivedPoints, 2, getID());
-
+		observer.polygon(perceivedPoints, 2, ID, false);
+	}
+	
+	public void writeToStencil() {
+		observer.polygon(perceivedPoints, 2, ID, true);
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.

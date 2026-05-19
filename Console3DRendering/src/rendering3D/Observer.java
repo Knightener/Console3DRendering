@@ -153,8 +153,10 @@ public class Observer {
 		lineDefault(perspective(p1), perspective(p2), shade, borderShade);
 	}
 
-	/* Points assumed to lie on a plane. Will lead to visual artifacts otherwise */
-	public void polygon(ArrayList<R3Point> points, int shade, int polygonID) {
+	/*
+	 * Points assumed to lie on a plane. Will lead to visual artifacts otherwise
+	 */
+	public void polygon(ArrayList<R3Point> points, int shade, int polygonID, boolean writeToStencil) {
 
 		ArrayList<ZPixel> viewedPolygon = new ArrayList<ZPixel>();
 
@@ -178,7 +180,7 @@ public class Observer {
 			}
 		}
 
-		view.polygon(viewedPolygon);
+		view.polygon(viewedPolygon, writeToStencil);
 	}
 
 	public void renderDirectly(RelativeComponent component) {

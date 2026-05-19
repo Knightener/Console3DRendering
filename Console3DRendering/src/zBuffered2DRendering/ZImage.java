@@ -194,7 +194,7 @@ public class ZImage extends ImageBase {
 	
 	/*
 	 * Vertical distance between p1 and p2 assumed to be lesser than their
-	 * horizontal distance
+	 * horizontal distance.
 	 */
 	private ZFigure borderedLineAux2(ZPixel p1, ZPixel p2, int borderShade) {
 		
@@ -229,8 +229,8 @@ public class ZImage extends ImageBase {
 
 	/*
 	 * Similar to the method of the same name in the image class, but the zBuffer is
-	 * linearly interpolated between points.
-	 * 
+	 * linearly interpolated between points. p2 assumed to be further right than p1.
+	 * Takes on shade and polygonID of p1.
 	 */
 	private ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
 
@@ -239,14 +239,14 @@ public class ZImage extends ImageBase {
 		// Difference
 		int rightDist = p2.getRight() - p1.getRight();
 		int downDif = p2.getDown() - p1.getDown();
-	
+
 		if (rightDist == 0 || p1.getRight() > rightBound) {
 			return line;
 		}
-	
+
 		// Direction
 		int downDir = MiscFunctions.sign(downDif);
-	
+
 		// Distance
 		int downDist = Math.abs(downDif);
 	
@@ -282,7 +282,7 @@ public class ZImage extends ImageBase {
 		return line;
 	}
 	
-	// Cuts the line to start at leftBound if it crosses it
+	// Cuts the line to start at leftBound if it crosses it. p2 assumed to be further right than p1. 
 	private ZFigure lWHRCut(ZPixel p1, ZPixel p2) {
 
 		int r1 = p1.getRight();
@@ -311,7 +311,7 @@ public class ZImage extends ImageBase {
 
 	/*
 	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
-	 * the method to optimize the polygon method.
+	 * the method to optimize the polygon method. p1 assumed to be above p2. 
 	 */
 	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
 		ZPixel movingPixel = new ZPixel(p1);
@@ -337,7 +337,7 @@ public class ZImage extends ImageBase {
 	 * Similar to the method of the same name in the Image class. zStep is the slope
 	 * delta zBuffer / delta down. This can be calculated easily, however, it is not
 	 * calculated within the method and instead provided for the method call to
-	 * optimize the jaggedTriangle method.
+	 * optimize the jaggedTriangle method. Takes on shade and polygonID of top pixel. 
 	 */
 	public void verticalLine(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
 		if (p1.getDown() < p2.getDown()) {
@@ -351,7 +351,8 @@ public class ZImage extends ImageBase {
 	 * Renders a polygon specified by points.
 	 * 
 	 * All points assumed to be in the same plane and convex. Putting in any other
-	 * set of points may lead to visual artifacts.
+	 * set of points may lead to visual artifacts. All points assumed to have the
+	 * same polygonID (may lead to inconsistent IDing otherwise)
 	 */
 	public void polygon(ArrayList<ZPixel> points, boolean writeToStencil) {
 		int length = points.size();
