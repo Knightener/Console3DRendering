@@ -21,11 +21,13 @@ public class ZImage extends ImageBase {
 	double[][] zBuffer;
 
 	/*
-	 * Stores the ID of the polygon from which the pixel came from. 0 if the pixel
-	 * did not come from a polygon.
+	 * Smallest 24 bits store the ID of the polygon from which the pixel came from.
+	 * 0 if the pixel did not come from a polygon. Largest 8 bits store the shadow
+	 * value (number of light sources that don't hit the pixel).
 	 */
 	int[][] renderInfo;
 	
+	// Temporary array for shading. 
 	boolean[][] stencil;
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
@@ -51,6 +53,7 @@ public class ZImage extends ImageBase {
 	public Image getZBufferImage(ShadeHandling shadeHandling, RealFunction sigmoid) {
 		
 		Image image = new Image(this);
+		image.clear();
 		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
@@ -67,6 +70,7 @@ public class ZImage extends ImageBase {
 	public Image getStencilImage() {
 		
 		Image image = new Image(this);
+		image.clear();
 		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
@@ -97,7 +101,7 @@ public class ZImage extends ImageBase {
 	public void addStencil() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				renderInfo[i][j] += stencil[i][j] ? 1 : 0;
+				renderInfo[i][j] += stencil[i][j] ? ZPixel.SHADE_BIT : 0;
 			}
 		}
 	}
@@ -108,9 +112,18 @@ public class ZImage extends ImageBase {
 		}
 	}
 
+	public void shade() {
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				image[i][j] = ShadeHandling.darken(image[i][j],
+					renderInfo[i][j] >>> ZPixel.SHADE_BIT_POS);
+			}
+		}
+	}
+
 	// Replaces a pixel iff the new pixel has a greater zBuffer
 	public void draw(ZFigure figure) {
-		
+
 		int currRight;
 		int currDown;
 		double currZBuffer;

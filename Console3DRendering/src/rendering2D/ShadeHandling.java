@@ -28,7 +28,6 @@ public class ShadeHandling {
 	}
 
 	public int determineShade(double x) {
-		
 		if (x < 0 || x > 1) {
 			throw new IllegalArgumentException();
 		}
@@ -42,6 +41,11 @@ public class ShadeHandling {
 		return numPointsPassed;
 	}
 
+	public static int darken(int shade, int darkeningFactor) {
+		// temp implementation for testing
+		return shade / (2*darkeningFactor + 1);
+	}
+
 	/*
 	 * Adjusts the shade partition using an increasing function with domain and
 	 * range [0,1]. Bringing down the cutoffs will make shades appear stronger, and
@@ -52,12 +56,4 @@ public class ShadeHandling {
 			shadePartition[i] = adjustment.f(shadePartition[i]);
 		}
 	}
-
-	public static int getMaxPossibleShade() {
-		return MAX_SHADE;
-	}
-	
-	
-	
-	
 }
