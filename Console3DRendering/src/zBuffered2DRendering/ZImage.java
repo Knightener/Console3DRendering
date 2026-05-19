@@ -1,6 +1,7 @@
 package zBuffered2DRendering;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import functionalInterfaces.RealFunction;
 import other.MiscFunctions;
@@ -41,7 +42,7 @@ public class ZImage extends ImageBase {
 		renderInfo = new int[imageRows][imageCols];
 		stencil = new boolean[imageRows][imageCols];
 	}
-	
+
 	private ZImage() {
 		super();
 	}
@@ -79,13 +80,20 @@ public class ZImage extends ImageBase {
 	}
 
 	public void clear() {
-		
-		image = new int[imageRows][imageCols];
-		zBuffer = new double[imageRows][imageCols];
-		renderInfo = new int[imageRows][imageCols];
+		for (int[] row : image) {
+			Arrays.fill(row, 0);
+		}
+		for (double[] row : zBuffer) {
+			Arrays.fill(row, 0);
+		}
+		for (int[] row : renderInfo) {
+			Arrays.fill(row, 0);
+		}
+		for (boolean[] row : stencil) {
+			Arrays.fill(row, false);
+		}
 	}
 
-	
 	// Replaces a pixel iff the new pixel has a greater zBuffer
 	public void draw(ZFigure figure) {
 		

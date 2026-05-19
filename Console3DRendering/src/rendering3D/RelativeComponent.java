@@ -2,8 +2,6 @@ package rendering3D;
 
 import java.util.HashMap;
 
-import zBuffered2DRendering.ZFigure;
-
 public abstract class RelativeComponent implements Comparable<RelativeComponent> {
 	/*
 	 * A component is either a line, a point, or a polygon. These will serve as the
