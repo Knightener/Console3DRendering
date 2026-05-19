@@ -46,7 +46,7 @@ public class ZImage extends ImageBase {
 		super();
 	}
 	
-	// Debug function. Returns an image with pixels colored according to their zBuffer
+	// Debug function. Returns an image with pixels colored according to their zBuffer.
 	public Image getZBufferImage(ShadeHandling shadeHandling, RealFunction sigmoid) {
 		
 		Image image = new Image(this);
@@ -55,6 +55,22 @@ public class ZImage extends ImageBase {
 			for (int j = 0; j < imageCols; j++) {
 				if (zBuffer[i][j] != 0)  {
 				image.setShade(j+leftBound, i+upBound, shadeHandling.determineShade(sigmoid.f(zBuffer[i][j])));			
+				}
+			}
+		}
+		
+		return image;
+	}
+	
+	// Debug function. Returns an image with pixels colored according to their stencil value.
+	public Image getStencilImage(ShadeHandling shadeHandling, RealFunction sigmoid) {
+		
+		Image image = new Image(this);
+		
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				if (stencil[i][j])  {
+				image.setShade(j+leftBound, i+upBound, ShadeHandling.MAX_SHADE);			
 				}
 			}
 		}

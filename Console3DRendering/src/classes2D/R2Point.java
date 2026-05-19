@@ -108,7 +108,7 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 		}
 
 		public Pixel[] approximate() {
-			return view(ShadeHandling.getMaxPossibleShade());
+			return view(ShadeHandling.MAX_SHADE);
 		}
 
 		public Pixel[] view(int maxShade) {

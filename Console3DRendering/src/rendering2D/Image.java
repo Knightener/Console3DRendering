@@ -112,7 +112,7 @@ public class Image extends ImageBase {
 	}
 
 	public static Figure lineFull(R2Point p1, R2Point p2) {
-		return lineFull(p1, p2, ShadeHandling.maxPossibleShade);
+		return lineFull(p1, p2, ShadeHandling.MAX_SHADE);
 	}
 	
 	/*
@@ -283,7 +283,7 @@ public class Image extends ImageBase {
 	}
 
 	public Figure line(R2Point p1, R2Point p2) {
-		return line(p1, p2, ShadeHandling.maxPossibleShade);
+		return line(p1, p2, ShadeHandling.MAX_SHADE);
 	}
 
 	/*
@@ -305,7 +305,7 @@ public class Image extends ImageBase {
 
 	public Figure ray(R2Point point, R2Point direction) {
 	
-		return ray(point, direction, ShadeHandling.maxPossibleShade);
+		return ray(point, direction, ShadeHandling.MAX_SHADE);
 	
 	}
 

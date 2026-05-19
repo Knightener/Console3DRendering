@@ -32,7 +32,7 @@ public class RelativeLine extends RelativeComponent {
 	}
 
 	public RelativeLine(R3Point pointA, R3Point pointB, Observer observer) {
-		this(pointA, pointB, ShadeHandling.getMaxPossibleShade(), 0, observer);
+		this(pointA, pointB, ShadeHandling.MAX_SHADE, 0, observer);
 	}
 
 	public void viewed() {

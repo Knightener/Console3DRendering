@@ -45,7 +45,7 @@ public abstract class ImageBase {
 	 * given left, up parameters.
 	 */
 	protected ImageBase(int[][] arr, int left, int up) {
-		if (!ArrayFunctions.passesCheck(arr, n -> n >= 0 && n <= ShadeHandling.maxPossibleShade)) {
+		if (!ArrayFunctions.passesCheck(arr, n -> n >= 0 && n <= ShadeHandling.MAX_SHADE)) {
 			throw new IllegalArgumentException();
 		}
 
@@ -156,7 +156,7 @@ public abstract class ImageBase {
 
 	public void setShade(int right, int down, int shade) {
 
-		if (!(shade >= 0 && shade <= ShadeHandling.maxPossibleShade)) {
+		if (!(shade >= 0 && shade <= ShadeHandling.MAX_SHADE)) {
 			throw new IllegalArgumentException();
 		}
 
@@ -174,7 +174,7 @@ public abstract class ImageBase {
 	public void invert() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				image[i][j] = ShadeHandling.maxPossibleShade - image[i][j];
+				image[i][j] = ShadeHandling.MAX_SHADE - image[i][j];
 			}
 		}
 	}

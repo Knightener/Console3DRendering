@@ -14,12 +14,12 @@ public class ShadeHandling {
 	static String[] shades = DEFAULT_SHADES;
 	
 	// Very commonly used expression, stored as an instance variable for convenience.
-	static int maxPossibleShade = shades.length - 1;
+	public static final int MAX_SHADE = shades.length - 1;
 
 	public ShadeHandling() {
-		shadePartition = new double[maxPossibleShade + 1];
-		for (int i = 0; i <= maxPossibleShade; i++) {
-			shadePartition[i] = (i + 1) / (double) (maxPossibleShade + 1);
+		shadePartition = new double[MAX_SHADE + 1];
+		for (int i = 0; i <= MAX_SHADE; i++) {
+			shadePartition[i] = (i + 1) / (double) (MAX_SHADE + 1);
 		}
 	}
 
@@ -54,7 +54,7 @@ public class ShadeHandling {
 	}
 
 	public static int getMaxPossibleShade() {
-		return maxPossibleShade;
+		return MAX_SHADE;
 	}
 	
 	
