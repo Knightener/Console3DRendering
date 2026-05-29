@@ -46,6 +46,13 @@ public class Observer {
 	 * The formula for the rotation matrix was derived by multiplying the rotation
 	 * matrices for theta alone and phi alone, which can be easily written down.
 	 */
+	
+	// Cos/Sin of theta/phi of current orientation. Stored for more efficient calculations.
+	double sinT;
+	double cosT;
+	double sinP;
+	double cosP;
+	
 	public Observer(R3Point position, double theta, double phi, ZImage view, double fov) {
 
 		
@@ -78,15 +85,14 @@ public class Observer {
 	}
 
 	public void setOrientation(double theta, double phi) {
-
 		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
 			throw new IllegalArgumentException();
 		}
 
-		double sinT = Math.sin(theta);
-		double cosT = Math.cos(theta);
-		double sinP = Math.sin(phi);
-		double cosP = Math.cos(phi);
+		sinT = Math.sin(theta);
+		cosT = Math.cos(theta);
+		sinP = Math.sin(phi);
+		cosP = Math.cos(phi);
 
 		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, 
 			-cosT * sinP, cosT * cosP);
