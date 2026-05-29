@@ -1,5 +1,5 @@
 package control;
 
-public enum Direction {
+public enum TranslationDirection {
 	LEFT, RIGHT, UP, DOWN, FORWARDS, BACKWARDS;
 }

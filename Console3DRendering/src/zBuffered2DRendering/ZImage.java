@@ -295,7 +295,7 @@ public class ZImage extends ImageBase {
 			return line;
 		}
 
-		// Direction
+		// RotationDirection
 		int downDir = MiscFunctions.sign(downDif);
 
 		// Distance

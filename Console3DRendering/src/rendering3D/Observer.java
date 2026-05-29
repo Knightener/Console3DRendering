@@ -6,6 +6,7 @@ import java.util.HashMap;
 import classes2D.R2Point;
 import classes3D.R3Matrix;
 import classes3D.R3Point;
+import control.RotationDirection;
 import other.Constants;
 import zBuffered2DRendering.ZFigure;
 import zBuffered2DRendering.ZImage;
@@ -105,10 +106,10 @@ public class Observer {
 	/*
 	 * Turns the observer left/right/up/down, depending on the specified direction.
 	 */
-	public void turn(String direction) {
+	public void turn(RotationDirection rotationDirection) {
 		double temp;
-		switch (direction) {
-		case ("UP"):
+		switch (rotationDirection) {
+		case UP:
 			// If phi >= pi/2, does nothing.
 			if (sinP >= 1) {
 				return;
@@ -117,7 +118,7 @@ public class Observer {
 			cosP = cosP * cosDelta - sinP * sinDelta;
 			sinP = sinP * cosDelta + temp * sinDelta;
 			break;
-		case ("DOWN"):
+		case DOWN:
 			// If phi <= -pi/2, does nothing.
 			if (sinP <= -1) {
 				return;
@@ -126,12 +127,12 @@ public class Observer {
 			cosP = cosP * cosDelta + sinP * sinDelta;
 			sinP = sinP * cosDelta - temp * sinDelta;
 			break;
-		case ("LEFT"):
+		case LEFT:
 			temp = cosT;
 			cosT = cosT * cosDelta - sinT * sinDelta;
 			sinT = sinT * cosDelta + temp * sinDelta;
 			break;
-		case ("RIGHT"):
+		case RIGHT:
 			temp = cosT;
 			cosT = cosT * cosDelta + sinT * sinDelta;
 			sinT = sinT * cosDelta - temp * sinDelta;
