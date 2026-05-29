@@ -52,7 +52,11 @@ public class Observer {
 	double cosT;
 	double sinP;
 	double cosP;
-	
+
+	// sin / cos of small angle delta. For more efficient rotation. Defaults to 0.05 rad. 
+	double sinDelta = Math.sin(0.05);
+	double cosDelta = Math.cos(0.05);
+
 	public Observer(R3Point position, double theta, double phi, ZImage view, double fov) {
 
 		
@@ -96,7 +100,41 @@ public class Observer {
 
 		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, 
 			-cosT * sinP, cosT * cosP);
+	}
 
+	// Rotates more efficiently compared to recalculating sin/cos.
+	public void increment(String direction) {
+		double temp;
+		switch (direction) {
+		case ("UP"):
+			if (sinP >= 1) {
+				return;
+			}
+			temp = cosP;
+			cosP = cosP * cosDelta + sinP * sinDelta;
+			sinP = sinP * cosDelta - temp * sinDelta;
+			break;
+		case ("DOWN"):
+			if (sinP <= 1) {
+				return;
+			}
+			temp = cosP;
+			cosP = cosP * cosDelta - sinP * sinDelta;
+			sinP = sinP * cosDelta + temp * sinDelta;
+			break;
+		case ("LEFT"):
+			temp = cosT;
+			cosT = cosT * cosDelta - sinT * sinDelta;
+			sinT = sinT * cosDelta + temp * sinDelta;
+			break;
+		case ("RIGHT"):
+			temp = cosT;
+			cosT = cosT * cosDelta + sinT * sinDelta;
+			sinT = sinT * cosDelta - temp * sinDelta;
+			break;
+		}
+		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, -cosT * sinP,
+			cosT * cosP);
 	}
 
 	public void setPosition(R3Point position) {
