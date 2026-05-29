@@ -62,6 +62,15 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 		return pixel;
 	}
 
+	public void incrementRight(double delta) {
+		right += delta;
+	}
+	public void incrementDown(double delta) {
+		down += delta;
+	}
+	public void incrementForward(double delta) {
+		forward += delta;
+	}
 	public R3Point sum(R3Point factor) {
 		return new R3Point(right + factor.right, down + factor.down, forward + factor.forward);
 	}
