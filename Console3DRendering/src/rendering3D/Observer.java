@@ -111,16 +111,16 @@ public class Observer {
 				return;
 			}
 			temp = cosP;
-			cosP = cosP * cosDelta + sinP * sinDelta;
-			sinP = sinP * cosDelta - temp * sinDelta;
+			cosP = cosP * cosDelta - sinP * sinDelta;
+			sinP = sinP * cosDelta + temp * sinDelta;
 			break;
 		case ("DOWN"):
-			if (sinP <= 1) {
+			if (sinP <= -1) {
 				return;
 			}
 			temp = cosP;
-			cosP = cosP * cosDelta - sinP * sinDelta;
-			sinP = sinP * cosDelta + temp * sinDelta;
+			cosP = cosP * cosDelta + sinP * sinDelta;
+			sinP = sinP * cosDelta - temp * sinDelta;
 			break;
 		case ("LEFT"):
 			temp = cosT;
