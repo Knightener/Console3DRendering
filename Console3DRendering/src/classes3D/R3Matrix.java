@@ -55,6 +55,20 @@ public class R3Matrix {
 		point.setForward(x * a31 + y * a32 + z * a33);
 	}
 
+	public void set(double a11, double a12, double a13, double a21, double a22, double a23,
+		double a31, double a32, double a33) {
+
+		this.a11 = a11;
+		this.a12 = a12;
+		this.a13 = a13;
+		this.a21 = a21;
+		this.a22 = a22;
+		this.a23 = a23;
+		this.a31 = a31;
+		this.a32 = a32;
+		this.a33 = a33;
+	}
+
 	@Override
 	public String toString() {
 		return a11 + " " + a12 + " " + a13 + "\n" + a21 + " " + a22 + " " + a23 + "\n" + a31 + " " + a32 + " " + a33;

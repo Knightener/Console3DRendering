@@ -90,7 +90,7 @@ public class Observer {
 
 	public void setOrientation(double theta, double phi) {
 		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("phi must be within [-pi/2 , pi/2]");
 		}
 
 		sinT = Math.sin(theta);
@@ -102,11 +102,14 @@ public class Observer {
 			-cosT * sinP, cosT * cosP);
 	}
 
-	// Rotates more efficiently compared to recalculating sin/cos.
-	public void increment(String direction) {
+	/*
+	 * Turns the observer left/right/up/down, depending on the specified direction.
+	 */
+	public void turn(String direction) {
 		double temp;
 		switch (direction) {
 		case ("UP"):
+			// If phi >= pi/2, does nothing.
 			if (sinP >= 1) {
 				return;
 			}
@@ -115,6 +118,7 @@ public class Observer {
 			sinP = sinP * cosDelta + temp * sinDelta;
 			break;
 		case ("DOWN"):
+			// If phi <= -pi/2, does nothing.
 			if (sinP <= -1) {
 				return;
 			}
@@ -133,7 +137,7 @@ public class Observer {
 			sinT = sinT * cosDelta - temp * sinDelta;
 			break;
 		}
-		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, -cosT * sinP,
+		rotation.set(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, -cosT * sinP,
 			cosT * cosP);
 	}
 

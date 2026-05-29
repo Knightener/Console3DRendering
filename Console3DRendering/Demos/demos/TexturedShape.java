@@ -60,7 +60,7 @@ public class TexturedShape {
 			position = new R3Point(4 * Math.sin(theta), 0, -4 * Math.cos(theta));
 
 			observer.setPosition(position);
-			observer.setOrientation(theta, 0);
+			observer.turn("LEFT");
 
 			shape.updatePerspective();
 			observer.renderDirectly(shape);
