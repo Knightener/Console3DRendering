@@ -7,6 +7,7 @@ import classes2D.R2Point;
 import classes3D.R3Matrix;
 import classes3D.R3Point;
 import control.RotationDirection;
+import control.TranslationDirection;
 import other.Constants;
 import zBuffered2DRendering.ZFigure;
 import zBuffered2DRendering.ZImage;
@@ -106,7 +107,7 @@ public class Observer {
 	/*
 	 * Turns the observer left/right/up/down, depending on the specified direction.
 	 */
-	public void turn(RotationDirection rotationDirection) {
+	public void turn(RotationDirection rotationDirection, double cosDelta, double sinDelta) {
 		double temp;
 		switch (rotationDirection) {
 		case UP:
@@ -142,6 +143,28 @@ public class Observer {
 			cosT * cosP);
 	}
 
+	public void move(TranslationDirection translationDirection, double delta) {
+		switch (translationDirection) {
+		case LEFT:
+			position.incrementRight(-delta);
+			break;
+		case RIGHT:
+			position.incrementRight(delta);
+			break;
+		case UP:
+			position.incrementDown(-delta);
+			break;
+		case DOWN:
+			position.incrementDown(delta);
+			break;
+		case BACKWARDS:
+			position.incrementForward(-delta);
+			break;
+		case FORWARDS:
+			position.incrementForward(delta);
+			break;
+		}
+	}
 	public void setPosition(R3Point position) {
 		this.position = position;
 	}
