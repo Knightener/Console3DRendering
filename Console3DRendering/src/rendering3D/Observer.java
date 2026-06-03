@@ -55,10 +55,6 @@ public class Observer {
 	double sinP;
 	double cosP;
 
-	// sin / cos of small angle delta. For more efficient rotation. Defaults to 0.05 rad. 
-	double sinDelta = Math.sin(0.05);
-	double cosDelta = Math.cos(0.05);
-
 	public Observer(R3Point position, double theta, double phi, ZImage view, double fov) {
 
 		
@@ -146,22 +142,26 @@ public class Observer {
 	public void move(TranslationDirection translationDirection, double delta) {
 		switch (translationDirection) {
 		case LEFT:
-			position.incrementRight(-delta);
+			position.incrementRight(-delta*cosT);
+			position.incrementForward(-delta*sinT);
 			break;
 		case RIGHT:
-			position.incrementRight(delta);
+			position.incrementRight(delta*cosT);
+			position.incrementForward(delta*sinT);
+			break;
+		case BACKWARDS:
+			position.incrementRight(delta*sinT);
+			position.incrementForward(-delta*cosT);
+			break;
+		case FORWARDS:
+			position.incrementRight(-delta*sinT);
+			position.incrementForward(delta*cosT);
 			break;
 		case UP:
 			position.incrementDown(-delta);
 			break;
 		case DOWN:
 			position.incrementDown(delta);
-			break;
-		case BACKWARDS:
-			position.incrementForward(-delta);
-			break;
-		case FORWARDS:
-			position.incrementForward(delta);
 			break;
 		}
 	}

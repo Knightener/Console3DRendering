@@ -15,7 +15,7 @@ public class UserControl extends JFrame implements KeyListener{
 	
     private final Map<Integer, ScheduledFuture<?>> heldKeys = new HashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private static int actionDelayMS = 200;
+    private static int actionDelayMS = 100;
 	
 	public UserControl() {
 		setTitle("Control");
@@ -89,13 +89,13 @@ public class UserControl extends JFrame implements KeyListener{
 			break;
 		case (KeyEvent.VK_SHIFT):
 			action = () -> {
-				User.move(TranslationDirection.UP);
+				User.move(TranslationDirection.DOWN);
 				User.printView();
 			};
 			break;
 		case (KeyEvent.VK_SPACE):
 			action = () -> {
-				User.move(TranslationDirection.DOWN);
+				User.move(TranslationDirection.UP);
 				User.printView();
 			};
 			break;
