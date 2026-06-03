@@ -254,20 +254,4 @@ public class Observer {
 
 		view.polygon(viewedPolygon, writeToStencil);
 	}
-
-	public void renderDirectly(RelativeComponent component) {
-		component.render();
-	}
-	
-	public void renderDirectly(Form form) {
-		for (RelativeComponent face : form.components) {
-			renderDirectly(face);
-		}
-	}
-
-	public void renderDirectly(Mesh mesh) {
-		for (RelativePolygon face : mesh.faces) {
-			renderDirectly(face);
-		}
-	}
 }
