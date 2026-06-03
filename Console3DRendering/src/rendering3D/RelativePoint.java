@@ -28,7 +28,7 @@ public class RelativePoint extends RelativeComponent {
 		perceived = observer.perspective(point);
 	}
 	
-	public void viewed() {
+	public void render() {
 		
 	}
 

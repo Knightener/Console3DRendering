@@ -259,5 +259,11 @@ public class Mesh {
 			face.writeToStencil();
 		}
 	}
+	
+	public void render() {
+		for (RelativePolygon face : faces) {
+			face.render();
+		}
+	}
 
 }

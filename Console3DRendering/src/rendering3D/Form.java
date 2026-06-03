@@ -62,6 +62,11 @@ public class Form {
 		}
 	}
 	
+	public void render() {
+		for (RelativeComponent component : components) {
+			component.render();
+		}
+	}
 	public int getSize() {
 		return components.size();
 	}

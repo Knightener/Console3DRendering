@@ -35,7 +35,7 @@ public class RelativeLine extends RelativeComponent {
 		this(pointA, pointB, ShadeHandling.MAX_SHADE, 0, observer);
 	}
 
-	public void viewed() {
+	public void render() {
 		observer.lineDefault(perceivedA, perceivedB, shade, borderShade);
 	}
 

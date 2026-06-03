@@ -194,7 +194,7 @@ public class RelativePolygon extends RelativeComponent {
 		return texture.determineShadeAt(findUV(right, down, zBuffer));
 	}
 
-	public void viewed() {
+	public void render() {
 		observer.polygon(perceivedPoints, 2, ID, false);
 	}
 	

@@ -2,7 +2,7 @@ package rendering3D;
 
 import java.util.HashMap;
 
-public abstract class RelativeComponent implements Comparable<RelativeComponent> {
+public abstract class RelativeComponent implements Comparable<RelativeComponent>, Renderable {
 	/*
 	 * A component is either a line, a point, or a polygon. These will serve as the
 	 * basic building blocks for building scenes.
@@ -64,14 +64,14 @@ public abstract class RelativeComponent implements Comparable<RelativeComponent>
 	}
 
 	// Updates the component to be relative to the observer's perspective 
-	abstract void updatePerspective();
+	public abstract void updatePerspective();
 
 	/*
 	 * Since leastForward and mostForward aren't independent of the observer, they
 	 * will not be set in the constructors of any subclass.
 	 */
-	abstract void determineMostAndLeastForward();
+	public abstract void determineMostAndLeastForward();
 
-	abstract void viewed();
+	public abstract void render();
 
 }
