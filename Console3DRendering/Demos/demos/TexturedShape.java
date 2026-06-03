@@ -1,7 +1,7 @@
 package demos;
 
 import classes3D.R3Point;
-import control.Control;
+import control.User;
 import control.RotationDirection;
 import rendering3D.Mesh;
 import rendering3D.Observer;
@@ -54,8 +54,8 @@ public class TexturedShape {
 		shape.createFace(texture, 3,4,5);
 		shape.createFace(texture, 2,0,3,5);
 		
-		Control.setUser(observer);
-		Control.setRotationSpeed(0.05);
+		User.setUser(observer);
+		User.setRotationSpeed(0.05);
 		
 		while (true) {
 
@@ -64,8 +64,8 @@ public class TexturedShape {
 			// The observer is moving in a circle around the shape. 
 			position = new R3Point(4 * Math.sin(theta), 0, -4 * Math.cos(theta));
 
-			Control.setPosition(position);
-			Control.turn(RotationDirection.LEFT);
+			User.setPosition(position);
+			User.turn(RotationDirection.LEFT);
 
 			shape.updatePerspective();
 			shape.render();

@@ -3,7 +3,7 @@ package control;
 import classes3D.R3Point;
 import rendering3D.Observer;
 
-public class Control {
+public class User {
 	private static Observer user;
 
 	private static double rotationSpeed;
@@ -25,18 +25,18 @@ public class Control {
 	}
 
 	public static void setRotationSpeed(double rotationSpeed) {
-		Control.rotationSpeed = rotationSpeed;
+		User.rotationSpeed = rotationSpeed;
 		cosRotSpeed = Math.cos(rotationSpeed);
 		sinRotSpeed = Math.sin(rotationSpeed);
 	}
 
 	public static void setUser(Observer user) {
-		Control.user = user;
+		User.user = user;
 	}
 
 	public static void setMovementSpeed(double movementSpeed) {
 		if (movementSpeed > 0) {
-			Control.movementSpeed = movementSpeed;
+			User.movementSpeed = movementSpeed;
 		} else {
 			throw new IllegalArgumentException("Movement speed must be positive.");
 		}
