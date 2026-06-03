@@ -96,7 +96,7 @@ public class Observer {
 		sinP = Math.sin(phi);
 		cosP = Math.cos(phi);
 
-		rotation.set(cosT, 0, sinT, -sinT * sinP, cosP, cosT * sinP, -sinT * cosP, -sinP,
+		rotation = new R3Matrix(cosT, 0, sinT, -sinT * sinP, cosP, cosT * sinP, -sinT * cosP, -sinP,
 			cosT * cosP);
 	}
 
