@@ -254,4 +254,10 @@ public class Observer {
 
 		view.polygon(viewedPolygon, writeToStencil);
 	}
+	
+	public void printView() {
+		view.texturize();
+		view.display();
+		view.clear();
+	}
 }
