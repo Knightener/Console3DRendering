@@ -17,7 +17,7 @@ public class Observer {
 
 	private static HashMap<Integer, Observer> IDMap = new HashMap<Integer, Observer>();
 	private static int currentGreatestID = 1;
-
+	
 	private int ID;
 
 	// What the observer is seeing.
@@ -46,7 +46,7 @@ public class Observer {
 	 * upside down.
 	 * 
 	 * The formula for the rotation matrix was derived by multiplying the rotation
-	 * matrices for theta alone and phi alone, which can be easily written down.
+	 * matrices for theta around the vertical axis, and phi around the relative left axis.
 	 */
 	
 	// Cos/Sin of theta/phi of current orientation. Stored for more efficient calculations.
@@ -96,8 +96,8 @@ public class Observer {
 		sinP = Math.sin(phi);
 		cosP = Math.cos(phi);
 
-		rotation = new R3Matrix(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, 
-			-cosT * sinP, cosT * cosP);
+		rotation.set(cosT, 0, sinT, -sinT * sinP, cosP, cosT * sinP, -sinT * cosP, -sinP,
+			cosT * cosP);
 	}
 
 	/*
@@ -107,22 +107,16 @@ public class Observer {
 		double temp;
 		switch (rotationDirection) {
 		case UP:
+			temp = sinP;
 			// If phi >= pi/2, does nothing.
-			if (sinP >= 1) {
-				return;
-			}
-			temp = cosP;
-			cosP = cosP * cosDelta - sinP * sinDelta;
-			sinP = sinP * cosDelta + temp * sinDelta;
+			sinP = sinP * cosDelta + cosP * sinDelta;
+			cosP = cosP * cosDelta - temp * sinDelta;
 			break;
 		case DOWN:
 			// If phi <= -pi/2, does nothing.
-			if (sinP <= -1) {
-				return;
-			}
-			temp = cosP;
-			cosP = cosP * cosDelta + sinP * sinDelta;
-			sinP = sinP * cosDelta - temp * sinDelta;
+			temp = sinP;
+			sinP = sinP * cosDelta - cosP * sinDelta;
+			cosP = cosP * cosDelta + temp * sinDelta;
 			break;
 		case LEFT:
 			temp = cosT;
@@ -135,7 +129,7 @@ public class Observer {
 			sinT = sinT * cosDelta - temp * sinDelta;
 			break;
 		}
-		rotation.set(cosT, -sinT * sinP, sinT * cosP, 0, cosP, sinP, -sinT, -cosT * sinP,
+		rotation.set(cosT, 0, sinT, -sinT * sinP, cosP, cosT * sinP, -sinT * cosP, -sinP,
 			cosT * cosP);
 	}
 
