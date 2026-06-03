@@ -4,6 +4,11 @@ import classes3D.R3Point;
 import rendering3D.Observer;
 
 public class User {
+	/*
+	 * Class of only static variables/methods that represents the user that will be
+	 * moving through the world.
+	 */
+	
 	private static Observer user;
 
 	private static double rotationSpeed;

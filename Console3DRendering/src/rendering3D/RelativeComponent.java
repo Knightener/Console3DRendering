@@ -39,6 +39,10 @@ public abstract class RelativeComponent implements Comparable<RelativeComponent>
 	public int getID() {
 		return ID;
 	}
+	
+	public Observer getObserver() {
+		return observer;
+	}
 
 	/*
 	 * This function determines if a component is in front of some other component.
@@ -73,5 +77,6 @@ public abstract class RelativeComponent implements Comparable<RelativeComponent>
 	public abstract void determineMostAndLeastForward();
 
 	public abstract void render();
+
 
 }

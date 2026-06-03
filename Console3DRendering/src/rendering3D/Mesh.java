@@ -12,7 +12,7 @@ import graph.IndexGraph;
 import graph.UnorderedEdge;
 import texturing.Texture;
 
-public class Mesh {
+public class Mesh implements Renderable {
 
 	/*
 	 * This class differs from form in that it can only store faces, all edges must
@@ -192,7 +192,7 @@ public class Mesh {
 	
 	// Returns a form with all normals.
 	public Form getAllNormals() {
-		Form normals = new Form();
+		Form normals = new Form(observer);
 		for (RelativePolygon face : faces) {
 			normals.add(face.getUnitNormal());
 		}
@@ -229,7 +229,7 @@ public class Mesh {
 			}
 		}
 		
-		Form wireFrame = new Form();
+		Form wireFrame = new Form(observer);
 
 		for (UnorderedEdge edge : wireFrameEdges) {
 			wireFrame.add(new RelativeLine(vertices.get(edge.a()), vertices.get(edge.b()), observer));
@@ -265,5 +265,11 @@ public class Mesh {
 			face.render();
 		}
 	}
+	
+	
+	public Observer getObserver() {
+		return observer;
+	}
+
 
 }

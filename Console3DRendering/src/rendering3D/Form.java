@@ -5,21 +5,20 @@ import java.util.List;
 
 import classes3D.R3Point;
 
-public class Form {
+public class Form implements Renderable {
 
+	Observer observer;
+	
 	ArrayList<RelativeComponent> components;
 
-	public Form(ArrayList<RelativeComponent> components) {
-		this.components = components;
-	}
-
-	public Form() {
+	public Form(Observer observer) {
+		this.observer = observer;
 		this.components = new ArrayList<RelativeComponent>();
 	}
 
 	// Constructs a form by connecting the points in a loop. 
 	public static Form connect(List<R3Point> points, Observer observer) {
-		Form connected = new Form();
+		Form connected = new Form(observer);
 
 		for (int i = 0; i < points.size(); i++) {
 			connected.add(new RelativeLine(points.get(i), points.get((i + 1) % points.size()), observer));
@@ -27,6 +26,7 @@ public class Form {
 		
 		return connected; 
 	}
+	
 	public void updatePerspective() {
 		for (RelativeComponent component : components) {
 			component.updatePerspective();
@@ -43,9 +43,13 @@ public class Form {
 	public void determineRenderingOrder() {
 		Collections.sort(components);
 	}
-	
+
 	public void add(RelativeComponent component) {
-		components.add(component);
+		if (component.getObserver() == observer) {
+			components.add(component);
+		} else {
+			throw new IllegalArgumentException("Observer must match.");
+		}
 	}
 
 	public void addNormals() {
@@ -67,8 +71,14 @@ public class Form {
 			component.render();
 		}
 	}
+	
 	public int getSize() {
 		return components.size();
 	}
+	
+	public Observer getObserver() {
+		return observer;
+	}
+
 
 }
