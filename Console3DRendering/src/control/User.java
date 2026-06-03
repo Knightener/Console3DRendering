@@ -38,6 +38,10 @@ public class User {
 	public static void setUser(Observer user) {
 		User.user = user;
 	}
+	
+	public static Observer getUser() {
+		return user;
+	}
 
 	public static void setMovementSpeed(double movementSpeed) {
 		if (movementSpeed > 0) {
@@ -45,5 +49,10 @@ public class User {
 		} else {
 			throw new IllegalArgumentException("Movement speed must be positive.");
 		}
+	}
+	
+	public static void printView() {
+		World.render();
+		user.printView();
 	}
 }

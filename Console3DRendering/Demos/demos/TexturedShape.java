@@ -2,6 +2,7 @@ package demos;
 
 import classes3D.R3Point;
 import control.User;
+import control.World;
 import control.RotationDirection;
 import rendering3D.Mesh;
 import rendering3D.Observer;
@@ -57,6 +58,8 @@ public class TexturedShape {
 		User.setUser(observer);
 		User.setRotationSpeed(0.05);
 		
+		World.addObject(shape);
+		
 		while (true) {
 
 			theta += 0.05;
@@ -69,11 +72,8 @@ public class TexturedShape {
 
 			shape.updatePerspective();
 			shape.render();
-			image.texturize();
 			
-			// You could change this to image.displayCoordinates().
-			image.display();
-			image.clear();
+			User.printView();
 
 			try {
 				Thread.sleep(100);
