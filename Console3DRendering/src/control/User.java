@@ -10,6 +10,8 @@ public class User {
 	 */
 	
 	private static Observer user;
+	
+	private static boolean printRenderSpeed = false;
 
 	private static double rotationSpeed;
 	private static double movementSpeed;
@@ -51,8 +53,17 @@ public class User {
 		}
 	}
 	
+	public static void printRenderSpeed(boolean printRenderSpeed) {
+		User.printRenderSpeed = printRenderSpeed;
+	}
+	
 	public static void printView() {
+		long start = System.nanoTime();
 		World.render();
 		user.printView();
+		long end = System.nanoTime();
+		if (printRenderSpeed) {
+			System.out.print((double)(end - start)/1000000);
+		}
 	}
 }
