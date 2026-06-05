@@ -16,7 +16,11 @@ public class DoubleArray2D {
 		return array2D[row * cols + col];
 	}
 
-	public void add(double element, int row, int col) {
+	public void set(double element, int row, int col) {
 		array2D[row * cols + col] = element;
+	}
+	
+	public double[] getArray() {
+		return array2D;
 	}
 }

@@ -3,6 +3,9 @@ package zBuffered2DRendering;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import array2D.BooleanArray2D;
+import array2D.DoubleArray2D;
+import array2D.IntArray2D;
 import functionalInterfaces.RealFunction;
 import other.MiscFunctions;
 import rendering2D.Image;
@@ -18,31 +21,31 @@ public class ZImage extends ImageBase {
 	 * being here has a range 0 to infinity. Furthermore, a higher zBuffer indicates
 	 * a closer object.
 	 */
-	double[][] zBuffer;
+	DoubleArray2D zBuffer;
 
 	/*
 	 * Smallest 24 bits store the ID of the polygon from which the pixel came from.
 	 * 0 if the pixel did not come from a polygon. Largest 8 bits store the shadow
 	 * value (number of light sources that don't hit the pixel).
 	 */
-	int[][] renderInfo;
+	IntArray2D renderInfo;
 	
 	// Temporary array for shading. 
-	boolean[][] stencil;
+	BooleanArray2D stencil;
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
 		super(leftEnd, rightEnd, upEnd, downEnd);
-		zBuffer = new double[imageRows][imageCols];
-		renderInfo = new int[imageRows][imageCols];
-		stencil = new boolean[imageRows][imageCols];
+		zBuffer = new DoubleArray2D(imageRows, imageCols);
+		renderInfo = new IntArray2D(imageRows, imageCols);
+		stencil = new BooleanArray2D(imageRows, imageCols);
 
 	}
 
 	public ZImage(int[][] arr, int left, int up) {
 		super(arr, left, up);
-		zBuffer = new double[imageRows][imageCols];
-		renderInfo = new int[imageRows][imageCols];
-		stencil = new boolean[imageRows][imageCols];
+		zBuffer = new DoubleArray2D(imageRows, imageCols);
+		renderInfo = new IntArray2D(imageRows, imageCols);
+		stencil = new BooleanArray2D(imageRows, imageCols);
 	}
 
 	private ZImage() {
@@ -57,8 +60,8 @@ public class ZImage extends ImageBase {
 		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				if (zBuffer[i][j] != 0)  {
-				image.setShade(j+leftBound, i+upBound, shadeHandling.determineShade(sigmoid.f(zBuffer[i][j])));			
+				if (zBuffer.get(i, j) != 0)  {
+				image.setShade(j+leftBound, i+upBound, shadeHandling.determineShade(sigmoid.f(zBuffer.get(i, j))));			
 				}
 			}
 		}
@@ -74,7 +77,7 @@ public class ZImage extends ImageBase {
 		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				if (stencil[i][j])  {
+				if (stencil.get(i, j))  {
 				image.setShade(j+leftBound, i+upBound, ShadeHandling.MAX_SHADE);			
 				}
 			}
@@ -87,36 +90,29 @@ public class ZImage extends ImageBase {
 		for (int[] row : image) {
 			Arrays.fill(row, 0);
 		}
-		for (double[] row : zBuffer) {
-			Arrays.fill(row, 0);
-		}
-		for (int[] row : renderInfo) {
-			Arrays.fill(row, 0);
-		}
-		for (boolean[] row : stencil) {
-			Arrays.fill(row, false);
-		}
+		
+		Arrays.fill(zBuffer.getArray(), 0.0);
+		Arrays.fill(renderInfo.getArray(), 0);
+		Arrays.fill(stencil.getArray(), false);
 	}
 	
 	public void addStencil() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				renderInfo[i][j] += stencil[i][j] ? ZPixel.SHADE_BIT : 0;
+				renderInfo.set(renderInfo.get(i, j) + (stencil.get(i, j) ? ZPixel.SHADE_BIT : 0), i, j);
 			}
 		}
 	}
 	
 	public void clearStencil() {
-		for (boolean[] row : stencil) {
-			Arrays.fill(row, false);
-		}
+		Arrays.fill(stencil.getArray(), false);
 	}
 
 	public void shade() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
 				image[i][j] = ShadeHandling.darken(image[i][j],
-					renderInfo[i][j] >>> ZPixel.SHADE_BIT_POS);
+					renderInfo.get(i, j) >>> ZPixel.SHADE_BIT_POS);
 			}
 		}
 	}
@@ -135,11 +131,11 @@ public class ZImage extends ImageBase {
 			currZBuffer = pixel.getZBuffer();
 
 			if (currRight >= 0 && currRight < imageCols && currDown >= 0 && currDown < imageRows
-				&& currZBuffer > zBuffer[currDown][currRight]) {
+				&& currZBuffer > zBuffer.get(currDown, currRight)) {
 
-				zBuffer[currDown][currRight] = currZBuffer;
+				zBuffer.set(currZBuffer, currDown, currRight);
 				image[currDown][currRight] = pixel.getShade();
-				renderInfo[currDown][currRight] = pixel.getRenderInfo();
+				renderInfo.set(pixel.getRenderInfo(), currDown, currRight);
 			}
 		}
 	}
@@ -154,11 +150,11 @@ public class ZImage extends ImageBase {
 		int adjustedDown = down - upBound;
 
 		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
-			&& adjustedDown < imageRows && zBuffer > this.zBuffer[adjustedDown][adjustedRight]) {
+			&& adjustedDown < imageRows && zBuffer > this.zBuffer.get(adjustedDown, adjustedRight)) {
 
-			this.zBuffer[adjustedDown][adjustedRight] = zBuffer;
+			this.zBuffer.set(zBuffer, adjustedDown, adjustedRight);
 			image[adjustedDown][adjustedRight] = shade;
-			this.renderInfo[adjustedDown][adjustedRight] = polygonID;
+			this.renderInfo.set(polygonID, adjustedDown, adjustedRight);
 		}
 	}
 	
@@ -168,8 +164,8 @@ public class ZImage extends ImageBase {
 		int adjustedDown = down - upBound;
 
 		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
-			&& adjustedDown < imageRows && zBuffer > this.zBuffer[adjustedDown][adjustedRight]) {
-			stencil[adjustedDown][adjustedRight] = !stencil[adjustedDown][adjustedRight];
+			&& adjustedDown < imageRows && zBuffer > this.zBuffer.get(adjustedDown, adjustedRight)) {
+			stencil.set(!stencil.get(adjustedDown, adjustedRight), adjustedDown, adjustedRight);
 		}
 	}
 	
@@ -181,9 +177,9 @@ public class ZImage extends ImageBase {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
 				
-				if ((renderInfo[i][j] & 1) == 1)  {
+				if ((renderInfo.get(i, j) & 1) == 1)  {
 					
-					image[i][j] = RelativeComponent.<RelativePolygon>get(renderInfo[i][j]).determineShade(j+leftBound, i+upBound, zBuffer[i][j]);
+					image[i][j] = RelativeComponent.<RelativePolygon>get(renderInfo.get(i, j)).determineShade(j+leftBound, i+upBound, zBuffer.get(i, j));
 				}
 			}
 		}
@@ -400,8 +396,7 @@ public class ZImage extends ImageBase {
 
 	/*
 	 * Renders a polygon specified by points.
-	 * 
-	 * All points assumed to be in the same plane and convex. Putting in any other
+	 * * All points assumed to be in the same plane and convex. Putting in any other
 	 * set of points may lead to visual artifacts. All points assumed to have the
 	 * same polygonID (may lead to inconsistent IDing otherwise)
 	 */
