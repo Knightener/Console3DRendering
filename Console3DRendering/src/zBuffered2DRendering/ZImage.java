@@ -21,35 +21,33 @@ public class ZImage extends ImageBase {
 	 * being here has a range 0 to infinity. Furthermore, a higher zBuffer indicates
 	 * a closer object.
 	 */
-	DoubleArray2D zBuffer;
+	private DoubleArray2D zBuffer;
 
 	/*
 	 * Smallest 24 bits store the ID of the polygon from which the pixel came from.
 	 * 0 if the pixel did not come from a polygon. Largest 8 bits store the shadow
 	 * value (number of light sources that don't hit the pixel).
 	 */
-	IntArray2D renderInfo;
+	private IntArray2D renderInfo;
 	
 	// Temporary array for shading. 
-	BooleanArray2D stencil;
+	private BooleanArray2D stencil;
 	
-	// Temporary arrays used for the drawing methods
-	DoubleArray2D zTemp;
-	IntArray2D imageTemp;
-
-	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
-		super(leftEnd, rightEnd, upEnd, downEnd);
+	private void initialize() {
 		zBuffer = new DoubleArray2D(imageRows, imageCols);
 		renderInfo = new IntArray2D(imageRows, imageCols);
 		stencil = new BooleanArray2D(imageRows, imageCols);
+	}
+
+	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
+		super(leftEnd, rightEnd, upEnd, downEnd);
+		initialize();
 
 	}
 
 	public ZImage(int[][] arr, int left, int up) {
 		super(arr, left, up);
-		zBuffer = new DoubleArray2D(imageRows, imageCols);
-		renderInfo = new IntArray2D(imageRows, imageCols);
-		stencil = new BooleanArray2D(imageRows, imageCols);
+		initialize();
 	}
 
 	private ZImage() {
@@ -78,15 +76,15 @@ public class ZImage extends ImageBase {
 		
 		Image image = new Image(this);
 		image.clear();
-		
+
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				if (stencil.get(i, j))  {
-				image.setShade(j+leftBound, i+upBound, ShadeHandling.MAX_SHADE);			
+				if (stencil.get(i, j)) {
+					image.setShade(j + leftBound, i + upBound, ShadeHandling.MAX_SHADE);
 				}
 			}
 		}
-		
+
 		return image;
 	}
 
