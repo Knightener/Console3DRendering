@@ -32,6 +32,10 @@ public class ZImage extends ImageBase {
 	
 	// Temporary array for shading. 
 	BooleanArray2D stencil;
+	
+	// Temporary arrays used for the drawing methods
+	DoubleArray2D zTemp;
+	IntArray2D imageTemp;
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
 		super(leftEnd, rightEnd, upEnd, downEnd);

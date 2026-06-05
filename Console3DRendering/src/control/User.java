@@ -11,7 +11,11 @@ public class User {
 	
 	private static Observer user;
 	
-	private static boolean printRenderSpeed = false;
+	private static boolean printFrameRenderSpeed = false;
+	private static boolean printAvgRenderSpeed = false;
+	
+	private static int framesElapsed = 0; 
+	private static long totalTimeRendering = 0; 
 
 	private static double rotationSpeed;
 	private static double movementSpeed;
@@ -53,17 +57,30 @@ public class User {
 		}
 	}
 	
-	public static void printRenderSpeed(boolean printRenderSpeed) {
-		User.printRenderSpeed = printRenderSpeed;
+	// Print the time it takes to print the frame after every frame. 
+	public static void printFrameRenderSpeed(boolean printFrameRenderSpeed) {
+		User.printFrameRenderSpeed = printFrameRenderSpeed;
 	}
 	
+	// Print the average time it took to render frames during the entire run after every run. 
+	public static void printAvgRenderSpeed(boolean printAvgRenderSpeed) {
+		User.printAvgRenderSpeed = printAvgRenderSpeed;
+	}
+
 	public static void printView() {
 		long start = System.nanoTime();
+
 		World.render();
 		user.printView();
+
 		long end = System.nanoTime();
-		if (printRenderSpeed) {
-			System.out.print((double)(end - start)/1000000);
+		if (printFrameRenderSpeed) {
+			System.out.println((double) (end - start) / 1000000);
+		}
+		User.framesElapsed++;
+		User.totalTimeRendering += end - start;
+		if (printAvgRenderSpeed) {
+			System.out.println((double) (totalTimeRendering) / (1000000 * framesElapsed));
 		}
 	}
 }
