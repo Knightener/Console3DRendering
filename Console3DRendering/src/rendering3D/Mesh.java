@@ -259,17 +259,17 @@ public class Mesh implements Renderable {
 			face.writeToStencil();
 		}
 	}
-	
+
+	@Override
 	public void render() {
 		for (RelativePolygon face : faces) {
 			face.render();
 		}
 	}
 	
-	
+	@Override
 	public Observer getObserver() {
 		return observer;
 	}
-
 
 }

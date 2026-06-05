@@ -3,7 +3,6 @@ import java.util.ArrayList;
 
 import functionalInterfaces.RealFunction;
 import interfaces.NormedVectorSpace;
-import other.MiscFunctions;
 import rendering2D.Pixel;
 import rendering2D.ShadeHandling;
 

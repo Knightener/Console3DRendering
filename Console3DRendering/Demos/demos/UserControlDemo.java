@@ -32,10 +32,8 @@ public class UserControlDemo {
 		// Texture of the shape.
 		Texture texture = new Texture(TexturePresets.CHECKERBOARD, 0.5);
 	
-		// Observer's position.
-		R3Point position = new R3Point(0, 0, 0);
 
-		Observer observer = new Observer(position, 0, 0, image, 70);
+		Observer observer = new Observer(image, 70);
 
 		Mesh plane = new Mesh(observer, new R3Point(-10, 2, 10), new R3Point(10, 2, 10),
 			new R3Point(10, 2, -10), new R3Point(-10, 2, -10));
