@@ -56,8 +56,6 @@ public class Observer {
 	double cosP;
 
 	public Observer(R3Point position, double theta, double phi, ZImage view, double fov) {
-
-		
 		this.view = view;
 		this.position = new R3Point(position);
 		this.fov = fov;
@@ -66,6 +64,10 @@ public class Observer {
 
 		ID = currentGreatestID++;
 		IDMap.put(ID, this);
+	}
+
+	public Observer(ZImage view, double fov) {
+		this(new R3Point(0, 0, 0), 0, 0, view, fov);
 	}
 
 	public R2Point lookAt(R3Point point) {

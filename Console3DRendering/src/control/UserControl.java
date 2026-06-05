@@ -15,7 +15,7 @@ public class UserControl extends JFrame implements KeyListener{
 	
     private final Map<Integer, ScheduledFuture<?>> heldKeys = new HashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private static int actionDelayMS = 100;
+    private static int actionDelayMS = 200;
 	
 	public UserControl() {
 		setTitle("Control");

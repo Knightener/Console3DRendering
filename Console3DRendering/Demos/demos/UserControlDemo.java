@@ -17,7 +17,7 @@ public class UserControlDemo {
 	 */
 	public static void main(String args[]) {
 
-		ZImage image = new ZImage(-60, 60, -50, 50);
+		ZImage image = new ZImage(-60, 60, -40, 40);
 		
 		// Front face vertices.
 		R3Point p1 = new R3Point(0, -1, 1);
@@ -50,6 +50,7 @@ public class UserControlDemo {
 		shape.createFace(texture, 0,1,4,3);
 		shape.createFace(texture, 3,4,5);
 		shape.createFace(texture, 2,0,3,5);
+		shape.createFace(texture, 1,2,5,4);
 		
 		User.setUser(observer);
 		User.setRotationSpeed(0.05);
