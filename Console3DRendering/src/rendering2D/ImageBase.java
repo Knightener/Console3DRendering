@@ -1,5 +1,6 @@
 package rendering2D;
 
+import array2D.IntArray2D;
 import classes2D.R2Point;
 import other.ArrayFunctions;
 import other.MiscFunctions;
@@ -9,13 +10,12 @@ public abstract class ImageBase {
 	/*
 	 * This class was pulled from the Image class. It was created so ZImage could
 	 * extend it instead of Image since Image comes with a lot of baggage.
-	 * 
-	 * Furthermore, most of the drawing methods in Image have to be rewritten to
+	 * * Furthermore, most of the drawing methods in Image have to be rewritten to
 	 * account for the Z buffer. Although the changes to the methods are minor, they
 	 * cannot be implemented using only the output of the original drawing methods.
 	 */
 
-	protected int[][] image;	
+	protected IntArray2D image;	
 	
 	protected int imageRows;
 	protected int imageCols;
@@ -49,10 +49,17 @@ public abstract class ImageBase {
 			throw new IllegalArgumentException();
 		}
 
-		image = ArrayFunctions.rectangulize(arr);
+		int[][] rectArr = ArrayFunctions.rectangulize(arr);
 
-		imageRows = image.length;
-		imageCols = image[0].length;
+		imageRows = rectArr.length;
+		imageCols = rectArr[0].length;
+		
+		image = new IntArray2D(imageRows, imageCols);
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				image.set(rectArr[i][j], i, j);
+			}
+		}
 
 		leftBound = -left;
 		rightBound = imageCols - left;
@@ -74,21 +81,22 @@ public abstract class ImageBase {
 		this(new int[downEnd - upEnd + 1][rightEnd - leftEnd + 1], -leftEnd, -upEnd);
 	}
 
-	protected ImageBase(ImageBase image) {
-		this.image = ArrayFunctions.copy(image.image);
+	protected ImageBase(ImageBase imageObj) {
+		this.image = new IntArray2D(imageObj.imageRows, imageObj.imageCols);
+		System.arraycopy(imageObj.image.getArray(), 0, this.image.getArray(), 0, imageObj.image.getArray().length);
 		
-		imageRows = image.imageRows;
-		imageCols = image.imageCols;
+		imageRows = imageObj.imageRows;
+		imageCols = imageObj.imageCols;
 		
-		leftBound = image.leftBound;
-		rightBound = image.rightBound;
-		upBound = image.upBound;
-		downBound = image.downBound;
+		leftBound = imageObj.leftBound;
+		rightBound = imageObj.rightBound;
+		upBound = imageObj.upBound;
+		downBound = imageObj.downBound;
 		
-		xAxis = image.xAxis;
-		yAxis = image.yAxis;
+		xAxis = imageObj.xAxis;
+		yAxis = imageObj.yAxis;
 		
-		furthestOut = image.furthestOut;
+		furthestOut = imageObj.furthestOut;
 		
 	}
 
@@ -98,8 +106,7 @@ public abstract class ImageBase {
 	 * really require the borders of the image that is calling it, and there are
 	 * times where you do not need all the overhead associated with constructing an
 	 * entire image.
-	 * 
-	 * The cleaner way to do this would be to make an ImageBorders class and put all
+	 * * The cleaner way to do this would be to make an ImageBorders class and put all
 	 * the drawing methods over there, but unfortunately Java's lack of multiple
 	 * inheritance stops us from doing this.
 	 */
@@ -122,7 +129,7 @@ public abstract class ImageBase {
 
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				shadeArr[i][j] = ShadeHandling.shades[image[i][j]];
+				shadeArr[i][j] = ShadeHandling.shades[image.get(i, j)];
 			}
 		}
 		return shadeArr;
@@ -134,7 +141,7 @@ public abstract class ImageBase {
 		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				imageString.append(ShadeHandling.shades[image[i][j]]);
+				imageString.append(ShadeHandling.shades[image.get(i, j)]);
 			}
 			imageString.append('\n');
 		}
@@ -160,21 +167,22 @@ public abstract class ImageBase {
 			throw new IllegalArgumentException();
 		}
 
-		try {
-		image[down - upBound][right - leftBound] = shade;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			
+		int adjustedDown = down - upBound;
+		int adjustedRight = right - leftBound;
+		if (adjustedDown >= 0 && adjustedDown < imageRows && adjustedRight >= 0
+			&& adjustedRight < imageCols) {
+			image.set(shade, adjustedDown, adjustedRight);
 		}
 	}
 
 	public int getShade(int right, int down) {
-		return image[down][right];
+		return image.get(down, right);
 	}
 
 	public void invert() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				image[i][j] = ShadeHandling.MAX_SHADE - image[i][j];
+				image.set(ShadeHandling.MAX_SHADE - image.get(i, j), i, j);
 			}
 		}
 	}

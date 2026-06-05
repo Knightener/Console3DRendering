@@ -87,10 +87,7 @@ public class ZImage extends ImageBase {
 	}
 
 	public void clear() {
-		for (int[] row : image) {
-			Arrays.fill(row, 0);
-		}
-		
+		Arrays.fill(image.getArray(), 0);
 		Arrays.fill(zBuffer.getArray(), 0.0);
 		Arrays.fill(renderInfo.getArray(), 0);
 		Arrays.fill(stencil.getArray(), false);
@@ -111,8 +108,8 @@ public class ZImage extends ImageBase {
 	public void shade() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				image[i][j] = ShadeHandling.darken(image[i][j],
-					renderInfo.get(i, j) >>> ZPixel.SHADE_BIT_POS);
+				image.set(ShadeHandling.darken(image.get(i, j),
+					renderInfo.get(i, j) >>> ZPixel.SHADE_BIT_POS), i, j);
 			}
 		}
 	}
@@ -134,7 +131,7 @@ public class ZImage extends ImageBase {
 				&& currZBuffer > zBuffer.get(currDown, currRight)) {
 
 				zBuffer.set(currZBuffer, currDown, currRight);
-				image[currDown][currRight] = pixel.getShade();
+				image.set(pixel.getShade(), currDown, currRight);
 				renderInfo.set(pixel.getRenderInfo(), currDown, currRight);
 			}
 		}
@@ -153,7 +150,7 @@ public class ZImage extends ImageBase {
 			&& adjustedDown < imageRows && zBuffer > this.zBuffer.get(adjustedDown, adjustedRight)) {
 
 			this.zBuffer.set(zBuffer, adjustedDown, adjustedRight);
-			image[adjustedDown][adjustedRight] = shade;
+			image.set(shade, adjustedDown, adjustedRight);
 			this.renderInfo.set(polygonID, adjustedDown, adjustedRight);
 		}
 	}
@@ -179,7 +176,7 @@ public class ZImage extends ImageBase {
 				
 				if ((renderInfo.get(i, j) & 1) == 1)  {
 					
-					image[i][j] = RelativeComponent.<RelativePolygon>get(renderInfo.get(i, j)).determineShade(j+leftBound, i+upBound, zBuffer.get(i, j));
+					image.set(RelativeComponent.<RelativePolygon>get(renderInfo.get(i, j)).determineShade(j+leftBound, i+upBound, zBuffer.get(i, j)), i, j);
 				}
 			}
 		}
