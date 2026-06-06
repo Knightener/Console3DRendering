@@ -433,7 +433,7 @@ public class ZImage extends ImageBase {
 		int insertionIndex;
 
 		// i bound is visibleLnegth
-		for (int i = 0; i <= Math.min(rightDist, rightBound - p1.getRight() - 1); i++) {
+		for (int i = 0; i < Math.min(rightDist, rightBound - p1.getRight() - 1); i++) {
 			
 			currList = polygonBuffer[i+startIndex];
 			
