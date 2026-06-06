@@ -333,6 +333,7 @@ public class ZImage extends ImageBase {
 	 */
 	private ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
 
+		
 		ZFigure line = new ZFigure();
 
 		// Difference
@@ -411,12 +412,13 @@ public class ZImage extends ImageBase {
 	 * Maintains sorted order of each bucket polygonBuffer.
 	 */
 	private void lWHRWriteToPolygonBuffer(ZPixel p1, ZPixel p2) {
-		if (p1.getRight() > rightBound) {
-			return;
-		}
 
 		int rightDist = p2.getRight() - p1.getRight();
 		int downDif = p2.getDown() - p1.getDown();
+
+		if (p1.getRight() > rightBound || rightDist == 0) {
+			return;
+		}
 
 		int downDir = MiscFunctions.sign(downDif);
 		int minDownStep = downDif / rightDist;
@@ -540,8 +542,8 @@ public class ZImage extends ImageBase {
 		 * about the value of start changing.
 		 */
 		if (upBound > start.position) {
-			start.position = upBound;
 			start.incrementZ(zStep * (upBound - start.position));
+			start.position = upBound;
 		}
 
 		int visibleEnd = Math.min(end.position, downBound - 1);
@@ -557,26 +559,23 @@ public class ZImage extends ImageBase {
 		}
 	}
 
-
 	/*
-	 * Renders a polygon specified by points.
-	 * * All points assumed to be in the same plane and convex. Putting in any other
-	 * set of points may lead to visual artifacts. All points assumed to have the
-	 * same polygonID (may lead to inconsistent IDing otherwise)
+	 * Renders a polygon specified by points. All points assumed to be in the same
+	 * plane. Putting in any other set of points may lead to visual artifacts. Takes
+	 * on shade and polygonID of first point.
 	 */
-	
-	public void polygon(ArrayList<ZPixel> points, boolean writeToStencil) {
+	public void polygon(List<ZPixel> points, boolean writeToStencil) {
 		int length = points.size();
 
 		if (length < 3) {
 			return;
 		}
+
+		int shade = points.get(0).getShade();
 		
+		// The RenderInfo will be the polygonID in most cases. 
+		int polygonID = points.get(0).getRenderInfo();
 		double slope = 0;
-		
-		// Index of the left/right most points in the list of points
-		int leftMostIndex = 0;
-		int rightMostIndex = 0;
 
 		{
 			// Local variables that are only used to calculate the slope
@@ -601,49 +600,54 @@ public class ZImage extends ImageBase {
 					((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
 		}
 
-		// Finds leftMostIndex/rightMostIndex
-		for (int i = 1; i < length; i++) {
+		int rightMost = points.get(0).getRight();
+		int leftMost = points.get(0).getRight();
 
-			double curr = points.get(i).getRight();
-
-			if (curr < points.get(leftMostIndex).getRight()) {
-				leftMostIndex = i;
+		{
+			ZPixel curr;
+			int currRight;
+			/*
+			 * Writing edges to polygonBuffer. Also finds rightmost and leftmost x of
+			 * polygon.
+			 */
+			for (int i = 0; i < length; i++) {
+				curr = points.get(i);
+				currRight = curr.getRight();
+				
+				if (currRight > rightMost) {
+					rightMost = currRight;
+				} else if (currRight < leftMost) {
+					leftMost = currRight;
+				}
+				
+				lWHRCutWriteToPolygonBuffer(curr, points.get((i + 1) % length));
 			}
-
-			if (curr > points.get(rightMostIndex).getRight()) {
-				rightMostIndex = i;
-			}
-
 		}
 
-		/*
-		 * Line formed when winding counter clockwise through polygon from leftMost to
-		 * rightMost
-		 */
-		ZFigure counterClockwise = new ZFigure();
-
-		// Line formed when winding clockwise through polygon from leftMost to rightMost
-		ZFigure clockwise = new ZFigure();
-
+		// If polygon goes further right than the screen.
+		if (rightMost >= rightBound) {
+			rightMost = rightBound - 1;
+		}
 		
-		for (int i = leftMostIndex; i != rightMostIndex; i = (i + 1) % length) {
-			clockwise.add(lWHRCut(points.get(i), points.get((i + 1) % length)));
+		// If polygon goes further left than the screen.
+		if (leftMost < leftBound) {
+			leftMost = leftBound;
 		}
 
-		for (int i = leftMostIndex; i != rightMostIndex; i = MiscFunctions.mod((i - 1), length)) {
-			counterClockwise.add(lWHRCut(points.get(i), points.get(MiscFunctions.mod((i - 1), length))));
-		}
-		/*
-		 * In most cases, clockwise and counterclockwise will have equal lengths.
-		 * However, there are rare edge cases where they aren't, so to avoid the code
-		 * halting I have added a try-catch block
-		 */
-		for (int i = 0; i < clockwise.size(); i++) {
-			try {
-				verticalLine(clockwise.get(i), counterClockwise.get(i), slope, writeToStencil);
-			} catch (IndexOutOfBoundsException e) {
-				break;
+		ArrayList<ZInt> currList;
+		
+		for (int i = leftMost; i <= rightMost; i++) {
+			currList = polygonBuffer[i - leftBound];
+
+			/*
+			 * Draws a line from every even indexed intersection to every odd indexed
+			 * intersection.
+			 */
+			for (int j = 1; j < currList.size(); j += 2) {
+				verticalLine(currList.get(j - 1), currList.get(j), i, shade, slope, polygonID,
+					writeToStencil);
 			}
+			currList.clear();
 		}
 	}
 
