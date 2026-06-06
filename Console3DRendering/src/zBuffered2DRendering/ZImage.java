@@ -2,7 +2,7 @@ package zBuffered2DRendering;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.Collections;
 
 import array2D.BooleanArray2D;
 import array2D.DoubleArray2D;
@@ -47,17 +47,9 @@ public class ZImage extends ImageBase {
 			this.zBuffer = zBuffer;
 		}
 		
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			ZInt other = (ZInt) obj;
-			return position == other.position
-				&& Double.doubleToLongBits(zBuffer) == Double.doubleToLongBits(other.zBuffer);
+		public ZInt(ZInt zInt) {
+			position = zInt.position;
+			zBuffer = zInt.zBuffer;
 		}
 		
 		@Override
@@ -68,6 +60,7 @@ public class ZImage extends ImageBase {
 		public void incrementZ(double delta) {
 			zBuffer += delta;
 		}
+		
 		public void incrementPosition(int delta) {
 			position += delta;
 		}
@@ -435,37 +428,45 @@ public class ZImage extends ImageBase {
 
 	// Similar lineWithoutHorizontalRepetition but draws directly to polygonBuffer.
 	public void lWHRDrawToPolygonBuffer(ZPixel p1, ZPixel p2) {
-		// Difference
-		int rightDist = p2.getRight() - p1.getRight();
-		int downDif = p2.getDown() - p1.getDown();
 
 		if (p1.getRight() > rightBound) {
 			return;
 		}
 
+		int rightDist = p2.getRight() - p1.getRight();
+		int downDif = p2.getDown() - p1.getDown();
+		
 		int downDir = MiscFunctions.sign(downDif);
 		int minDownStep = downDif / rightDist;
 		int excess = Math.abs(downDif) % rightDist;
 		int currMod = excess;
 
 		double zStep = (p2.getZBuffer() - p1.getZBuffer()) / rightDist;
-		int currDown = p1.getDown();
-		double currZ = p1.getZBuffer();
+		
+		ZInt curr = new ZInt(p1.getDown(), p1.getZBuffer());
+		ArrayList<ZInt> currList;
 		int startIndex = p1.getRight() - leftBound;
 		int insertionIndex;
 
 		// i bound is visibleLnegth
 		for (int i = 0; i <= Math.min(rightDist, rightBound - p1.getRight() - 1); i++) {
 			
-			polygonBuffer[i + startIndex].add(new ZInt(currDown, currZ));
+			currList = polygonBuffer[i+startIndex];
+			
+			insertionIndex = Collections.binarySearch(currList, curr);
 
-			currDown += minDownStep;
-			currZ += zStep;
+			if (insertionIndex >= 0) {
+				currList.add(insertionIndex, new ZInt(curr));
+			} else {
+				currList.add(-insertionIndex - 1, new ZInt(curr));
+			}
+			curr.incrementPosition( minDownStep);
+			curr.incrementZ(zStep);
 			currMod += excess;
 
 			if (currMod >= rightDist) {
 				currMod -= rightDist;
-				currDown += downDir;
+				curr.incrementPosition(downDir);
 			}
 		}
 	}
