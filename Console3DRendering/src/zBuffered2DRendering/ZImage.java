@@ -40,13 +40,16 @@ public class ZImage extends ImageBase {
 	private record zInt(int position, double zBuffer) {
 		
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void initialize() {
 		zBuffer = new DoubleArray2D(imageRows, imageCols);
 		renderInfo = new IntArray2D(imageRows, imageCols);
 		stencil = new BooleanArray2D(imageRows, imageCols);
-		polygonBuffer = (ArrayList<ZImage.zInt>[]) new ArrayList[imageCols];
+		polygonBuffer = (ArrayList<zInt>[]) new ArrayList[imageCols];
+		for (int i = 0; i < imageCols; i++) {
+			polygonBuffer[i] = new ArrayList<>();
+		}
 	}
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
@@ -309,7 +312,7 @@ public class ZImage extends ImageBase {
 			return line;
 		}
 
-		// RotationDirection
+		// Direction
 		int downDir = MiscFunctions.sign(downDif);
 
 		// Distance
@@ -395,6 +398,64 @@ public class ZImage extends ImageBase {
 			}
 			movingPixel.moveDown(1);
 			movingPixel.incrementZBuffer(zStep);
+		}
+	}
+
+	// Similar lineWithoutHorizontalRepetition but draws directly to polygonBuffer.
+	public void lWHRDrawToPolygonBuffer(ZPixel p1, ZPixel p2) {
+		// Difference
+		int rightDist = p2.getRight() - p1.getRight();
+		int downDif = p2.getDown() - p1.getDown();
+
+		if (p1.getRight() > rightBound) {
+			return;
+		}
+
+		int downDir = MiscFunctions.sign(downDif);
+		int minDownStep = downDif / rightDist;
+		int excess = Math.abs(downDif) % rightDist;
+		int currMod = excess;
+
+		double zStep = (p2.getZBuffer() - p1.getZBuffer()) / rightDist;
+		int currDown = p1.getDown();
+		double currZ = p1.getZBuffer();
+		int startIndex = p1.getRight() - leftBound;
+
+		// i bound is visibleLnegth
+		for (int i = 0; i <= Math.min(rightDist, rightBound - p1.getRight() - 1); i++) {
+			polygonBuffer[i + startIndex].add(new zInt(currDown, currZ));
+
+			currDown += minDownStep;
+			currZ += zStep;
+			currMod += excess;
+
+			if (currMod >= rightDist) {
+				currMod -= rightDist;
+				currDown += downDir;
+			}
+		}
+	}
+
+	// Similar to lWHRCut but draws directly to polygonBuffer.
+	public void lWHRCutDrawToPolygonBuffer(ZPixel p1, ZPixel p2) {
+		int r1 = p1.getRight();
+		int r2 = p2.getRight();
+		
+		if (r1 > leftBound) {
+			lWHRDrawToPolygonBuffer(p1, p2);
+		} else if (r2 > leftBound) {
+
+			int d1 = p1.getDown();
+			int d2 = p2.getDown();
+
+			double z1 = p1.getZBuffer();
+			double z2 = p2.getZBuffer();
+
+			double ratio = ((double) (leftBound - r1)) / (r2 - r1);
+
+			// First point is the new start.
+			lWHRDrawToPolygonBuffer(new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)),
+				p1.getShade(), z1 + ratio * (z2 - z1), p1.getRenderInfo()), p2);
 		}
 	}
 
