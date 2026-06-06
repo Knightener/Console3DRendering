@@ -2,6 +2,7 @@ package zBuffered2DRendering;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 import array2D.BooleanArray2D;
 import array2D.DoubleArray2D;
@@ -34,11 +35,42 @@ public class ZImage extends ImageBase {
 	private BooleanArray2D stencil;
 	
 	// Buffer for rendering polygons. 
-	private ArrayList<zInt>[] polygonBuffer;
+	private ArrayList<ZInt>[] polygonBuffer;
 	
-	// Ad hoc record class that stores an int with zBuffer info. 
-	private record zInt(int position, double zBuffer) {
+	// Ad hoc class that stores an int with zBuffer info.
+	private static class ZInt implements Comparable<ZInt> {
+		int position;
+		double zBuffer;
+
+		public ZInt(int position, double zBuffer) {
+			this.position = position;
+			this.zBuffer = zBuffer;
+		}
 		
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ZInt other = (ZInt) obj;
+			return position == other.position
+				&& Double.doubleToLongBits(zBuffer) == Double.doubleToLongBits(other.zBuffer);
+		}
+		
+		@Override
+		public int compareTo(ZInt zInt) {
+			return position - zInt.position;
+		}
+		
+		public void incrementZ(double delta) {
+			zBuffer += delta;
+		}
+		public void incrementPosition(int delta) {
+			position += delta;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -46,7 +78,7 @@ public class ZImage extends ImageBase {
 		zBuffer = new DoubleArray2D(imageRows, imageCols);
 		renderInfo = new IntArray2D(imageRows, imageCols);
 		stencil = new BooleanArray2D(imageRows, imageCols);
-		polygonBuffer = (ArrayList<zInt>[]) new ArrayList[imageCols];
+		polygonBuffer = (ArrayList<ZInt>[]) new ArrayList[imageCols];
 		for (int i = 0; i < imageCols; i++) {
 			polygonBuffer[i] = new ArrayList<>();
 		}
@@ -70,7 +102,7 @@ public class ZImage extends ImageBase {
 	// Debug function. Draws the current polygonBuffer to the current ZImage.
 	public void drawPolygonBuffer() {
 		for (int i = 0; i < imageCols; i++) {
-			for (zInt curr : polygonBuffer[i]) {
+			for (ZInt curr : polygonBuffer[i]) {
 				draw(i + leftBound, curr.position, ShadeHandling.MAX_SHADE, curr.zBuffer, 0);
 			}
 		}
@@ -420,10 +452,12 @@ public class ZImage extends ImageBase {
 		int currDown = p1.getDown();
 		double currZ = p1.getZBuffer();
 		int startIndex = p1.getRight() - leftBound;
+		int insertionIndex;
 
 		// i bound is visibleLnegth
 		for (int i = 0; i <= Math.min(rightDist, rightBound - p1.getRight() - 1); i++) {
-			polygonBuffer[i + startIndex].add(new zInt(currDown, currZ));
+			
+			polygonBuffer[i + startIndex].add(new ZInt(currDown, currZ));
 
 			currDown += minDownStep;
 			currZ += zStep;
