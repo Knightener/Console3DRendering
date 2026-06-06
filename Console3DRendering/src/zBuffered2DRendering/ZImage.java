@@ -3,6 +3,7 @@ package zBuffered2DRendering;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import array2D.BooleanArray2D;
 import array2D.DoubleArray2D;
@@ -92,11 +93,16 @@ public class ZImage extends ImageBase {
 		super();
 	}
 	
-	// Debug function. Draws the current polygonBuffer to the current ZImage.
+	/*
+	 * Debug function. Draws the current polygonBuffer to the current ZImage.
+	 * Colors each pixel in accordance with its index in its respective bucket.
+	 */
 	public void drawPolygonBuffer() {
+		ZInt curr;
 		for (int i = 0; i < imageCols; i++) {
-			for (ZInt curr : polygonBuffer[i]) {
-				draw(i + leftBound, curr.position, ShadeHandling.MAX_SHADE, curr.zBuffer, 0);
+			for (int j = 0; j < polygonBuffer[i].size(); j++) {
+				curr = polygonBuffer[i].get(j); 
+				draw(i + leftBound, curr.position, Math.min(j+3,ShadeHandling.MAX_SHADE), curr.zBuffer, 0);
 			}
 		}
 	}
@@ -399,43 +405,19 @@ public class ZImage extends ImageBase {
 		
 		return new ZFigure();
 	}
-	
-
 
 	/*
-	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
-	 * the method to optimize the polygon method. p1 assumed to be above p2. 
+	 * Similar lineWithoutHorizontalRepetition but draws directly to polygonBuffer.
+	 * Maintains sorted order of each bucket polygonBuffer.
 	 */
-	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
-		ZPixel movingPixel = new ZPixel(p1);
-
-		if (upBound > p1.getDown()) {
-			movingPixel.setDown(upBound);
-			movingPixel.incrementZBuffer(zStep * (upBound - p1.getDown()));
-		}
-		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(), downBound - movingPixel.getDown() - 1);
-
-		for (int i = 0; i <= visibleLength; i++) {
-			if (writeToStencil) {
-				writeToStencil(movingPixel);
-			} else {
-				draw(movingPixel);
-			}
-			movingPixel.moveDown(1);
-			movingPixel.incrementZBuffer(zStep);
-		}
-	}
-
-	// Similar lineWithoutHorizontalRepetition but draws directly to polygonBuffer.
-	public void lWHRDrawToPolygonBuffer(ZPixel p1, ZPixel p2) {
-
+	private void lWHRWriteToPolygonBuffer(ZPixel p1, ZPixel p2) {
 		if (p1.getRight() > rightBound) {
 			return;
 		}
 
 		int rightDist = p2.getRight() - p1.getRight();
 		int downDif = p2.getDown() - p1.getDown();
-		
+
 		int downDir = MiscFunctions.sign(downDif);
 		int minDownStep = downDif / rightDist;
 		int excess = Math.abs(downDif) % rightDist;
@@ -460,7 +442,7 @@ public class ZImage extends ImageBase {
 			} else {
 				currList.add(-insertionIndex - 1, new ZInt(curr));
 			}
-			curr.incrementPosition( minDownStep);
+			curr.incrementPosition(minDownStep);
 			curr.incrementZ(zStep);
 			currMod += excess;
 
@@ -471,26 +453,69 @@ public class ZImage extends ImageBase {
 		}
 	}
 
-	// Similar to lWHRCut but draws directly to polygonBuffer.
-	public void lWHRCutDrawToPolygonBuffer(ZPixel p1, ZPixel p2) {
+	// Similar to lWHRCut but draws directly to polygonBuffer. Also sorts p1 and p2. 
+	public void lWHRCutWriteToPolygonBuffer(ZPixel p1, ZPixel p2) {
 		int r1 = p1.getRight();
 		int r2 = p2.getRight();
 		
-		if (r1 > leftBound) {
-			lWHRDrawToPolygonBuffer(p1, p2);
-		} else if (r2 > leftBound) {
+		if (r1 < r2) {
+			if (r1 > leftBound) {
+				lWHRWriteToPolygonBuffer(p1, p2);
+			} else if (r2 > leftBound) {
 
-			int d1 = p1.getDown();
-			int d2 = p2.getDown();
+				int d1 = p1.getDown();
+				int d2 = p2.getDown();
 
-			double z1 = p1.getZBuffer();
-			double z2 = p2.getZBuffer();
+				double z1 = p1.getZBuffer();
+				double z2 = p2.getZBuffer();
 
-			double ratio = ((double) (leftBound - r1)) / (r2 - r1);
+				double ratio = ((double) (leftBound - r1)) / (r2 - r1);
 
-			// First point is the new start.
-			lWHRDrawToPolygonBuffer(new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)),
-				p1.getShade(), z1 + ratio * (z2 - z1), p1.getRenderInfo()), p2);
+				// First point is the new start.
+				lWHRWriteToPolygonBuffer(new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)),
+					p1.getShade(), z1 + ratio * (z2 - z1), p1.getRenderInfo()), p2);
+			}
+		} else {
+			if (r2 > leftBound) {
+				lWHRWriteToPolygonBuffer(p2, p1);
+			} else if (r1 > leftBound) {
+
+				int d1 = p1.getDown();
+				int d2 = p2.getDown();
+
+				double z1 = p1.getZBuffer();
+				double z2 = p2.getZBuffer();
+
+				double ratio = ((double) (leftBound - r2)) / (r1 - r2);
+
+				// First point is the new start.
+				lWHRWriteToPolygonBuffer(new ZPixel(leftBound, d2 + (int) (ratio * (d1 - d2)),
+					p2.getShade(), z2 + ratio * (z1 - z2), p2.getRenderInfo()), p1);
+			}
+		}
+	}
+	
+	/*
+	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
+	 * the method to optimize the polygon method. p1 assumed to be above p2. 
+	 */
+	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
+		ZPixel movingPixel = new ZPixel(p1);
+
+		if (upBound > p1.getDown()) {
+			movingPixel.setDown(upBound);
+			movingPixel.incrementZBuffer(zStep * (upBound - p1.getDown()));
+		}
+		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(), downBound - movingPixel.getDown() - 1);
+
+		for (int i = 0; i <= visibleLength; i++) {
+			if (writeToStencil) {
+				writeToStencil(movingPixel);
+			} else {
+				draw(movingPixel);
+			}
+			movingPixel.moveDown(1);
+			movingPixel.incrementZBuffer(zStep);
 		}
 	}
 
@@ -507,6 +532,31 @@ public class ZImage extends ImageBase {
 		verticalLineAuxiliary(p2, p1, zStep, writeToStencil);
 	}
 
+	private void verticalLine(ZInt start, ZInt end, int right, int shade, double zStep,
+		int polygonID, boolean writeToStencil) {
+
+		/*
+		 * For the specific application of drawing polygons, we do not have to worry
+		 * about the value of start changing.
+		 */
+		if (upBound > start.position) {
+			start.position = upBound;
+			start.incrementZ(zStep * (upBound - start.position));
+		}
+
+		int visibleEnd = Math.min(end.position, downBound - 1);
+		double currZ = start.zBuffer;
+
+		for (int i = start.position; i <= visibleEnd; i++) {
+			if (writeToStencil) {
+				writeToStencil(right, i, currZ);
+			} else {
+				draw(right, i, shade, currZ, polygonID);
+			}
+			currZ += zStep;
+		}
+	}
+
 
 	/*
 	 * Renders a polygon specified by points.
@@ -514,6 +564,7 @@ public class ZImage extends ImageBase {
 	 * set of points may lead to visual artifacts. All points assumed to have the
 	 * same polygonID (may lead to inconsistent IDing otherwise)
 	 */
+	
 	public void polygon(ArrayList<ZPixel> points, boolean writeToStencil) {
 		int length = points.size();
 
