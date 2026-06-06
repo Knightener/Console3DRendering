@@ -33,10 +33,20 @@ public class ZImage extends ImageBase {
 	// Temporary array for shading. 
 	private BooleanArray2D stencil;
 	
+	// Buffer for rendering polygons. 
+	private ArrayList<zInt>[] polygonBuffer;
+	
+	// Ad hoc record class that stores an int with zBuffer info. 
+	private record zInt(int position, double zBuffer) {
+		
+	}
+	
+	@SuppressWarnings("unchecked")
 	private void initialize() {
 		zBuffer = new DoubleArray2D(imageRows, imageCols);
 		renderInfo = new IntArray2D(imageRows, imageCols);
 		stencil = new BooleanArray2D(imageRows, imageCols);
+		polygonBuffer = (ArrayList<ZImage.zInt>[]) new ArrayList[imageCols];
 	}
 
 	public ZImage(int leftEnd, int rightEnd, int upEnd, int downEnd) {
@@ -52,6 +62,15 @@ public class ZImage extends ImageBase {
 
 	private ZImage() {
 		super();
+	}
+	
+	// Debug function. Draws the current polygonBuffer to the current ZImage.
+	public void drawPolygonBuffer() {
+		for (int i = 0; i < imageCols; i++) {
+			for (zInt curr : polygonBuffer[i]) {
+				draw(i + leftBound, curr.position, ShadeHandling.MAX_SHADE, curr.zBuffer, 0);
+			}
+		}
 	}
 	
 	// Debug function. Returns an image with pixels colored according to their zBuffer.
@@ -324,7 +343,6 @@ public class ZImage extends ImageBase {
 				movingPixel.moveDown(downDir);
 			}
 		}
-	
 		return line;
 	}
 	
@@ -347,13 +365,14 @@ public class ZImage extends ImageBase {
 			
 			double ratio = ((double)(leftBound - r1))/(r2-r1);
 			
-			ZPixel start = new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)), p1.getShade(), z1 + ratio * (z2 - z1), p1.getRenderInfo());
-			
-			return lineWithoutHorizontalRepetition(start,p2);
+			// First point is the new start. 
+			return lineWithoutHorizontalRepetition(new ZPixel(leftBound, d1 + (int) (ratio * (d2 - d1)), p1.getShade(), z1 + ratio * (z2 - z1), p1.getRenderInfo()),p2);
 		}
 		
 		return new ZFigure();
 	}
+	
+
 
 	/*
 	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
@@ -433,7 +452,6 @@ public class ZImage extends ImageBase {
 			 */
 			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
 					((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
-
 		}
 
 		// Finds leftMostIndex/rightMostIndex
