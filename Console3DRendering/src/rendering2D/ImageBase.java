@@ -201,6 +201,17 @@ public abstract class ImageBase {
 		 */
 		return (leftBound - 2 <= right && right < rightBound + 2 && upBound - 2 <= down && down < downBound + 2);
 	}
+
+	// Highlights a vertical. For debugging.
+	public void highlightVertical(int x) {
+		if (leftBound <= x && x < rightBound) {
+			for (int i = 0; i < imageRows; i++) {
+				if (image.get(i, x - leftBound) == 0) {
+					image.set(2, i, x - leftBound);
+				}
+			}
+		}
+	}
 	
 	public int getLeftBound() {
 		return leftBound;

@@ -55,20 +55,6 @@ public class Image extends ImageBase {
 		}
 	}
 	
-	// This is used for debug purposes, as I can't highlight columns.
-	public void highlightVertical(int x) {
-		
-		if (leftBound <= x && x < rightBound) {
-
-			for (int i = 0; i < imageRows; i++) {
-				if (image[i][x - leftBound] == 0) {
-					image[i][x - leftBound] = 2;
-				}
-			}
-		}
-	}
-
-	
 	public int countShade(int shade) {
 		int count = 0;
 
