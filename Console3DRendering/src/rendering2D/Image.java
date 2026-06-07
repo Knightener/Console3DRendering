@@ -1,5 +1,7 @@
 package rendering2D;
 
+import java.util.Arrays;
+
 import classes2D.R2Point;
 import functionalInterfaces.RealFunction;
 import other.MiscFunctions;
@@ -23,10 +25,10 @@ public class Image extends ImageBase {
 	}
 
 	public void clear() {
-		image = new int[imageRows][imageCols];
+		Arrays.fill(image.getArray(), 0);
 	}
 
-	public void replace(Figure figure) {
+	public void draw(Figure figure) {
 		int currRight;
 		int currDown;
 		for (Pixel pixel : figure.figure) {
@@ -34,35 +36,22 @@ public class Image extends ImageBase {
 			currDown = pixel.getDown() - upBound;
 
 			if (currRight >= 0 && currRight < imageCols && currDown >= 0 && currDown < imageRows) {
-				image[currDown][currRight] = pixel.getShade();
+				image.set(pixel.getShade(), currRight, currDown);
 			}
 		}
 	}
 	
-	public void draw(Figure figure) {
-
-		int currRight;
-		int currDown;
-
-		for (Pixel pixel : figure.figure) {
-
-			currRight = pixel.getRight() - leftBound;
-			currDown = pixel.getDown() - upBound;
-
-			if (currRight >= 0 && currRight < imageCols && currDown >= 0 && currDown < imageRows) {
-				image[currDown][currRight] = Math.max(image[currDown][currRight], pixel.getShade());
-			}
-		}
+	public void draw(int right, int down, int shade) {
+		
 	}
+	
 	
 	public int countShade(int shade) {
 		int count = 0;
 
-		for (int[] row : image) {
-			for (int value : row) {
-				if (value == shade) {
-					count++;
-				}
+		for (int value : image.getArray()) {
+			if (value == shade) {
+				count++;
 			}
 		}
 
