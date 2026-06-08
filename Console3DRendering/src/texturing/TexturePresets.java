@@ -4,8 +4,8 @@ import other.ArrayFunctions;
 
 public enum TexturePresets {
 
-	// Some default textures to use as a base. Will expand soon.
-
+	// Some default textures to use as a base. 
+	
 	CHECKERBOARD(new double[][] { 
 		{ 1, 0 }, 
 		{ 0, 1 } }),
@@ -18,7 +18,8 @@ public enum TexturePresets {
 		{ 0.5, 0.5, 0, 0.5 },
 		{ 0.5, 0.5, 0, 0.5 } }),
 
-	GRADIENT(new double[][] { { 0, 0.25, 0.5, 0.75, 1, 0.75, 0.5, 0.25 } }),
+	GRADIENT(new double[][] { 
+		{ 0, 0.25, 0.5, 0.75, 1, 0.75, 0.5, 0.25 } }),
 
 	WHITE(new double[][] {
 		{1}});

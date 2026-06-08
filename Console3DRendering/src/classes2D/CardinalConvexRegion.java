@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import other.MiscFunctions;
 import rendering2D.Figure;
+import rendering2D.Image;
 import rendering2D.Pixel;
 
 public class CardinalConvexRegion {
@@ -327,7 +328,7 @@ public class CardinalConvexRegion {
 			return new int[0];
 		}
 		
-		int[] line = new int[rightDist];
+		int[] line = new int[rightDist + 1];
 
 		// direction
 		int downDir = MiscFunctions.sign(downDif);
@@ -338,7 +339,7 @@ public class CardinalConvexRegion {
 		int excess = Math.abs(downDif) % rightDist;
 
 		int currMod = excess;
-		for (int i = 0; i < rightDist - 1; i++) {
+		for (int i = 0; i < rightDist; i++) {
 
 			line[i + 1] = line[i] + minDownStep;
 
@@ -439,6 +440,29 @@ public class CardinalConvexRegion {
 
 		return polygon;
 	}
-	 
+
+	/*
+	 * Prints the entire region with coordinates. Not implemented as efficiently as
+	 * possible. This is fine, however, as I only intend to use this for debugging.
+	 */
+	public void print() {
+		System.out.println(rowOffsets);
+		int minRow = Integer.MAX_VALUE;
+		int maxRow = Integer.MIN_VALUE;
+
+		for (int i = 0; i < rowOffsets.size(); i++) {;
+			if (minRow > rowOffsets.get(i)) {
+				minRow = rowOffsets.get(i);
+			}
+			if (maxRow < rowOffsets.get(i) + region.get(i).length - 1) {
+				maxRow = rowOffsets.get(i) + region.get(i).length - 1;
+			}
+		}
+		
+		Image image = new Image(regionOffset, regionOffset + rowOffsets.size(), minRow, maxRow);
+		
+		image.draw(convertToFigure());
+		image.displayCoordinates();
+	}
 
 }
