@@ -40,9 +40,14 @@ public class Image extends ImageBase {
 			}
 		}
 	}
-	
+
 	public void draw(int right, int down, int shade) {
-		
+		int adjustedRight = right - leftBound;
+		int adjustedDown = down - upBound;
+
+		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0 && adjustedDown < imageRows) {
+			image.set(shade, adjustedRight, adjustedDown);
+		}
 	}
 	
 	

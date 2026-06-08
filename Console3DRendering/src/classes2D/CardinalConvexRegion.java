@@ -232,6 +232,7 @@ public class CardinalConvexRegion {
 			int b = down - rowOffsets.get(a);
 			return region.get(a)[b];
 		} catch (Exception e) {
+			System.out.println(e);
 			throw new IllegalArgumentException("Coordinates must be within region");
 		}
 	}
@@ -273,9 +274,9 @@ public class CardinalConvexRegion {
 			for (int j = 0; j < curr.length; j++) {
 
 				if (verticallyConvex) {
-					figure.add(new Pixel(i + regionOffset, j + rowOffsets.get(i), curr[j]));
-				} else {
 					figure.add(new Pixel(j + rowOffsets.get(i), i + regionOffset, curr[j]));
+				} else {
+					figure.add(new Pixel(i + regionOffset, j + rowOffsets.get(i), curr[j]));
 				}
 			}
 		}
@@ -311,12 +312,13 @@ public class CardinalConvexRegion {
 			}
 		}
 	}
+
 	/*
 	 * Returns an integer array representing the horizontal component of every point
-	 * on the line. The line is fully drawn, except p2. p1 assumed to be further
-	 * left.
+	 * on the line. The line is fully drawn, including both p1 and p2. p1 assumed to
+	 * be further left.
 	 */
-	public static int[] lineWithoutHorizontalRepetition(IntPoint p1, IntPoint p2) {
+	private static int[] lineWithoutHorizontalRepetition(IntPoint p1, IntPoint p2) {
 
 		// difference
 		int rightDist = p2.getRight() - p1.getRight();
@@ -355,8 +357,10 @@ public class CardinalConvexRegion {
 	}
 
 	/*
-	 * Draws a polygon. 
-	 * Polygon must be vertically convex.
+	 * Draws a polygon, expressed as a vertically convex region. If the polygon is
+	 * not vertically convex, draws the smallest vertically convex region containing
+	 * the polygon.
+	 * 
 	 */
 	public static CardinalConvexRegion polygon(List<IntPoint> vertices) {
 
@@ -367,73 +371,72 @@ public class CardinalConvexRegion {
 		}
 
 		// Index of the left/right most points in the list of points
-		int leftMostIndex = 0;
-		int rightMostIndex = 0;
+		int leftMost = Integer.MAX_VALUE;
+		int rightMost = Integer.MIN_VALUE;
 
 		// Finds leftMostIndex/rightMostIndex
-		for (int i = 1; i < numberVertices; i++) {
+		for (int i = 0; i < numberVertices; i++) {
 
-			double curr = vertices.get(i).getRight();
+			int curr = vertices.get(i).getRight();
 
-			if (curr < vertices.get(leftMostIndex).getRight()) {
-				leftMostIndex = i;
+			if (curr < leftMost) {
+				leftMost = curr;
 			}
 
-			if (curr > vertices.get(rightMostIndex).getRight()) {
-				rightMostIndex = i;
+			if (curr > rightMost) {
+				rightMost = curr;
 			}
 		}
 
-		int length = vertices.get(rightMostIndex).getRight() - vertices.get(leftMostIndex).getRight();
+		int length = rightMost - leftMost;
 
-		/*
-		 * Line formed when winding counter clockwise through polygon from leftMost to
-		 * rightMost
-		 */
-		int[] counterClockwise = new int[length];
+		// Top intersection at each x. 
+		int[] top = new int[length + 1];
 
-		// Line formed when winding clockwise through polygon from leftMost to rightMost
-		int[] clockwise = new int[length];
+		// Bottom intersection at each x. 
+		int[] bottom = new int[length + 1];
+		
+		Arrays.fill(top, Integer.MAX_VALUE);
+		Arrays.fill(bottom, Integer.MIN_VALUE);
 
-		int currIndex = 0;
+
+		// Loop variables
 		int[] currLine;
+		IntPoint leftVertex;
+		IntPoint rightVertex;
+		int left; 
+		
+		for (int i = 0; i < numberVertices; i++) {
 
-		try {
-			for (int i = leftMostIndex; i != rightMostIndex; i = (i + 1) % numberVertices) {
-
-				currLine = lineWithoutHorizontalRepetition(vertices.get(i), 
-						vertices.get((i + 1) % numberVertices));
-
-				for (int j = 0; j < currLine.length; j++) {
-					clockwise[currIndex++] = currLine[j];
+			if (vertices.get(i).getRight() < vertices.get((i + 1) % numberVertices).getRight()) {
+				leftVertex = vertices.get(i);
+				rightVertex = vertices.get((i + 1) % numberVertices);
+			} else {
+				rightVertex = vertices.get(i);
+				leftVertex = vertices.get((i + 1) % numberVertices);
+			}
+			
+			currLine = lineWithoutHorizontalRepetition(leftVertex, rightVertex);
+			left = leftVertex.getRight();
+			
+			// Adding each line and comparing. 
+			for (int j = 0; j < currLine.length; j++) {
+				if (top[j + left - leftMost] > currLine[j]) {
+					top[j + left - leftMost] = currLine[j];
+				}
+				if (bottom[j + left - leftMost] < currLine[j]) {
+					bottom[j + left - leftMost] = currLine[j];
 				}
 			}
-
-			currIndex = 0;
-
-			for (int i = leftMostIndex; i != rightMostIndex; i = MiscFunctions.mod((i - 1), numberVertices)) {
-
-				currLine = lineWithoutHorizontalRepetition(vertices.get(i),
-						vertices.get(MiscFunctions.mod((i - 1), numberVertices)));
-
-				for (int j = 0; j < currLine.length; j++) {
-					counterClockwise[currIndex++] = currLine[j];
-				}
-			}
-
-		} catch (NegativeArraySizeException e) {
-			// This happens because the line tries to go backwards.
-			throw new IllegalArgumentException("Polygon must be vertically convex.");
+			
 		}
 
-		CardinalConvexRegion polygon = new CardinalConvexRegion(vertices.get(leftMostIndex).getRight(), true);
+		CardinalConvexRegion polygon = new CardinalConvexRegion(leftMost, true);
 
-		for (int i = 0; i < length; i++) {
-			polygon.addLine(clockwise[i], counterClockwise[i]);
+		
+		for (int i = 0; i <= length; i++) {
+			polygon.addLine(bottom[i], top[i]);
 		}
-
-		// End point.
-		polygon.addPoint(vertices.get(rightMostIndex).getDown());
 
 		return polygon;
 	}
