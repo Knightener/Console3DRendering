@@ -232,7 +232,6 @@ public class CardinalConvexRegion {
 			int b = down - rowOffsets.get(a);
 			return region.get(a)[b];
 		} catch (Exception e) {
-			System.out.println(e);
 			throw new IllegalArgumentException("Coordinates must be within region");
 		}
 	}

@@ -50,8 +50,10 @@ public class RelativePolygon extends RelativeComponent {
 	private R2Point vABDotOffset;
 
 	/*
-	 * Polygon assumed to lie entirely on some plane and be convex. Set texture to
-	 * null to obtain an untextured polygon.
+	 * Polygon assumed to lie entirely on some plane. Doesn't necessarily need to be
+	 * convex. In fact, the polygon can even intersect itself, but I would not
+	 * recommend doing this as it would likely not work very well with shading. Set
+	 * texture to null to obtain an untextured polygon.
 	 */
 	public RelativePolygon(Observer observer, Texture texture, List<R3Point> points) {
 		super(observer, texture != null); 
