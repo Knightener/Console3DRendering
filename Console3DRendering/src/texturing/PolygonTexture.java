@@ -2,7 +2,7 @@ package texturing;
 
 import java.util.List;
 
-import classes2D.CardinalConvexRegion;
+import classes2D.VerticallyConvexRegion;
 import classes2D.IntPoint;
 import classes2D.R2Point;
 
@@ -13,7 +13,7 @@ public class PolygonTexture {
 	 * textured convex polygon.
 	 */
 
-	private CardinalConvexRegion polygon;
+	private VerticallyConvexRegion polygon;
 	
 	private double scaleFactor; 
 	
@@ -23,7 +23,7 @@ public class PolygonTexture {
 
 		List<IntPoint> flooredScaledVertices = vertices.stream().map(x -> x.floor(scaleFactor)).toList();
 
-		polygon = CardinalConvexRegion.polygon(flooredScaledVertices);
+		polygon = VerticallyConvexRegion.polygon(flooredScaledVertices);
 
 		// Adds a margin to account for errors that come from rounding.
 		polygon.extendRows(-1);

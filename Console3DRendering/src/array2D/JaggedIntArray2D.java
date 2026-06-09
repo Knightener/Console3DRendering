@@ -5,10 +5,10 @@ import java.util.Arrays;
 public class JaggedIntArray2D {
 
 	/*
-	 * Flattened 2D jagged array of ints. For more efficiency. 
+	 * Flattened 2D jagged array of int for less overhead. Not optimized for
+	 * resizing.
 	 */
-	
-	int[] jaggedArray; 
+	int[] jaggedArray;
 	int[] rowStarts;
 	
 	// Initializes an empty jagged array.
@@ -22,6 +22,7 @@ public class JaggedIntArray2D {
 		jaggedArray = Arrays.copyOf(jaggedArray, jaggedArray.length + row.length);
 		int rowStartIdx = rowStarts.length - 1;
 		int arrayStartIdx = rowStarts[rowStartIdx];
+		rowStarts = Arrays.copyOf(rowStarts, rowStarts.length + 1);
 		rowStarts[rowStartIdx + 1] = arrayStartIdx + row.length;
 		for (int i = arrayStartIdx; i < rowStarts[rowStartIdx + 1]; i++) {
 			jaggedArray[i] = row[i - arrayStartIdx];

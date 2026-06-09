@@ -12,43 +12,31 @@ import rendering2D.Figure;
 import rendering2D.Image;
 import rendering2D.Pixel;
 
-public class CardinalConvexRegion {
+public class VerticallyConvexRegion {
 
 	/*
 	 * This class provides a more efficient method of storing information about a
-	 * shaded region that is either horizontally convex or vertically convex. (as
-	 * opposed to a list of pixels or a subregion of a square)
+	 * shaded region that is vertically convex. (as opposed to a list of pixels or a
+	 * subregion of a square)
 	 * 
-	 * A horizontally [resp. vertically] convex region of ZxZ is one such that every
-	 * horizontal [resp. vertical] line only enters or exits the region at most two
-	 * times. Every convex region is both horizontally and vertically convex.
+	 * A vertically convex region of ZxZ is one such that every vertical line only
+	 * enters or exits the region at most two times. Every convex region is
+	 * vertically convex.
 	 */
 
-	// If true, the region is vertically convex. Else, it is horizontally convex.
-	private boolean verticallyConvex;
-
-	/*
-	 * Rows are vertical lines if verticallyConvex is true. Else, they are
-	 * horizontal lines.
-	 */
+	// Rows are vertical lines.
 	private ArrayList<int[]> region;
 
-	/*
-	 * Vertical offset of each row of region if verticallyConvex is true. Else,
-	 * horizontal offset. Can contain null elements, which signifies that the 
-	 * row is empty. 
-	 */
+	// Offset of each vertical line.
 	private ArrayList<Integer> rowOffsets;
 
-	/*
-	 * Horizontal offset of entire region if verticallyConvex is true. Else,
-	 * vertical offset.
-	 */
+
+	// Horizontal offset of entire region. 
 	private int regionOffset;
 	
-	public CardinalConvexRegion(int regionOffset, boolean verticallyConvex) {
+	
+	public VerticallyConvexRegion(int regionOffset) {
 		this.regionOffset = regionOffset;
-		this.verticallyConvex = verticallyConvex;
 		region = new ArrayList<int[]>();
 		rowOffsets = new ArrayList<Integer>();
 	}
@@ -219,14 +207,9 @@ public class CardinalConvexRegion {
 			}
 		}
 	}
-
-	// Reflects the region along x = y.
-	public void reflect() {
-		verticallyConvex = !verticallyConvex;
-	}
 	
 	// VerticallyConvex assumed to be true.
-	private int getShadeAux(int right, int down) {
+	public int getShade(int right, int down) {
 
 		try {
 			int a = right - regionOffset;
@@ -238,7 +221,7 @@ public class CardinalConvexRegion {
 	}
 
 	// VerticallyConvex assumed to be true.
-	private void setShadeAux(int right, int down, int shade) {
+	public void setShadeAux(int right, int down, int shade) {
 		try {
 			int a = right - regionOffset;
 			int b = down - rowOffsets.get(a);
@@ -248,37 +231,16 @@ public class CardinalConvexRegion {
 		}
 	}
 
-	// Returns the shade at the specified coordinates of the region.
-	public int getShade(int right, int down) {
-		if (verticallyConvex) {
-			return getShadeAux(right, down);
-		} else
-			return getShadeAux(down, right);
-	}
-
-	// Sets the shade at the specified coordinates to a new shade.
-	public void setShade(int right, int down, int shade) {
-		if (verticallyConvex) {
-			setShadeAux(right, down, shade);
-		} else
-			setShadeAux(down, right, shade);
-	}
-
 	// Returns a figure representing the region.
 	public Figure convertToFigure() {
-
-		int count = 0;
 		Figure figure = new Figure();
 
 		for (int i = 0; i < region.size(); i++) {
-			
+
 			int[] curr = region.get(i);
 			for (int j = 0; j < curr.length; j++) {
-				if (verticallyConvex) {
-					figure.add(new Pixel(i + regionOffset, j + rowOffsets.get(i), curr[j]));
-				} else {
-					figure.add(new Pixel(j + rowOffsets.get(i), i + regionOffset, curr[j]));
-				}
+				figure.add(new Pixel(i + regionOffset, j + rowOffsets.get(i), curr[j]));
+
 			}
 		}
 
@@ -295,15 +257,12 @@ public class CardinalConvexRegion {
 		for (int i = 0; i < region.size(); i++) {
 			int[] curr = region.get(i);
 			for (int j = 0; j < curr.length; j++) {
-				if (verticallyConvex) {
-					curr[j] = shadeFunction.apply(i + regionOffset, j + rowOffsets.get(i));
-				} else {
-					curr[j] = shadeFunction.apply(j + rowOffsets.get(i), i + regionOffset);
-				}
+				curr[j] = shadeFunction.apply(i + regionOffset, j + rowOffsets.get(i));
+
 			}
 		}
 	}
-	
+
 	// Shades pixels according to their current shade.
 	public void shade(Function<Integer,Integer> shadeFunction) {
 		for (int row[] : region) {
@@ -362,12 +321,12 @@ public class CardinalConvexRegion {
 	 * the polygon.
 	 * 
 	 */
-	public static CardinalConvexRegion polygon(List<IntPoint> vertices) {
+	public static VerticallyConvexRegion polygon(List<IntPoint> vertices) {
 
 		int numberVertices = vertices.size();
 
 		if (numberVertices < 3) {
-			return new CardinalConvexRegion(0, true);
+			return new VerticallyConvexRegion(0);
 		}
 
 		// Index of the left/right most points in the list of points
@@ -431,7 +390,7 @@ public class CardinalConvexRegion {
 			
 		}
 
-		CardinalConvexRegion polygon = new CardinalConvexRegion(leftMost, true);
+		VerticallyConvexRegion polygon = new VerticallyConvexRegion(leftMost);
 
 		
 		for (int i = 0; i <= length; i++) {
