@@ -29,25 +29,17 @@ public class Image extends ImageBase {
 	}
 
 	public void draw(Figure figure) {
-		int currRight;
-		int currDown;
 		for (Pixel pixel : figure.figure) {
-			currRight = pixel.getRight() - leftBound;
-			currDown = pixel.getDown() - upBound;
-
-			if (currRight >= 0 && currRight < imageCols && currDown >= 0 && currDown < imageRows) {
-				image.set(pixel.getShade(), currRight, currDown);
-			}
+			draw(pixel);
 		}
 	}
 
-	public void draw(int right, int down, int shade) {
-		int adjustedRight = right - leftBound;
-		int adjustedDown = down - upBound;
-
-		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0 && adjustedDown < imageRows) {
-			image.set(shade, adjustedRight, adjustedDown);
-		}
+	public void draw(int shade, int right, int down) {
+		setShade(right, down, shade);
+	}
+	
+	public void draw(Pixel pixel) {
+		draw(pixel.getShade(), pixel.getRight(), pixel.getDown());
 	}
 	
 	

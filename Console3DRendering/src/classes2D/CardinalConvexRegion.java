@@ -267,16 +267,17 @@ public class CardinalConvexRegion {
 	// Returns a figure representing the region.
 	public Figure convertToFigure() {
 
+		int count = 0;
 		Figure figure = new Figure();
 
 		for (int i = 0; i < region.size(); i++) {
+			
 			int[] curr = region.get(i);
 			for (int j = 0; j < curr.length; j++) {
-
 				if (verticallyConvex) {
-					figure.add(new Pixel(j + rowOffsets.get(i), i + regionOffset, curr[j]));
-				} else {
 					figure.add(new Pixel(i + regionOffset, j + rowOffsets.get(i), curr[j]));
+				} else {
+					figure.add(new Pixel(j + rowOffsets.get(i), i + regionOffset, curr[j]));
 				}
 			}
 		}
@@ -294,7 +295,6 @@ public class CardinalConvexRegion {
 		for (int i = 0; i < region.size(); i++) {
 			int[] curr = region.get(i);
 			for (int j = 0; j < curr.length; j++) {
-
 				if (verticallyConvex) {
 					curr[j] = shadeFunction.apply(i + regionOffset, j + rowOffsets.get(i));
 				} else {
@@ -318,7 +318,7 @@ public class CardinalConvexRegion {
 	 * on the line. The line is fully drawn, including both p1 and p2. p1 assumed to
 	 * be further left.
 	 */
-	private static int[] lineWithoutHorizontalRepetition(IntPoint p1, IntPoint p2) {
+	public static int[] lineWithoutHorizontalRepetition(IntPoint p1, IntPoint p2) {
 
 		// difference
 		int rightDist = p2.getRight() - p1.getRight();
@@ -350,7 +350,7 @@ public class CardinalConvexRegion {
 			}
 		}
 		
-		for (int i = 0; i < rightDist; i++) {
+		for (int i = 0; i <= rightDist; i++) {
 			line[i] += p1.getDown();
 		}
 		return line;
@@ -446,7 +446,6 @@ public class CardinalConvexRegion {
 	 * possible. This is fine, however, as I only intend to use this for debugging.
 	 */
 	public void print() {
-		System.out.println(rowOffsets);
 		int minRow = Integer.MAX_VALUE;
 		int maxRow = Integer.MIN_VALUE;
 
@@ -462,6 +461,7 @@ public class CardinalConvexRegion {
 		Image image = new Image(regionOffset, regionOffset + rowOffsets.size(), minRow, maxRow);
 		
 		image.draw(convertToFigure());
+		
 		image.displayCoordinates();
 	}
 
