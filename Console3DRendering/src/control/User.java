@@ -67,13 +67,13 @@ public class User {
 	}
 	
 	// Print the time it takes to print the frame after every frame. 
-	public static void printFrameRenderSpeed(boolean printFrameRenderSpeed) {
-		User.printFrameRenderSpeed = printFrameRenderSpeed;
+	public static void toggleFrameRenderSpeed() {
+		User.printFrameRenderSpeed = !User.printFrameRenderSpeed;
 	}
 	
 	// Print the average time it took to render frames during the entire run after every run. 
-	public static void printAvgRenderSpeed(boolean printAvgRenderSpeed) {
-		User.printAvgRenderSpeed = printAvgRenderSpeed;
+	public static void toggleAvgRenderSpeed() {
+		User.printAvgRenderSpeed = !User.printAvgRenderSpeed;
 	}
 
 	public static void printView() {
@@ -88,12 +88,15 @@ public class User {
 			userView.clear();
 
 			long end = System.nanoTime();
+			
 			if (printFrameRenderSpeed) {
 				System.out
 					.println("Frame render speed: " + (double) (end - start) / 1000000 + " ms");
 			}
+			
 			User.framesElapsed++;
 			User.totalTimeRendering += end - start;
+			
 			if (printAvgRenderSpeed) {
 				System.out.println("Average frame render speed: "
 					+ (double) (totalTimeRendering) / (1000000 * framesElapsed) + " ms");
