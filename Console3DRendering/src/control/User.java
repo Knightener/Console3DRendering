@@ -23,6 +23,12 @@ public class User {
 	private static double sinRotSpeed;
 	private static double cosRotSpeed;
 
+	// Default values
+	static {
+		setRotationSpeed(0.05);
+		setMovementSpeed(0.4);
+	}
+	
 	public static void turn(RotationDirection rotationDirection) {
 		user.turn(rotationDirection, cosRotSpeed, sinRotSpeed);
 	}
