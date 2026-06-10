@@ -231,7 +231,7 @@ public class ZImage extends ImageBase {
 				
 				if ((renderInfo.get(i, j) & 1) == 1)  {
 					
-					image.set(RelativeComponent.<RelativePolygon>get(renderInfo.get(i, j)).determineShade(j+leftBound, i+upBound, zBuffer.get(i, j)), i, j);
+					image.set(RelativeComponent.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS).determineShade(j+leftBound, i+upBound, zBuffer.get(i, j)), i, j);
 				}
 			}
 		}

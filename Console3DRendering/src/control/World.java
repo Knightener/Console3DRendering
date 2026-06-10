@@ -55,6 +55,7 @@ public class World {
 	// Shades the world. 
 	public static void shade() {
 		for (Mesh shadowVolume : shadowVolumes) {
+			shadowVolume.updatePerspective();
 			shadowVolume.writeToStencil();
 		}
 		User.getUser().getView().addStencil();

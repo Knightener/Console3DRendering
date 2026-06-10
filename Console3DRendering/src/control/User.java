@@ -2,6 +2,7 @@ package control;
 
 import classes3D.R3Point;
 import rendering3D.Observer;
+import zBuffered2DRendering.ZImage;
 
 public class User {
 	/*
@@ -10,6 +11,7 @@ public class User {
 	 */
 	
 	private static Observer user;
+	private static ZImage userView;
 	
 	private static boolean printFrameRenderSpeed = false;
 	private static boolean printAvgRenderSpeed = false;
@@ -49,6 +51,7 @@ public class User {
 
 	public static void setUser(Observer user) {
 		User.user = user;
+		User.userView = user.getView();
 	}
 	
 	public static Observer getUser() {
@@ -78,9 +81,11 @@ public class User {
 			long start = System.nanoTime();
 
 			World.render();
+			userView.texturize();
 			World.shade();
-			user.getView().shade();
-			user.printView();
+			userView.shade();
+			userView.display();
+			userView.clear();
 
 			long end = System.nanoTime();
 			if (printFrameRenderSpeed) {
