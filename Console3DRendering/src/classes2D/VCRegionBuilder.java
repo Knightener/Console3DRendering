@@ -25,15 +25,13 @@ public class VCRegionBuilder {
 	 */
 
 	// Rows are vertical lines.
-	private ArrayList<int[]> region;
+	ArrayList<int[]> region;
 
 	// Offset of each vertical line.
-	private ArrayList<Integer> rowOffsets;
+	ArrayList<Integer> rowOffsets;
 
-
-	// Horizontal offset of entire region. 
-	private int regionOffset;
-	
+	// Horizontal offset of entire region.
+	int regionOffset;
 	
 	public VCRegionBuilder(int regionOffset) {
 		this.regionOffset = regionOffset;
@@ -210,7 +208,6 @@ public class VCRegionBuilder {
 	
 	// VerticallyConvex assumed to be true.
 	public int getShade(int right, int down) {
-
 		try {
 			int a = right - regionOffset;
 			int b = down - rowOffsets.get(a);
