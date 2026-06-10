@@ -12,7 +12,7 @@ import rendering2D.Figure;
 import rendering2D.Image;
 import rendering2D.Pixel;
 
-public class VerticallyConvexRegion {
+public class VCRegionBuilder {
 
 	/*
 	 * This class provides a more efficient method of storing information about a
@@ -35,7 +35,7 @@ public class VerticallyConvexRegion {
 	private int regionOffset;
 	
 	
-	public VerticallyConvexRegion(int regionOffset) {
+	public VCRegionBuilder(int regionOffset) {
 		this.regionOffset = regionOffset;
 		region = new ArrayList<int[]>();
 		rowOffsets = new ArrayList<Integer>();
@@ -321,12 +321,12 @@ public class VerticallyConvexRegion {
 	 * the polygon.
 	 * 
 	 */
-	public static VerticallyConvexRegion polygon(List<IntPoint> vertices) {
+	public static VCRegionBuilder polygon(List<IntPoint> vertices) {
 
 		int numberVertices = vertices.size();
 
 		if (numberVertices < 3) {
-			return new VerticallyConvexRegion(0);
+			return new VCRegionBuilder(0);
 		}
 
 		// Index of the left/right most points in the list of points
@@ -390,7 +390,7 @@ public class VerticallyConvexRegion {
 			
 		}
 
-		VerticallyConvexRegion polygon = new VerticallyConvexRegion(leftMost);
+		VCRegionBuilder polygon = new VCRegionBuilder(leftMost);
 
 		
 		for (int i = 0; i <= length; i++) {

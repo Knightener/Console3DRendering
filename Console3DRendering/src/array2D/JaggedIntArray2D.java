@@ -59,5 +59,9 @@ public class JaggedIntArray2D {
 		return array;
 	}
 
+	// Returns the element at row i "column" j.
+	public int get(int i, int j) {
+		return jaggedArray[rowStarts[i] + j];
+	}
 
 }
