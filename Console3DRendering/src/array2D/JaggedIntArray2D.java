@@ -1,11 +1,12 @@
 package array2D;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class JaggedIntArray2D {
 
 	/*
-	 * Flattened 2D jagged array of int for less overhead. Not optimized for
+	 * Flattened 2D jagged array of ints for less overhead. Not optimized for
 	 * resizing.
 	 */
 	int[] jaggedArray;
@@ -17,6 +18,26 @@ public class JaggedIntArray2D {
 		rowStarts = new int[1];
 	}
 
+	// Flattens an array.
+	public JaggedIntArray2D(int[][] array) {
+		int numRows = array.length;
+		rowStarts = new int[numRows + 1];
+		for (int i = 1; i <= numRows; i++) {
+			rowStarts[i] = rowStarts[i - 1] + array[i - 1].length;
+		}
+		// Last row start is the length of the jagged array
+		jaggedArray = new int[rowStarts[numRows]];
+		for (int i = 0; i < numRows; i++) {
+			for (int j = 0; j < array[i].length; j++) {
+				jaggedArray[j + rowStarts[i]] = array[i][j];
+			}
+		}
+	}
+
+	public JaggedIntArray2D(ArrayList<int[]> array) {
+		this(array.toArray(new int[0][]));
+	}
+	
 	// Adds a row to the end of the jagged array.
 	public void addRow(int[] row) {
 		jaggedArray = Arrays.copyOf(jaggedArray, jaggedArray.length + row.length);
@@ -37,5 +58,6 @@ public class JaggedIntArray2D {
 		}
 		return array;
 	}
+
 
 }
