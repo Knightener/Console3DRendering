@@ -74,22 +74,29 @@ public class User {
 	}
 
 	public static void printView() {
-		long start = System.nanoTime();
+		try {
+			long start = System.nanoTime();
 
-		World.render();
-		World.shade();
-		user.getView().shade();
-		user.printView();
+			World.render();
+			World.shade();
+			user.getView().shade();
+			user.printView();
 
-		long end = System.nanoTime();
-		if (printFrameRenderSpeed) {
-			System.out.println("Frame Render Speed: " + (double) (end - start) / 1000000 + " ms");
-		}
-		User.framesElapsed++;
-		User.totalTimeRendering += end - start;
-		if (printAvgRenderSpeed) {
-			System.out.println("Average Frame Render Speed: "
-				+ (double) (totalTimeRendering) / (1000000 * framesElapsed) + " ms");
+			long end = System.nanoTime();
+			if (printFrameRenderSpeed) {
+				System.out
+					.println("Frame render speed: " + (double) (end - start) / 1000000 + " ms");
+			}
+			User.framesElapsed++;
+			User.totalTimeRendering += end - start;
+			if (printAvgRenderSpeed) {
+				System.out.println("Average frame render speed: "
+					+ (double) (totalTimeRendering) / (1000000 * framesElapsed) + " ms");
+			}
+		} catch (Exception e) {
+			System.out.println("Error loading frame: ");
+			e.printStackTrace();
+			System.out.println("\n");
 		}
 	}
 }
