@@ -2,9 +2,10 @@ package texturing;
 
 import java.util.List;
 
-import classes2D.VCRegionBuilder;
 import classes2D.IntPoint;
 import classes2D.R2Point;
+import classes2D.VCRegionBuilder;
+import classes2D.VerticallyConvexRegion;
 
 public class PolygonTexture {
 
@@ -13,32 +14,34 @@ public class PolygonTexture {
 	 * textured convex polygon.
 	 */
 
-	private VCRegionBuilder polygon;
-	
-	private double scaleFactor; 
-	
+	private VerticallyConvexRegion polygonTexture;
+
+	private double scaleFactor;
+
 	public PolygonTexture(List<R2Point> vertices, Texture texture) {
-		
+
 		scaleFactor = texture.getScaleFactor();
 
-		List<IntPoint> flooredScaledVertices = vertices.stream().map(x -> x.floor(scaleFactor)).toList();
+		List<IntPoint> flooredScaledVertices = vertices.stream().map(x -> x.floor(scaleFactor))
+			.toList();
 
-		polygon = VCRegionBuilder.polygon(flooredScaledVertices);
+		VCRegionBuilder polygonBuilder = VCRegionBuilder.polygon(flooredScaledVertices);
 
 		// Adds a margin to account for errors that come from rounding.
-		polygon.extendRows(-1);
-		polygon.extendRows(1);
-		polygon.extendColumns(-1);
-		polygon.extendColumns(1);
+		polygonBuilder.extendRows(-1);
+		polygonBuilder.extendRows(1);
+		polygonBuilder.extendColumns(-1);
+		polygonBuilder.extendColumns(1);
 
+		polygonBuilder.shade((x, y) -> texture.determineShadeAt(x, y));
 
-		polygon.shade((x, y) -> texture.determineShadeAt(x, y));
+		polygonTexture = new VerticallyConvexRegion(polygonBuilder);
 
 	}
-	
+
 	public int determineShadeAt(int right, int down) {
 		try {
-		return polygon.getShade(right, down);
+		return polygonTexture.getShade(right, down);
 		} catch (Exception e) {
 			return 2;
 		}

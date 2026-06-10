@@ -21,4 +21,14 @@ public class VerticallyConvexRegion {
 		regionOffset = VCRegion.regionOffset;
 	}
 
+	public int getShade(int right, int down) {
+		try {
+			int a = right - regionOffset;
+			int b = down - rowOffsets[a];
+			return region.get(a, b);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Coordinates must be within region");
+		}
+	}
+	
 }
