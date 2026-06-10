@@ -77,16 +77,19 @@ public class User {
 		long start = System.nanoTime();
 
 		World.render();
+		World.shade();
+		user.getView().shade();
 		user.printView();
 
 		long end = System.nanoTime();
 		if (printFrameRenderSpeed) {
-			System.out.println((double) (end - start) / 1000000);
+			System.out.println("Frame Render Speed: " + (double) (end - start) / 1000000 + " ms");
 		}
 		User.framesElapsed++;
 		User.totalTimeRendering += end - start;
 		if (printAvgRenderSpeed) {
-			System.out.println((double) (totalTimeRendering) / (1000000 * framesElapsed));
+			System.out.println("Average Frame Render Speed: "
+				+ (double) (totalTimeRendering) / (1000000 * framesElapsed) + " ms");
 		}
 	}
 }
