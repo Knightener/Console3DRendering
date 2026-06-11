@@ -138,20 +138,20 @@ public class Observer {
 	public void move(TranslationDirection translationDirection, double delta) {
 		switch (translationDirection) {
 		case LEFT:
-			position.incrementRight(-delta*cosT);
-			position.incrementForward(-delta*sinT);
+			position.incrementRight(-delta * cosT);
+			position.incrementForward(-delta * sinT);
 			break;
 		case RIGHT:
-			position.incrementRight(delta*cosT);
-			position.incrementForward(delta*sinT);
+			position.incrementRight(delta * cosT);
+			position.incrementForward(delta * sinT);
 			break;
 		case BACKWARDS:
-			position.incrementRight(delta*sinT);
-			position.incrementForward(-delta*cosT);
+			position.incrementRight(delta * sinT);
+			position.incrementForward(-delta * cosT);
 			break;
 		case FORWARDS:
-			position.incrementRight(-delta*sinT);
-			position.incrementForward(delta*cosT);
+			position.incrementRight(-delta * sinT);
+			position.incrementForward(delta * cosT);
 			break;
 		case UP:
 			position.incrementDown(-delta);
