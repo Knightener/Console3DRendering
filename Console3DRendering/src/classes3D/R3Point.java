@@ -106,6 +106,7 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 		return right * vector.right + down * vector.down + forward * vector.forward;
 	}
 	
+	@Override
 	public String toString() {
 		return "(" + right + "," + down + "," + forward + ")";
 	}

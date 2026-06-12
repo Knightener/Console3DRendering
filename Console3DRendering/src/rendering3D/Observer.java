@@ -256,4 +256,10 @@ public class Observer {
 		view.display();
 		view.clear();
 	}
+	
+	// Prints the position and angle of the observer. 
+	public String toString() {
+		return "Position: " + position.toString() + "  Orientation: " + "(" + Math.atan2(sinT, cosT)
+			+ ", " + Math.atan2(sinP, cosP) + ")";
+	}
 }

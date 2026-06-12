@@ -15,6 +15,7 @@ public class User {
 	
 	private static boolean printFrameRenderSpeed = false;
 	private static boolean printAvgRenderSpeed = false;
+	private static boolean printCoordinates = false;
 	
 	private static int framesElapsed = 0; 
 	private static long totalTimeRendering = 0; 
@@ -75,6 +76,11 @@ public class User {
 	public static void toggleAvgRenderSpeed() {
 		User.printAvgRenderSpeed = !User.printAvgRenderSpeed;
 	}
+	
+	// Print the position and orientation of the observer
+	public static void toggleCoordinates() {
+		User.printCoordinates = !User.printCoordinates;
+	}
 
 	public static void printView() {
 		try {
@@ -101,6 +107,11 @@ public class User {
 				System.out.println("Average frame render speed: "
 					+ (double) (totalTimeRendering) / (1000000 * framesElapsed) + " ms");
 			}
+			
+			if (printCoordinates) {
+				System.out.println(user);
+			}
+			
 		} catch (Exception e) {
 			System.out.println("Error loading frame: ");
 			e.printStackTrace();
