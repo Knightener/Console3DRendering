@@ -112,19 +112,19 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 	}
 
 	/*
-	 * Intersects the the line formed by this and point with the plane forward =
-	 * epsilon. This is a commonly used expression for 3D rendering.
+	 * Intersects the the line formed by this and point with the near plane. This is
+	 * a commonly used expression in 3D rendering.
 	 */
 	public R3Point forward0Intersection(R3Point point) {
 
-		double ratio = forward / (forward - point.forward);
+		double ratio = (forward - Constants.NEAR_EPSILON) / (forward - point.forward);
 
 		/*
 		 * This is very slightly off the actual intersection point, however, the
 		 * difference is negligible in most cases
 		 */
 		return new R3Point(right + ratio * (point.right - right), down + ratio * (point.down - down),
-				Constants.EPSILON);
+				Constants.NEAR_EPSILON);
 
 	}
 

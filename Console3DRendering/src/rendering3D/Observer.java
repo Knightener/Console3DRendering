@@ -183,7 +183,7 @@ public class Observer {
 
 		ZFigure point = new ZFigure();
 
-		if (p.getForward() > Constants.EPSILON) {
+		if (p.getForward() > Constants.NEAR_EPSILON) {
 			point.add(p.project(fov, shade));
 		}
 		return point;
@@ -193,11 +193,11 @@ public class Observer {
 	// p2.
 	public ZFigure lineDefaultAuxiliary(R3Point p1, R3Point p2, int shade, int borderShade) {
 
-		if (p1.getForward() > Constants.EPSILON) {
+		if (p1.getForward() > Constants.NEAR_EPSILON) {
 			return view.borderedLine(p1.project(fov, shade), p2.project(fov, shade), borderShade);
 		}
 
-		if (p2.getForward() > Constants.EPSILON) {
+		if (p2.getForward() > Constants.NEAR_EPSILON) {
 			R3Point start = p1.forward0Intersection(p2);
 
 			return view.borderedLine(start.project(fov, shade), p2.project(fov, shade), borderShade);
@@ -238,12 +238,12 @@ public class Observer {
 			double currF = curr.getForward();
 			double nextF = next.getForward();
 
-			if (currF > Constants.EPSILON) {
+			if (currF > Constants.NEAR_EPSILON) {
 				viewedPolygon.add(curr.project(fov, shade, polygonID));
 			}
 
 			// If currF and nextF differ in sign, this intersection is added.
-			if (currF > Constants.EPSILON ^ nextF > Constants.EPSILON) {
+			if (currF > Constants.NEAR_EPSILON ^ nextF > Constants.NEAR_EPSILON) {
 				viewedPolygon.add(curr.forward0Intersection(next).project(fov, shade, polygonID));
 			}
 		}
