@@ -1,9 +1,8 @@
-package shading;
+package rendering3D;
 
 import java.util.Map;
 
 import classes3D.R3Point;
-import rendering3D.RelativePolygon;
 
 public class LightSource {
 	R3Point lightSource; 
@@ -17,5 +16,14 @@ public class LightSource {
 
 	public void addPolygon(RelativePolygon polygon) {
 		dot.put(polygon, polygon.differenceDotNormal(lightSource));
+	}
+	
+	public double dot(RelativePolygon polygon) {
+		try {
+			return dot.get(polygon);
+		} catch (NullPointerException e) {
+			addPolygon(polygon);
+			return dot.get(polygon);
+		}
 	}
 }

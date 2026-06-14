@@ -194,12 +194,50 @@ public class RelativePolygon extends RelativeComponent {
 
 	// Avoids object creation overhead. Equivalent to texture.determineShadeAt(findUV)
 	public int determineShade(int right, int down, double zBuffer) {
-		
 		return texture.determineShadeAt(
 			(perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + vAF)
-				/ zBuffer+vABDotOffset.getRight(),
+				/ zBuffer + vABDotOffset.getRight(),
 			(perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + vBF)
-				/ zBuffer+vABDotOffset.getDown());
+				/ zBuffer + vABDotOffset.getDown());
+	}
+
+	/*
+	 * Finds the texture of the given point and calculates the new shade taking into
+	 * account the given lightsource.
+	 */
+	public int determineShade(int right, int down, double zBuffer, LightSource lightSource) {
+		if (lightSource.dot(this) < 0) {
+			return 0;
+		}
+		// findUV.right
+		double u = (perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down
+			+ vAF) / zBuffer + vABDotOffset.getRight();
+
+		// findUV.down
+		double v = (perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down
+			+ vBF) / zBuffer + vABDotOffset.getDown();
+		
+		/*
+		 * Coordinates of the vector from the traced back point (in 3d) to the light
+		 * source. Equivalent to (lightSource - u*vectorA - v*vectorB).
+		 */
+		double diffRight = lightSource.lightSource.getRight() - u * vectorA.getRight()
+			- v * vectorB.getRight();
+		double diffDown = lightSource.lightSource.getDown() - u * vectorA.getDown()
+			- v * vectorB.getDown();
+		double diffForward = lightSource.lightSource.getForward() - u * vectorA.getForward()
+			- v * vectorB.getForward();
+		
+		/*
+		 * If a is the difference vector from the traced back point to the light source,
+		 * then the brightness is equivalent to (a DOT orientation) / a DOT a. Math.fma
+		 * used for a little extra efficiency.
+		 */
+		double brightness = lightSource.dot(this) / (Math.fma(diffRight, diffRight,
+			Math.fma(diffDown, diffDown, diffForward * diffForward)));
+
+		return (int) (texture.determineShadeAt(u, v) * brightness);
+
 	}
 
 	public void render() {
