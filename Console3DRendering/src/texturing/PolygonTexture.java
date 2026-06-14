@@ -46,9 +46,18 @@ public class PolygonTexture {
 			return 2;
 		}
 	}
-	
+
+	public int determineShadeAt(double right, double down) {
+		try {
+			return polygonTexture.getShade((int) Math.floor(scaleFactor * right),
+				(int) Math.floor(scaleFactor * down));
+		} catch (Exception e) {
+			return 2;
+		}
+	}
+
 	public int determineShadeAt(R2Point point) {
-		return determineShadeAt((int) Math.floor(scaleFactor*point.getRight()), (int) Math.floor(scaleFactor*point.getDown()));
+		return determineShadeAt(point.getRight(),point.getDown());
 	}
 
 }

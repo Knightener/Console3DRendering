@@ -176,7 +176,7 @@ public class RelativePolygon extends RelativeComponent {
 
 	/*
 	 * Given a pixel that is assumed to be projected by a given observer and comes
-	 * from this polygon, finds (an approximation of) the coordinates of this points
+	 * from this polygon, finds (an approximation of) the coordinates of this point
 	 * in u-v space.
 	 */
 	public R2Point findUV(int right, int down, double zBuffer) {
@@ -191,11 +191,15 @@ public class RelativePolygon extends RelativeComponent {
 
 		return uvPoint;
 	}
-	
-	
-	
+
+	// Avoids object creation overhead. Equivalent to texture.determineShadeAt(findUV)
 	public int determineShade(int right, int down, double zBuffer) {
-		return texture.determineShadeAt(findUV(right, down, zBuffer));
+		
+		return texture.determineShadeAt(
+			(perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + vAF)
+				/ zBuffer+vABDotOffset.getRight(),
+			(perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + vBF)
+				/ zBuffer+vABDotOffset.getDown());
 	}
 
 	public void render() {
@@ -209,6 +213,7 @@ public class RelativePolygon extends RelativeComponent {
 	// Returns the outward pointing unit normal vector of the triangle.
 	public RelativeLine getUnitNormal() {
 
+		// Arithmetic center of the polygon
 		R2Point uVVectorTail = new R2Point();
 
 		for (R2Point point : uVPoints) {
