@@ -191,7 +191,9 @@ public class RelativePolygon extends RelativeComponent {
 
 		return uvPoint;
 	}
-
+	
+	
+	
 	public int determineShade(int right, int down, double zBuffer) {
 		return texture.determineShadeAt(findUV(right, down, zBuffer));
 	}
@@ -229,7 +231,12 @@ public class RelativePolygon extends RelativeComponent {
 	
 	// Returns true if the polygon is facing the point.
 	public boolean isFacing(R3Point point) {
-		return point.difference(offset).dot(orientation) > Constants.EPSILON;
+		return differenceDotNormal(point) > Constants.EPSILON;
+	}
+
+	// (point - any point of the polygon) DOT (orientation). Independent of choice.
+	public double differenceDotNormal(R3Point point) {
+		return point.difference(offset).dot(orientation);
 	}
 	
 	private void checkTextured() {
