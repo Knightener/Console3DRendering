@@ -7,6 +7,7 @@ import java.util.List;
 import classes2D.R2Point;
 import classes3D.R3Point;
 import other.Constants;
+import rendering2D.ShadeHandling;
 import texturing.PolygonTexture;
 import texturing.Texture;
 
@@ -203,12 +204,9 @@ public class RelativePolygon extends RelativeComponent {
 
 	/*
 	 * Finds the texture of the given point and calculates the new shade taking into
-	 * account the given lightsource.
+	 * account the given light source. Fall off proportional to 1/distance
 	 */
 	public int determineShade(int right, int down, double zBuffer, LightSource lightSource) {
-		if (lightSource.dot(this) < 0) {
-			return 0;
-		}
 		// findUV.right
 		double u = (perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down
 			+ vAF) / zBuffer + vABDotOffset.getRight();
@@ -227,17 +225,18 @@ public class RelativePolygon extends RelativeComponent {
 			- v * vectorB.getDown();
 		double diffForward = lightSource.lightSource.getForward() - u * vectorA.getForward()
 			- v * vectorB.getForward();
-		
+
 		/*
 		 * If a is the difference vector from the traced back point to the light source,
-		 * then the brightness is equivalent to (a DOT orientation) / a DOT a. Math.fma
-		 * used for a little extra efficiency.
+		 * then the brightness is equivalent to intensity * (a DOT orientation) / (a DOT
+		 * a), clamped to be between 0 and 1. Math.fma used for a little extra
+		 * efficiency.
 		 */
-		double brightness = lightSource.dot(this) / (Math.fma(diffRight, diffRight,
-			Math.fma(diffDown, diffDown, diffForward * diffForward)));
+		double brightness = Math.clamp(lightSource.intensity * lightSource.dot(this) / (Math
+			.fma(diffRight, diffRight, Math.fma(diffDown, diffDown, diffForward * diffForward))), 0,
+			1);
 
 		return (int) (texture.determineShadeAt(u, v) * brightness);
-
 	}
 
 	public void render() {

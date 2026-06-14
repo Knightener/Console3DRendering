@@ -87,7 +87,7 @@ public class User {
 			long start = System.nanoTime();
 
 			World.render();
-			userView.texturize();
+			userView.texturize(World.lightSource);
 			World.shade();
 			userView.shade();
 			userView.display();

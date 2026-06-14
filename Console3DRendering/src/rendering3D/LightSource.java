@@ -8,6 +8,7 @@ import classes3D.R3Point;
 public class LightSource {
 	R3Point lightSource;
 
+	double intensity = 1;
 	/*
 	 * (Polygon normal) DOT (vector from any point of polygon to lightSource)
 	 * Independent of the chosen point of the polygon. Stored for more efficient
@@ -15,12 +16,17 @@ public class LightSource {
 	 */
 	Map<RelativePolygon, Double> dot = new HashMap<RelativePolygon, Double>();
 
-	public LightSource(R3Point lightSource) {
+	public LightSource(R3Point lightSource, double intensity) {
 		this.lightSource = lightSource;
+		this.intensity = intensity;
 	}
 
-	public LightSource(double right, double down, double forward) {
-		this(new R3Point(right, down, forward));
+	public LightSource(double right, double down, double forward, double intensity) {
+		this(new R3Point(right, down, forward), intensity);
+	}
+
+	public void setIntensity(double intensity) {
+		this.intensity = intensity;
 	}
 
 	public void addPolygon(RelativePolygon polygon) {

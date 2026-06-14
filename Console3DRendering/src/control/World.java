@@ -17,7 +17,7 @@ public class World {
 	private static List<Mesh> shadowVolumes = new ArrayList<Mesh>();
 	
 	// Only one light source allowed for now. 
-	private static LightSource lightSource;
+	static LightSource lightSource;
 
 	private static int shadowExtendMultiplier = 300; 
 	

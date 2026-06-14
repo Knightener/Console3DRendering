@@ -13,6 +13,7 @@ import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ImageBase;
 import rendering2D.ShadeHandling;
+import rendering3D.LightSource;
 import rendering3D.RelativeComponent;
 import rendering3D.RelativePolygon;
 
@@ -232,6 +233,18 @@ public class ZImage extends ImageBase {
 					image.set(RelativeComponent
 						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
 						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j)), i, j);
+				}
+			}
+		}
+	}
+	
+	public void texturize(LightSource lightSource) {
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				if ((renderInfo.get(i, j) & 1) == 1) {
+					image.set(RelativeComponent
+						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
+						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j), lightSource), i, j);
 				}
 			}
 		}
