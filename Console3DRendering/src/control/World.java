@@ -50,8 +50,10 @@ public class World {
 
 	// Renders the world to the user. 
 	public static void render() {
-		lightSourcePoint.updatePerspective();
-		lightSourcePoint.render();
+		if (lightSource != null) {
+			lightSourcePoint.updatePerspective();
+			lightSourcePoint.render();
+		}
 		for (Renderable object : world) {
 			object.updatePerspective();
 			object.render();

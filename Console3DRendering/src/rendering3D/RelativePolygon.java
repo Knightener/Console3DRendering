@@ -206,7 +206,7 @@ public class RelativePolygon extends RelativeComponent {
 	 * Finds the texture of the given point and calculates the new shade taking into
 	 * account the given light source. Fall off proportional to 1/distance
 	 */
-	public int determineShade(int right, int down, double zBuffer, LightSource lightSource) {
+	public int determineShade(int right, int down, double zBuffer, LightSource lightSource) {		
 		// findUV.right
 		double u = (perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down
 			+ vAF) / zBuffer + vABDotOffset.getRight();
