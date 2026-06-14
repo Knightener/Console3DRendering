@@ -7,7 +7,6 @@ import java.util.List;
 import classes2D.R2Point;
 import classes3D.R3Point;
 import other.Constants;
-import rendering2D.ShadeHandling;
 import texturing.PolygonTexture;
 import texturing.Texture;
 
@@ -220,11 +219,11 @@ public class RelativePolygon extends RelativeComponent {
 		 * source. Equivalent to (lightSource - u*vectorA - v*vectorB).
 		 */
 		double diffRight = lightSource.lightSource.getRight() - u * vectorA.getRight()
-			- v * vectorB.getRight();
+			- v * vectorB.getRight() - offset.getRight();
 		double diffDown = lightSource.lightSource.getDown() - u * vectorA.getDown()
-			- v * vectorB.getDown();
+			- v * vectorB.getDown() - offset.getRight();
 		double diffForward = lightSource.lightSource.getForward() - u * vectorA.getForward()
-			- v * vectorB.getForward();
+			- v * vectorB.getForward() - offset.getRight();
 
 		/*
 		 * If a is the difference vector from the traced back point to the light source,
