@@ -258,6 +258,7 @@ public class Observer {
 	}
 	
 	// Prints the position and angle of the observer. 
+	@Override
 	public String toString() {
 		return "Position: " + position.toString() + "  Orientation: " + "(" + Math.atan2(sinT, cosT)
 			+ ", " + Math.atan2(sinP, cosP) + ")";

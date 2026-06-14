@@ -161,12 +161,13 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 			return Math.max(Math.abs(right), Math.abs(down));
 		}
 		
-		public double euclidian() {
-			return Math.hypot(right, down);
-		}
-		
 		public double taxicab() {
 			return Math.abs(right) + Math.abs(down);
 		}
-		
+
+		public double lSquared() {
+			// a little bit more efficient
+			return Math.fma(right, right, down * down);
+		}
+
 	}

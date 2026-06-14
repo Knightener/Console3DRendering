@@ -6,9 +6,13 @@ public interface NormedVectorSpace<T> extends VectorSpace<T> {
 
 	public double chebyshev();
 
-	public double euclidian();
-
 	public double taxicab();
+	
+	public double lSquared();
+
+	public default double euclidian() {
+		return Math.sqrt(lSquared());
+	}
 
 	public default double chebyshev(T point) {
 		return chebyshev(difference(point));

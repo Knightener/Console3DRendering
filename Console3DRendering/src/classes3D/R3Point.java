@@ -178,12 +178,14 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 		return Math.max(Math.max(Math.abs(right), Math.abs(down)), Math.abs(forward));
 	}
 
-	public double euclidian() {
-		return Math.sqrt(dot(this));
-	}
 
 	public double taxicab() {
 		return Math.abs(right) + Math.abs(down) + Math.abs(forward);
+	}
+
+	public double lSquared() {
+		// a little bit more efficient.
+		return Math.fma(right, right, Math.fma(down, down, forward * forward));
 	}
 
 	// Returns a new point that represent this scaled by multiplier from origin.
