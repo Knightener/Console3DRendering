@@ -199,13 +199,13 @@ public class Mesh implements Renderable {
 		return normals;
 	}
 
-	// Returns the border of the visible faces from point.
-	public List<R3Point> getVisibleBorder(R3Point point) {
+	// Returns the border of the visible faces from the light source.
+	public List<R3Point> getVisibleBorder(LightSource lightSource) {
 
 		IndexGraph visibleBorderGraph = new IndexGraph(vertices.size());
 
 		for (int i = 0; i < faces.size(); i++) {
-			if (faces.get(i).isFacing(point)) {
+			if (lightSource.isFacing(faces.get(i))) {
 				visibleBorderGraph.mergeNonOpposite(faceIndices.get(i));
 			}
 		}
@@ -238,13 +238,13 @@ public class Mesh implements Renderable {
 		return wireFrame;
 	}
 	
-	public Mesh getShadowVolume(R3Point lightSource, double extendMultiplier) {
+	public Mesh getShadowVolume(LightSource lightSource, double extendMultiplier) {
 		List<R3Point> border = getVisibleBorder(lightSource);
 
 		int halfSize = border.size();
 
 		for (int i = 0; i < halfSize; i++) {
-			border.add(border.get(i).extendFrom(lightSource, extendMultiplier));
+			border.add(border.get(i).extendFrom(lightSource.lightSource, extendMultiplier));
 		}
 
 		Mesh shadowVolume = new Mesh(observer, border);
