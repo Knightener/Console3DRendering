@@ -3,9 +3,9 @@ package control;
 import java.util.ArrayList;
 import java.util.List;
 
-import classes3D.R3Point;
 import rendering3D.LightSource;
 import rendering3D.Mesh;
+import rendering3D.RelativePoint;
 import rendering3D.Renderable;
 
 public class World {
@@ -18,6 +18,9 @@ public class World {
 	
 	// Only one light source allowed for now. 
 	static LightSource lightSource;
+	
+	// For rendering purposes. 
+	private static RelativePoint lightSourcePoint;
 
 	private static int shadowExtendMultiplier = 300; 
 	
@@ -39,13 +42,16 @@ public class World {
 		}
 	}
 	
-	// Adds a light source to the world. 
-	public static void addLightSource(LightSource lightSource) {
+	// Adds a light source to the world.
+	public static void setLightSource(LightSource lightSource) {
 		World.lightSource = lightSource;
+		lightSourcePoint = new RelativePoint(lightSource.getPosition(), User.getUser());
 	}
-	
+
 	// Renders the world to the user. 
 	public static void render() {
+		lightSourcePoint.updatePerspective();
+		lightSourcePoint.render();
 		for (Renderable object : world) {
 			object.updatePerspective();
 			object.render();

@@ -1,6 +1,7 @@
 package rendering3D;
 
 import classes3D.R3Point;
+import rendering2D.ShadeHandling;
 
 public class RelativePoint extends RelativeComponent {
 
@@ -29,7 +30,7 @@ public class RelativePoint extends RelativeComponent {
 	}
 	
 	public void render() {
-		
+		observer.point(perceived, ShadeHandling.MAX_SHADE);
 	}
 
 }

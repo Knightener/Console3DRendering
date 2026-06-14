@@ -46,4 +46,8 @@ public class LightSource {
 			return dot.get(polygon);
 		}
 	}
+	
+	public R3Point getPosition() {
+		return lightSource;
+	}
 }
