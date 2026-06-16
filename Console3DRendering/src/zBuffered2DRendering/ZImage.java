@@ -39,6 +39,12 @@ public class ZImage extends ImageBase {
 	// Buffer for rendering polygons. 
 	private ArrayList<ZInt>[] polygonBuffer;
 	
+	/*
+	 * False if writeToStencil processes (0,0) evenly many times, odd otherwise.
+	 * Used to track if an observer is inside a shadow.
+	 */
+	private boolean isInShadow;
+	
 	// Ad hoc class that stores an int with zBuffer info.
 	private static class ZInt implements Comparable<ZInt> {
 		int position;
@@ -146,7 +152,7 @@ public class ZImage extends ImageBase {
 		Arrays.fill(image.getArray(), 0);
 		Arrays.fill(zBuffer.getArray(), 0.0);
 		Arrays.fill(renderInfo.getArray(), 0);
-		Arrays.fill(stencil.getArray(), false);
+		stencil.clear();
 	}
 	
 	public void addStencil() {
@@ -158,7 +164,7 @@ public class ZImage extends ImageBase {
 	}
 	
 	public void clearStencil() {
-		Arrays.fill(stencil.getArray(), false);
+		stencil.clear();
 	}
 
 	public void shade() {
@@ -211,14 +217,16 @@ public class ZImage extends ImageBase {
 		}
 	}
 	
-	// Flips bit on Z-fail.
+	// Flips bit on Z-pass.
 	public void writeToStencil(int right, int down, double zBuffer) {
+		isInShadow ^= right == 0 && down == 0;
+		
 		int adjustedRight = right - leftBound;
 		int adjustedDown = down - upBound;
 
 		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
 			&& adjustedDown < imageRows && zBuffer > this.zBuffer.get(adjustedDown, adjustedRight)) {
-			stencil.set(!stencil.get(adjustedDown, adjustedRight), adjustedDown, adjustedRight);
+			stencil.flip(adjustedDown, adjustedRight);
 		}
 	}
 	
