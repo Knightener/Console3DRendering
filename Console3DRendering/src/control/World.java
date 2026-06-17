@@ -22,7 +22,7 @@ public class World {
 	// For rendering purposes. 
 	private static RelativePoint lightSourcePoint;
 
-	private static int shadowExtendMultiplier = 300; 
+	private static int shadowExtendMultiplier = 5; 
 	
 	// Adds an object to the world. 
 	public static void addObject(Renderable object) {
@@ -36,7 +36,7 @@ public class World {
 	// Adds the shadows of the mesh to the world. 
 	public static void addShadow(Mesh object) {
 		if (object.getObserver() == User.getUser()) {
-				shadowVolumes.add(object.getShadowVolume(lightSource, shadowExtendMultiplier));
+				shadowVolumes.add(object.getCappedShadowVolume(lightSource, shadowExtendMultiplier));
 		} else {
 			throw new IllegalArgumentException("Object must be associated with current user observer.");
 		}
@@ -59,6 +59,15 @@ public class World {
 			object.render();
 		}
 	}
+	
+	// Debug function. Renders the shadows. 
+	public static void renderShadows() {
+		for (Mesh shadowVolume : shadowVolumes) {
+			shadowVolume.updatePerspective();
+			shadowVolume.render();
+		}
+	}
+	
 	
 	// Shades the world. 
 	public static void shade() {

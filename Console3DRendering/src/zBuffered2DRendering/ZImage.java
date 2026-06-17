@@ -67,6 +67,11 @@ public class ZImage extends ImageBase {
 		public void incrementPosition(int delta) {
 			position += delta;
 		}
+		
+		@Override
+		public String toString() {
+			return "(" + position + ", " + zBuffer + ")"; 
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -97,14 +102,13 @@ public class ZImage extends ImageBase {
 	
 	/*
 	 * Debug function. Draws the current polygonBuffer to the current ZImage.
-	 * Colors each pixel in accordance with its index in its respective bucket.
 	 */
 	public void drawPolygonBuffer() {
 		ZInt curr;
 		for (int i = 0; i < imageCols; i++) {
 			for (int j = 0; j < polygonBuffer[i].size(); j++) {
 				curr = polygonBuffer[i].get(j); 
-				draw(i + leftBound, curr.position, Math.min(j+3,ShadeHandling.MAX_SHADE), curr.zBuffer, 0);
+				draw(i + leftBound, curr.position, ShadeHandling.MAX_SHADE, Double.MAX_VALUE, 0);
 			}
 		}
 	}
@@ -213,13 +217,13 @@ public class ZImage extends ImageBase {
 		}
 	}
 	
-	// Flips bit on Z-pass.
+	// Flips bit on Z-fail.
 	public void writeToStencil(int right, int down, double zBuffer) {
 		int adjustedRight = right - leftBound;
 		int adjustedDown = down - upBound;
 
 		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
-			&& adjustedDown < imageRows && zBuffer > this.zBuffer.get(adjustedDown, adjustedRight)) {
+			&& adjustedDown < imageRows && zBuffer < this.zBuffer.get(adjustedDown, adjustedRight)) {
 			stencil.flip(adjustedDown, adjustedRight);
 		}
 	}
@@ -545,8 +549,9 @@ public class ZImage extends ImageBase {
 	public void verticalLine(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
 		if (p1.getDown() < p2.getDown()) {
 			verticalLineAuxiliary(p1, p2, zStep, writeToStencil);
+		} else {
+			verticalLineAuxiliary(p2, p1, zStep, writeToStencil);
 		}
-		verticalLineAuxiliary(p2, p1, zStep, writeToStencil);
 	}
 
 	private void verticalLine(ZInt start, ZInt end, int right, int shade, double zStep,
@@ -563,7 +568,6 @@ public class ZImage extends ImageBase {
 
 		int visibleEnd = Math.min(end.position, downBound - 1);
 		double currZ = start.zBuffer;
-
 		for (int i = start.position; i <= visibleEnd; i++) {
 			if (writeToStencil) {
 				writeToStencil(right, i, currZ);
@@ -594,13 +598,13 @@ public class ZImage extends ImageBase {
 
 		{
 			// Local variables that are only used to calculate the slope
-			int r1 = points.get(0).getRight();
-			int r2 = points.get(1).getRight();
-			int r3 = points.get(2).getRight();
+			double r1 = points.get(0).getRight();
+			double r2 = points.get(1).getRight();
+			double r3 = points.get(2).getRight();
 
-			int d1 = points.get(0).getDown();
-			int d2 = points.get(1).getDown();
-			int d3 = points.get(2).getDown();
+			double d1 = points.get(0).getDown();
+			double d2 = points.get(1).getDown();
+			double d3 = points.get(2).getDown();
 
 			double z1 = points.get(0).getZBuffer();
 			double z2 = points.get(1).getZBuffer();
@@ -614,6 +618,7 @@ public class ZImage extends ImageBase {
 			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
 					((d2 - d1) * (r3 - r1) - (d3 - d1) * (r2 - r1));
 		}
+		
 
 		int rightMost = points.get(0).getRight();
 		int leftMost = points.get(0).getRight();
@@ -664,9 +669,10 @@ public class ZImage extends ImageBase {
 			}
 			currList.clear();
 		}
+		
 	}
 
-	public void polygon(ArrayList<ZPixel> points) {
+	public void polygon(List<ZPixel> points) {
 		polygon(points, false);
 	}
 }
