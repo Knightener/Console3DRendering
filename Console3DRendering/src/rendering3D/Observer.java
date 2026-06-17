@@ -208,8 +208,9 @@ public class Observer {
 
 		if (p2.getForward() > p1.getForward()) {
 			view.draw(lineDefaultAuxiliary(p1, p2, shade, borderShade));
+		} else {
+			view.draw(lineDefaultAuxiliary(p2, p1, shade, borderShade));
 		}
-		view.draw(lineDefaultAuxiliary(p2, p1, shade, borderShade));
 	}
 
 	public void line(R3Point p1, R3Point p2, int shade, int borderShade) {
