@@ -239,11 +239,11 @@ public class RelativePolygon extends RelativeComponent {
 	}
 
 	public void render() {
-		observer.polygon(perceivedPoints, 2, ID, false);
+		observer.polygon(perceivedPoints, 2, ID, false, false);
 	}
 	
 	public void writeToStencil() {
-		observer.polygon(perceivedPoints, 2, ID, true);
+		observer.polygon(perceivedPoints, 2, ID, true, isFacingObserver());
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.
@@ -275,9 +275,19 @@ public class RelativePolygon extends RelativeComponent {
 		return differenceDotNormal(point) > Constants.EPSILON;
 	}
 
-	// (point - any point of the polygon) DOT (orientation). Independent of choice.
+	/*
+	 * (point - any point of the polygon) DOT (orientation). Independent of choice.
+	 * Written out directly to avoid object creation overhead. 
+	 */
 	public double differenceDotNormal(R3Point point) {
-		return point.difference(offset).dot(orientation);
+		return (point.getRight() - offset.getRight()) * orientation.getRight()
+			+ (point.getDown() - offset.getDown()) * orientation.getDown()
+			+ (point.getForward() - offset.getForward()) * orientation.getForward();
+	}
+	
+	
+	public boolean isFacingObserver() {
+		return isFacing(observer.position);
 	}
 	
 	private void checkTextured() {

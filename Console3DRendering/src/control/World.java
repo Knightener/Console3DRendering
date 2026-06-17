@@ -75,6 +75,5 @@ public class World {
 			shadowVolume.updatePerspective();
 			shadowVolume.writeToStencil();
 		}
-		User.getUser().getView().addStencil();
 	}
 }

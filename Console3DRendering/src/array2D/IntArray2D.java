@@ -1,5 +1,7 @@
 package array2D;
 
+import java.util.function.IntUnaryOperator;
+
 public class IntArray2D {
 	// Performance gains over using int[][]
 	int rows, cols;
@@ -18,6 +20,12 @@ public class IntArray2D {
 
 	public void set(int element, int row, int col) {
 		array2D[row * cols + col] = element;
+	}
+	
+	// Applies the function at row, col. 
+	public void map(IntUnaryOperator map, int row, int col) {
+		int index = row * cols + col;
+		array2D[index] = map.applyAsInt(array2D[index]);
 	}
 	
 	public int[] getArray() {

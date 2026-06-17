@@ -13,10 +13,10 @@ public class ZPixel extends Pixel {
 	public static final int POLYGON_BITS = (1 << 24) - 1;
 	
 	// 0000 0001 0000 0000 0000 0000 0000 0000. First bit for shadow info.
-	public static final int SHADE_BIT = 1 << 24;
+	public static final int STENCIL_BIT = 1 << 24;
 	
-	// renderInfo >>> SHADE_BIT_POS = shadow value. 
-	public static final int SHADE_BIT_POS = 24;
+	// renderInfo >>> STENCIL_BIT_POS = shadow value. 
+	public static final int STENCIL_BIT_POS = 24;
 
 	public ZPixel() {
 		super();

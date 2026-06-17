@@ -43,7 +43,11 @@ public class ShadeHandling {
 
 	public static int darken(int shade, int darkeningFactor) {
 		// temp implementation for testing
-		return shade / (2*darkeningFactor + 1);
+		if (darkeningFactor > 0) {
+			return shade / 3;
+		} else {
+			return shade;
+		}
 	}
 
 	/*

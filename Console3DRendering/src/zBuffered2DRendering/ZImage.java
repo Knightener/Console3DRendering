@@ -33,9 +33,6 @@ public class ZImage extends ImageBase {
 	 */
 	private IntArray2D renderInfo;
 	
-	// Temporary array for shading. 
-	private BooleanArray2D stencil;
-	
 	// Buffer for rendering polygons. 
 	private ArrayList<ZInt>[] polygonBuffer;
 	
@@ -78,7 +75,6 @@ public class ZImage extends ImageBase {
 	private void initialize() {
 		zBuffer = new DoubleArray2D(imageRows, imageCols);
 		renderInfo = new IntArray2D(imageRows, imageCols);
-		stencil = new BooleanArray2D(imageRows, imageCols);
 		polygonBuffer = (ArrayList<ZInt>[]) new ArrayList[imageCols];
 		for (int i = 0; i < imageCols; i++) {
 			polygonBuffer[i] = new ArrayList<>();
@@ -138,9 +134,8 @@ public class ZImage extends ImageBase {
 
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				if (stencil.get(i, j)) {
-					image.setShade(j + leftBound, i + upBound, ShadeHandling.MAX_SHADE);
-				}
+				image.setShade(j + leftBound, i + upBound, Math
+					.min(renderInfo.get(i, j) >> ZPixel.STENCIL_BIT_POS, ShadeHandling.MAX_SHADE));
 			}
 		}
 
@@ -151,27 +146,13 @@ public class ZImage extends ImageBase {
 		Arrays.fill(image.getArray(), 0);
 		Arrays.fill(zBuffer.getArray(), 0.0);
 		Arrays.fill(renderInfo.getArray(), 0);
-		stencil.clear();
-	}
-	
-	// Adds the stencil. Flips if in shadow. 
-	public void addStencil() {
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				renderInfo.set(renderInfo.get(i, j) + (stencil.get(i, j) ? ZPixel.SHADE_BIT : 0), i, j);
-			}
-		}
-	}
-	
-	public void clearStencil() {
-		stencil.clear();
 	}
 
 	public void shade() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
 				image.set(ShadeHandling.darken(image.get(i, j),
-					renderInfo.get(i, j) >>> ZPixel.SHADE_BIT_POS), i, j);
+					renderInfo.get(i, j) >>> ZPixel.STENCIL_BIT_POS), i, j);
 			}
 		}
 	}
@@ -217,19 +198,21 @@ public class ZImage extends ImageBase {
 		}
 	}
 	
-	// Flips bit on Z-fail.
-	public void writeToStencil(int right, int down, double zBuffer) {
+	// Increments/decrements on Z-fail, depending on if polygon is facing or not.
+	public void writeToStencil(int right, int down, double zBuffer, boolean isFacing) {
 		int adjustedRight = right - leftBound;
 		int adjustedDown = down - upBound;
 
 		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
-			&& adjustedDown < imageRows && zBuffer < this.zBuffer.get(adjustedDown, adjustedRight)) {
-			stencil.flip(adjustedDown, adjustedRight);
+			&& adjustedDown < imageRows
+			&& zBuffer < this.zBuffer.get(adjustedDown, adjustedRight)) {
+			renderInfo.map(n -> n + (isFacing ? ZPixel.STENCIL_BIT : -ZPixel.STENCIL_BIT), adjustedDown,
+				adjustedRight);
 		}
 	}
 	
-	public void writeToStencil(ZPixel pixel) {
-		writeToStencil(pixel.getRight(), pixel.getDown(), pixel.getZBuffer());
+	public void writeToStencil(ZPixel pixel, boolean isFacing) {
+		writeToStencil(pixel.getRight(), pixel.getDown(), pixel.getZBuffer(), isFacing);
 	}
 
 	public void texturize() {
@@ -518,23 +501,21 @@ public class ZImage extends ImageBase {
 	
 	/*
 	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
-	 * the method to optimize the polygon method. p1 assumed to be above p2. 
+	 * the method to optimize the polygon method. p1 assumed to be above p2.
 	 */
-	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
+	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep) {
 		ZPixel movingPixel = new ZPixel(p1);
 
 		if (upBound > p1.getDown()) {
 			movingPixel.setDown(upBound);
 			movingPixel.incrementZBuffer(zStep * (upBound - p1.getDown()));
 		}
-		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(), downBound - movingPixel.getDown() - 1);
+		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(),
+			downBound - movingPixel.getDown() - 1);
 
 		for (int i = 0; i <= visibleLength; i++) {
-			if (writeToStencil) {
-				writeToStencil(movingPixel);
-			} else {
-				draw(movingPixel);
-			}
+			draw(movingPixel);
+
 			movingPixel.moveDown(1);
 			movingPixel.incrementZBuffer(zStep);
 		}
@@ -546,16 +527,16 @@ public class ZImage extends ImageBase {
 	 * calculated within the method and instead provided for the method call to
 	 * optimize the jaggedTriangle method. Takes on shade and polygonID of top pixel. 
 	 */
-	public void verticalLine(ZPixel p1, ZPixel p2, double zStep, boolean writeToStencil) {
+	public void verticalLine(ZPixel p1, ZPixel p2, double zStep) {
 		if (p1.getDown() < p2.getDown()) {
-			verticalLineAuxiliary(p1, p2, zStep, writeToStencil);
+			verticalLineAuxiliary(p1, p2, zStep);
 		} else {
-			verticalLineAuxiliary(p2, p1, zStep, writeToStencil);
+			verticalLineAuxiliary(p2, p1, zStep);
 		}
 	}
 
 	private void verticalLine(ZInt start, ZInt end, int right, int shade, double zStep,
-		int polygonID, boolean writeToStencil) {
+		int polygonID, boolean writeToStencil, boolean isFacing) {
 
 		/*
 		 * For the specific application of drawing polygons, we do not have to worry
@@ -568,9 +549,9 @@ public class ZImage extends ImageBase {
 
 		int visibleEnd = Math.min(end.position, downBound - 1);
 		double currZ = start.zBuffer;
-		for (int i = start.position; i <= visibleEnd; i++) {
+		for (int i = start.position; i < visibleEnd; i++) {
 			if (writeToStencil) {
-				writeToStencil(right, i, currZ);
+				writeToStencil(right, i, currZ, isFacing);
 			} else {
 				draw(right, i, shade, currZ, polygonID);
 			}
@@ -583,7 +564,7 @@ public class ZImage extends ImageBase {
 	 * plane. Putting in any other set of points may lead to visual artifacts. Takes
 	 * on shade and polygonID of first point.
 	 */
-	public void polygon(List<ZPixel> points, boolean writeToStencil) {
+	public void polygon(List<ZPixel> points, boolean writeToStencil, boolean isFacing) {
 		int length = points.size();
 
 		if (length < 3) {
@@ -665,14 +646,14 @@ public class ZImage extends ImageBase {
 			 */
 			for (int j = 1; j < currList.size(); j += 2) {
 				verticalLine(currList.get(j - 1), currList.get(j), i, shade, slope, polygonID,
-					writeToStencil);
+					writeToStencil, isFacing);
 			}
 			currList.clear();
 		}
-		
+
 	}
 
 	public void polygon(List<ZPixel> points) {
-		polygon(points, false);
+		polygon(points, false, false);
 	}
 }
