@@ -22,7 +22,7 @@ public class World {
 	// For rendering purposes. 
 	private static RelativePoint lightSourcePoint;
 
-	private static int shadowExtendMultiplier = 5; 
+	private static int shadowExtendMultiplier = 300; 
 	
 	// Adds an object to the world. 
 	public static void addObject(Renderable object) {

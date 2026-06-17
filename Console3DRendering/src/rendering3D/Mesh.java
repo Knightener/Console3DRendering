@@ -268,10 +268,9 @@ public class Mesh implements Renderable {
 		// Indices of faceIndices that will be in the shadow. 
 		List<Integer> backFaceIndices = new ArrayList<>(); 
 		
- 		
 		int index = 0;
 		for (int i = 0; i < faces.size(); i++) {
-			if (!lightSource.isFacing(faces.get(i))) {
+			if (lightSource.isFacing(faces.get(i))) {
 				backFaceIndices.add(i);
 				for (int vertex : faceIndices.get(i)) {
 					if (!backFaceVertices.containsKey(vertex)) {
@@ -299,12 +298,14 @@ public class Mesh implements Renderable {
 		IndexGraph visibleBorderGraph = new IndexGraph(2 * vertexOrder.size());
 
 		int[] currFace;
+		int currLength; 
 		for (int n : backFaceIndices) {
 			currFace = faceIndices.get(n);
-			int[] mappedFace = new int[currFace.length];
+			currLength = currFace.length;
+			int[] mappedFace = new int[currLength];
 
 			// Front face.
-			for (int i = 0; i < currFace.length; i++) {
+			for (int i = 0; i < currLength; i++) {
 				mappedFace[i] = 2 * backFaceVertices.get(currFace[i]);
 			}
 
@@ -314,8 +315,16 @@ public class Mesh implements Renderable {
 			shadowVolume.unrestrictedCreateFace(null, mappedFace);
 
 			// Extending current face.
-			for (int i = 0; i < currFace.length; i++) {
+			for (int i = 0; i < currLength; i++) {
 				mappedFace[i]++;
+			}
+			
+			int temp; 
+			// Inverting face to maintain normals.
+			for (int i = 0; i < currLength / 2; i++) {
+				temp = mappedFace[i];
+				mappedFace[i] = mappedFace[currLength - i - 1];
+				mappedFace[currLength - i - 1] = temp;
 			}
 
 			// Back face.
