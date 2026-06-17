@@ -56,8 +56,7 @@ public class UserControlDemo {
 		
 		World.addObject(shape);
 		World.addObject(plane);
-		
-		User.printFrameRenderSpeed(true);
+
 		new UserControl();
 	}
 }
