@@ -9,7 +9,11 @@ public class ShadeHandling {
 	// Shade cutoffs.
 	private double[] shadePartition;
 
-	public static final String[] DEFAULT_SHADES = { "  ", " ░", "░░", "░▒", "▒▒", "▒▓", "▓▓", "▓█", "██" };
+	private static final String[] DEFAULT_SHADES = { "  ", " ░", "░░", "░▒", "▒▒", "▒▓", "▓▓", "▓█", "██" };
+	
+	// ASCII characters ordered by brightness. 
+	private static final String[] ASCII_SHADES =getShadeArray(
+		" `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@".toCharArray());
 
 	static String[] shades = DEFAULT_SHADES;
 	
@@ -39,6 +43,18 @@ public class ShadeHandling {
 		}
 
 		return numPointsPassed;
+	}
+
+	/*
+	 * Turns an array of chars into a shade array by adding half tones.
+	 */
+	public static String[] getShadeArray(char[] shades) {
+		String[] shadeArray = new String[2 * shades.length - 1];
+
+		for (int i = 0; i < shadeArray.length; i++) {
+			shadeArray[i] = "" + shades[i / 2] + shades[(i + 1) / 2];
+		}
+		return shadeArray;
 	}
 
 	public static int darken(int shade, int darkeningFactor) {
