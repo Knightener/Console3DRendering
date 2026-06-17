@@ -84,8 +84,7 @@ public class User {
 
 	public static void printView() {
 		try {
-			long start = System.nanoTime();
-
+			long start = System.nanoTime();			
 			World.render();
 			World.shade();
 			if (World.lightSource != null) {
