@@ -2,6 +2,7 @@ package rendering3D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import graph.IndexEdge;
 import graph.IndexGraph;
 import graph.UnorderedEdge;
 import texturing.Texture;
+import texturing.TexturePresets;
 
 public class Mesh implements Renderable {
 
@@ -252,6 +254,88 @@ public class Mesh implements Renderable {
 			shadowVolume.createFace(null, i, (i + 1) % halfSize, (i + 1) % halfSize + halfSize, i + halfSize);
 		}
 		return shadowVolume;
+	}
+	
+	public Mesh getCappedShadowVolume(LightSource lightSource, double extendMultiplier) {
+		// These will be used to construct the mesh. 
+		
+		// Map of the index of a vertex in the current mesh to its index in the shadow mesh
+		HashMap<Integer, Integer> backFaceVertices = new HashMap<>(); 
+		
+		// List of indices of the current mesh that will be in the shadow. Determines an order. 
+		List<Integer> vertexOrder = new ArrayList<>();
+		
+		// Indices of faceIndices that will be in the shadow. 
+		List<Integer> backFaceIndices = new ArrayList<>(); 
+		
+ 		
+		int index = 0;
+		for (int i = 0; i < faces.size(); i++) {
+			if (!lightSource.isFacing(faces.get(i))) {
+				backFaceIndices.add(i);
+				for (int vertex : faceIndices.get(i)) {
+					if (!backFaceVertices.containsKey(vertex)) {
+						backFaceVertices.put(vertex, index++);
+						vertexOrder.add(vertex);
+					}
+				}
+			}
+		}
+		
+		List<R3Point> shadowVertices = new ArrayList<>();
+		
+		/*
+		 * Adding vertices of the shadow. If i is the index of a vertex of a the front
+		 * cap, i + 1 represents the extended vertex of the back cap and vice versa.
+		 */
+		for (int n : vertexOrder) {
+			shadowVertices.add(vertices.get(n));
+			shadowVertices.add(vertices.get(n).extendFrom(lightSource.lightSource, extendMultiplier));
+		}
+
+		Mesh shadowVolume = new Mesh(observer, shadowVertices);
+
+		// Graph of the visible border as indices of the shadow volume.
+		IndexGraph visibleBorderGraph = new IndexGraph(2 * vertexOrder.size());
+
+		int[] currFace;
+		for (int n : backFaceIndices) {
+			currFace = faceIndices.get(n);
+			int[] mappedFace = new int[currFace.length];
+
+			// Front face.
+			for (int i = 0; i < currFace.length; i++) {
+				mappedFace[i] = 2 * backFaceVertices.get(currFace[i]);
+			}
+
+			// Finding visible border. 
+			visibleBorderGraph.mergeNonOpposite(mappedFace);
+
+			shadowVolume.unrestrictedCreateFace(null, mappedFace);
+
+			// Extending current face.
+			for (int i = 0; i < currFace.length; i++) {
+				mappedFace[i]++;
+			}
+
+			// Back face.
+			shadowVolume.unrestrictedCreateFace(null, mappedFace);
+		}
+		
+		int[] visibleBorderCycle = visibleBorderGraph.findCycleFromStart(visibleBorderGraph.findConnectedPoint());
+		
+		int cycleLength = visibleBorderCycle.length;
+		
+		// Adding the side faces. 
+		for (int i = 0; i < cycleLength; i++) {
+			shadowVolume.unrestrictedCreateFace(null, 
+				visibleBorderCycle[i], 
+				visibleBorderCycle[i] + 1,
+				visibleBorderCycle[(i + 1) % cycleLength] + 1,
+				visibleBorderCycle[(i + 1) % cycleLength]);
+		}
+		return shadowVolume;
+
 	}
 	
 	public void writeToStencil() {
