@@ -87,12 +87,12 @@ public class User {
 			long start = System.nanoTime();
 
 			World.render();
+			World.shade();
 			if (World.lightSource != null) {
 				userView.texturize(World.lightSource);
 			} else {
 				userView.texturize();
 			}
-			World.shade();
 			userView.shade();
 			userView.display();
 			userView.clear();
