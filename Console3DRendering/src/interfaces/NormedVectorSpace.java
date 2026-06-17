@@ -15,15 +15,15 @@ public interface NormedVectorSpace<T> extends VectorSpace<T> {
 	}
 
 	public default double chebyshev(T point) {
-		return chebyshev(difference(point));
+		return ((NormedVectorSpace<T>) difference(point)).chebyshev();
 	}
 
 	public default double euclidian(T point) {
-		return euclidian(difference(point));
+		return ((NormedVectorSpace<T>) difference(point)).euclidian();
 	}
 
 	public default double taxicab(T point) {
-		return taxicab(difference(point));
+		return ((NormedVectorSpace<T>) difference(point)).taxicab();
 	}
 
 	public default void normalize() {

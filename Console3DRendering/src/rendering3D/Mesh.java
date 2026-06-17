@@ -11,6 +11,7 @@ import classes3D.R3Point;
 import graph.IndexEdge;
 import graph.IndexGraph;
 import graph.UnorderedEdge;
+import other.Constants;
 import texturing.Texture;
 import texturing.TexturePresets;
 
@@ -256,31 +257,40 @@ public class Mesh implements Renderable {
 		return shadowVolume;
 	}
 	
-	public Mesh getCappedShadowVolume(LightSource lightSource, double extendMultiplier) {
+	public Mesh getCappedShadowVolume(LightSource lightSource, double extendFactor) {
 		// These will be used to construct the mesh. 
 		
 		// Map of the index of a vertex in the current mesh to its index in the shadow mesh
-		HashMap<Integer, Integer> backFaceVertices = new HashMap<>(); 
+		HashMap<Integer, Integer> frontFaceVertices = new HashMap<>(); 
 		
 		// List of indices of the current mesh that will be in the shadow. Determines an order. 
 		List<Integer> vertexOrder = new ArrayList<>();
 		
 		// Indices of faceIndices that will be in the shadow. 
-		List<Integer> backFaceIndices = new ArrayList<>(); 
+		List<Integer> frontFaceIndices = new ArrayList<>(); 
+		
+		// Average distance of the front face vertices from the light sources.
+		double avgDistance = 0;
 		
 		int index = 0;
 		for (int i = 0; i < faces.size(); i++) {
 			if (lightSource.isFacing(faces.get(i))) {
-				backFaceIndices.add(i);
+				frontFaceIndices.add(i);
 				for (int vertex : faceIndices.get(i)) {
-					if (!backFaceVertices.containsKey(vertex)) {
-						backFaceVertices.put(vertex, index++);
+					if (!frontFaceVertices.containsKey(vertex)) {
+						frontFaceVertices.put(vertex, index++);
 						vertexOrder.add(vertex);
+						avgDistance += vertices.get(vertex).euclidian(lightSource.lightSource);
 					}
 				}
 			}
 		}
 		
+		avgDistance /= vertexOrder.size();
+		
+		// This helps mitigate Z-fighting
+		double nearExtendFactor = 1 + Constants.EPSILON / avgDistance;
+		double farExtendFactor = 1 + extendFactor / avgDistance;
 		List<R3Point> shadowVertices = new ArrayList<>();
 		
 		/*
@@ -288,8 +298,8 @@ public class Mesh implements Renderable {
 		 * cap, i + 1 represents the extended vertex of the back cap and vice versa.
 		 */
 		for (int n : vertexOrder) {
-			shadowVertices.add(vertices.get(n));
-			shadowVertices.add(vertices.get(n).extendFrom(lightSource.lightSource, extendMultiplier));
+			shadowVertices.add(vertices.get(n).extendFrom(lightSource.lightSource, nearExtendFactor));
+			shadowVertices.add(vertices.get(n).extendFrom(lightSource.lightSource, farExtendFactor));
 		}
 
 		Mesh shadowVolume = new Mesh(observer, shadowVertices);
@@ -299,14 +309,14 @@ public class Mesh implements Renderable {
 
 		int[] currFace;
 		int currLength; 
-		for (int n : backFaceIndices) {
+		for (int n : frontFaceIndices) {
 			currFace = faceIndices.get(n);
 			currLength = currFace.length;
 			int[] mappedFace = new int[currLength];
 
 			// Front face.
 			for (int i = 0; i < currLength; i++) {
-				mappedFace[i] = 2 * backFaceVertices.get(currFace[i]);
+				mappedFace[i] = 2 * frontFaceVertices.get(currFace[i]);
 			}
 
 			// Finding visible border. 
