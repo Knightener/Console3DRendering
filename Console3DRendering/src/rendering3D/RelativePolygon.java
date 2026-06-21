@@ -221,9 +221,9 @@ public class RelativePolygon extends RelativeComponent {
 		double diffRight = lightSource.lightSource.getRight() - u * vectorA.getRight()
 			- v * vectorB.getRight() - offset.getRight();
 		double diffDown = lightSource.lightSource.getDown() - u * vectorA.getDown()
-			- v * vectorB.getDown() - offset.getRight();
+			- v * vectorB.getDown() - offset.getDown();
 		double diffForward = lightSource.lightSource.getForward() - u * vectorA.getForward()
-			- v * vectorB.getForward() - offset.getRight();
+			- v * vectorB.getForward() - offset.getForward();
 
 		/*
 		 * If a is the difference vector from the traced back point to the light source,
@@ -231,9 +231,8 @@ public class RelativePolygon extends RelativeComponent {
 		 * a), clamped to be between 0 and 1. Math.fma used for a little extra
 		 * efficiency.
 		 */
-		double brightness = Math.clamp(lightSource.intensity * lightSource.dot(this) / (Math
-			.fma(diffRight, diffRight, Math.fma(diffDown, diffDown, diffForward * diffForward))), 0,
-			1);
+		double brightness = Math.min(Math.abs(lightSource.intensity * lightSource.dot(this) / (Math
+			.fma(diffRight, diffRight, Math.fma(diffDown, diffDown, diffForward * diffForward)))), 1);
 
 		return (int) (texture.determineShadeAt(u, v) * brightness);
 	}
