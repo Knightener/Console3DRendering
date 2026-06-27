@@ -18,10 +18,10 @@ public class RelativePolygon extends RelativeComponent {
 	 * Stores the points using two variables u and v representing their position on
 	 * the plane. Rotation and translation invariant
 	 */
-	protected ArrayList<R2Point> uVPoints;
+	protected List<R2Point> uVPoints;
 
 	// Stores the vertices of the polygon as viewed by the observer.
-	protected ArrayList<R3Point> perceivedPoints;
+	protected List<R3Point> perceivedPoints;
 
 	// Represents the orientation of the actual polygon.
 	protected R3Point orientation;
@@ -293,5 +293,15 @@ public class RelativePolygon extends RelativeComponent {
 		if  ((getID() & 1) == 0) {
 			throw new IllegalStateException("Polygon is untextured");
 		}
+	}
+	
+	// Reverses the orientation of the polygon. 
+	public void invertOrientation() {
+		
+		// vectorB is fixed because of the double negative
+		orientation.scale(-1);
+		
+		uVPoints = uVPoints.reversed();
+		perceivedPoints = perceivedPoints.reversed();
 	}
 }

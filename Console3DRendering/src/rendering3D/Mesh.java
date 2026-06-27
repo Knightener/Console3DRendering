@@ -375,4 +375,19 @@ public class Mesh implements Renderable {
 		return observer;
 	}
 
+	public void invertOrientation() {
+		for (RelativePolygon face : faces) {
+			face.invertOrientation();
+		}
+		border = border.getTranspose();
+		int temp;
+		for (int[] face : faceIndices) {
+			for (int i = 0; i < face.length / 2; i++) {
+				temp = face[i];
+				face[i] = face[face.length - i - 1];
+				face[face.length - i - 1] = temp;
+			}
+		}
+	}
+
 }

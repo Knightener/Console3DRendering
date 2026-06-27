@@ -22,7 +22,7 @@ public class PolygonTexture {
 
 		scaleFactor = texture.getScaleFactor();
 
-		List<IntPoint> flooredScaledVertices = vertices.stream().map(x -> x.floor(scaleFactor))
+		List<IntPoint> flooredScaledVertices = vertices.stream().map(x -> x.furthestRound(scaleFactor))
 			.toList();
 
 		VCRegionBuilder polygonBuilder = VCRegionBuilder.polygon(flooredScaledVertices);

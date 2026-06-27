@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import functionalInterfaces.RealFunction;
 import interfaces.NormedVectorSpace;
+import other.MiscFunctions;
 import rendering2D.Pixel;
 import rendering2D.ShadeHandling;
 
@@ -104,6 +105,10 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 
 		public IntPoint floor(double scale) {
 			return new IntPoint((int) Math.floor((scale * right)), (int) Math.floor((scale * down)));
+		}
+		
+		public IntPoint furthestRound(double scale) {
+			return new IntPoint(MiscFunctions.furthestRound(scale * right), MiscFunctions.furthestRound(scale * down));
 		}
 
 		public Pixel[] approximate() {

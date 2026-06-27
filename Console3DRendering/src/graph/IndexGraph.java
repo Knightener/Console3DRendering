@@ -206,6 +206,14 @@ public class IndexGraph implements Iterable<IndexEdge>{
     	return it;
     }
     
+    public IndexGraph getTranspose() {
+    	IndexGraph graph = new IndexGraph(numPoints);
+    	for (IndexEdge edge : this) {
+    		graph.connect(edge.to(), edge.from());
+    	}
+    	return graph;
+    }
+    
     @Override
     public String toString() {
     	StringBuilder graphString = new StringBuilder();

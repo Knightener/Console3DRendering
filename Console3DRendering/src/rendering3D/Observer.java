@@ -2,6 +2,7 @@ package rendering3D;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import classes2D.R2Point;
 import classes3D.R3Matrix;
@@ -221,7 +222,7 @@ public class Observer {
 	/*
 	 * Points assumed to lie on a plane. Will lead to visual artifacts otherwise
 	 */
-	public void polygon(ArrayList<R3Point> points, int shade, int polygonID, boolean writeToStencil,
+	public void polygon(List<R3Point> points, int shade, int polygonID, boolean writeToStencil,
 		boolean isFacing) {
 
 		ArrayList<ZPixel> viewedPolygon = new ArrayList<ZPixel>();
