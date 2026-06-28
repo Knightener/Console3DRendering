@@ -52,13 +52,13 @@ public class Graphing3D {
 		return graph; 
 	}
 
-	// Returns the graph centered on center
+	// Returns the graph of the function centered on center
 	public static Mesh getCenteredGraph(Observer observer,
 		BiFunction<Double, Double, Double> function, double spacing, R2Point center,
 		int horizontalSteps, int forwardSteps) {
-		
+
 		R2Point start = new R2Point(center);
-		start.translate(-horizontalSteps / 2.0, -forwardSteps / 2.0);
+		start.translate(-horizontalSteps * spacing / 2, -forwardSteps * spacing / 2.0);
 
 		return getGraph(observer, function, spacing, start, horizontalSteps, forwardSteps);
 	}

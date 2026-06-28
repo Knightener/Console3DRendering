@@ -36,6 +36,12 @@ public class RelativePolygon extends RelativeComponent {
 	protected R3Point perceivedOffset;
 	protected R3Point perceivedVectorA;
 	protected R3Point perceivedVectorB;
+
+	/*
+	 * If false, rendering will not be affected by orientation. If true, polygons
+	 * facing away from a light source will be rendered all black.
+	 */
+	boolean shadeOrientation = false;
 	
 	/*
 	 * vA/BFis perceivedVectorA/B's forward component multiplied by the FOV of whatever
@@ -206,6 +212,12 @@ public class RelativePolygon extends RelativeComponent {
 	 * account the given light source. Fall off proportional to 1/distance
 	 */
 	public int determineShade(int right, int down, double zBuffer, LightSource lightSource) {		
+		double dot = lightSource.dot(this);
+		
+		if (shadeOrientation && dot < 0) {
+			return 0;
+		}
+		
 		// findUV.right
 		double u = (perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down
 			+ vAF) / zBuffer + vABDotOffset.getRight();
@@ -231,7 +243,7 @@ public class RelativePolygon extends RelativeComponent {
 		 * a), clamped to be between 0 and 1. Math.fma used for a little extra
 		 * efficiency.
 		 */
-		double brightness = Math.min(Math.abs(lightSource.intensity * lightSource.dot(this) / (Math
+		double brightness = Math.min(Math.abs(lightSource.intensity * dot / (Math
 			.fma(diffRight, diffRight, Math.fma(diffDown, diffDown, diffForward * diffForward)))), 1);
 
 		return (int) (texture.determineShadeAt(u, v) * brightness);
@@ -303,5 +315,9 @@ public class RelativePolygon extends RelativeComponent {
 		
 		uVPoints = uVPoints.reversed();
 		perceivedPoints = perceivedPoints.reversed();
+	}
+	
+	public void toggleShadeOrientation() {
+		shadeOrientation = !shadeOrientation;
 	}
 }

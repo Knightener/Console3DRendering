@@ -389,5 +389,11 @@ public class Mesh implements Renderable {
 			}
 		}
 	}
+	
+	public void toggleShadeOrientation() {
+		for (RelativePolygon face : faces) {
+			face.toggleShadeOrientation();
+		}
+	}
 
 }
