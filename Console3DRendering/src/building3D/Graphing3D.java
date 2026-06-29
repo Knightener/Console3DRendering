@@ -63,4 +63,47 @@ public class Graphing3D {
 		return getGraph(observer, function, spacing, start, horizontalSteps, forwardSteps);
 	}
 
+	/*
+	 * Returns the graph of the specified parametric function (R2 -> R3). 
+	 */
+	public static Mesh getParametricGraph(Observer observer,
+		BiFunction<Double, Double, R3Point> function, double sStart, double sEnd, double tStart,
+		double tEnd, int sDivisions, int tDivisions) {
+		if (sStart > sEnd || tStart > tEnd || sDivisions <= 0 || tDivisions <= 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		double sStep = (sEnd - sStart) / sDivisions;
+		double tStep = (tEnd - tStart) / tDivisions;
+		
+		Texture texture = new Texture(TexturePresets.WHITE, 1);
+		List<R3Point> vertices = new ArrayList<>();
+		
+		double sCurr = sStart;
+		double tCurr = tStart;
+		
+		for (int i = 0; i < sDivisions; i++) {
+			for (int j = 0; j < tDivisions; j++) {
+				sCurr += sStep; 
+				tCurr += tStep;
+				vertices.add(function.apply(sCurr, tCurr));
+			}
+		}
+		Mesh graph = new Mesh(observer, vertices);
+		
+		int currIndex;
+		for (int i = 0; i < sDivisions - 1; i++) {
+			for (int j = 0; j < tDivisions - 1; j++) {
+				currIndex = tDivisions * i + j;
+				graph.createFace(texture, currIndex, currIndex + 1, currIndex + tDivisions);
+				graph.createFace(texture, currIndex + tDivisions + 1, currIndex + 1,
+					currIndex + tDivisions);
+			}
+		}
+		
+		return graph; 
+		
+
+	}
+
 }
