@@ -65,8 +65,8 @@ public class Mesh implements Renderable {
 
 		// Returns the vertex at index i as viewed by the observer. 
 		R3Point viewedVertex(int index) {
-			return R3Point.linearCombination(uVPoints.get(index).getRight(), 
-					uVPoints.get(index).getDown(), perceivedVectorA, perceivedVectorB)
+			return R3Point.linearCombination(uVPoints.get(index).getX(), 
+					uVPoints.get(index).getY(), perceivedVectorA, perceivedVectorB)
 					.sum(perceivedOffset);
 		}
 

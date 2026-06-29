@@ -49,7 +49,7 @@ public class RelativePolygon extends RelativeComponent {
 	 * 
 	 * vABDotOffset is (-percievedVectorA dot perceivedOffset,-percievedVectorB dot perceivedOffset).
 	 * 
-	 * These variables are stored to cut down operations for the findUV method.
+	 * These variables are stored to cut y operations for the findUV method.
 	 */
 	private double vAF;
 	private double vBF;
@@ -124,8 +124,8 @@ public class RelativePolygon extends RelativeComponent {
 
 	public void findUVVariables() {
 
-		vAF = perceivedVectorA.getForward() * observer.getFov();
-		vBF = perceivedVectorB.getForward() * observer.getFov();
+		vAF = perceivedVectorA.getZ() * observer.getFov();
+		vBF = perceivedVectorB.getZ() * observer.getFov();
 
 		vABDotOffset = new R2Point(-perceivedVectorA.dot(perceivedOffset),
 			-perceivedVectorB.dot(perceivedOffset));
@@ -134,14 +134,14 @@ public class RelativePolygon extends RelativeComponent {
 
 	public void determineMostAndLeastForward() {
 
-		mostForward = perceivedPoints.get(0).getForward();
+		mostForward = perceivedPoints.get(0).getZ();
 		leastForward = mostForward;
 
 		double currForward;
 
 		for (int i = 1; i < perceivedPoints.size(); i++) {
 
-			currForward = perceivedPoints.get(i).getForward();
+			currForward = perceivedPoints.get(i).getZ();
 
 			if (currForward > mostForward) {
 				mostForward = currForward;
@@ -168,7 +168,7 @@ public class RelativePolygon extends RelativeComponent {
 			curr = uVPoints.get(i);
 
 			perceivedPoints.set(i,
-				R3Point.linearCombination(curr.getRight(), curr.getDown(), perceivedVectorA, perceivedVectorB));
+				R3Point.linearCombination(curr.getX(), curr.getY(), perceivedVectorA, perceivedVectorB));
 		}
 
 		for (R3Point point : perceivedPoints) {
@@ -185,11 +185,11 @@ public class RelativePolygon extends RelativeComponent {
 	 * from this polygon, finds (an approximation of) the coordinates of this point
 	 * in u-v space.
 	 */
-	public R2Point findUV(int right, int down, double zBuffer) {
+	public R2Point findUV(int x, int y, double zBuffer) {
 		checkTextured();
 		R2Point uvPoint = new R2Point(
-			perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + vAF,
-			perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + vBF);
+			perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF,
+			perceivedVectorB.getX() * x + perceivedVectorB.getY() * y + vBF);
 
 		uvPoint.scale(1 / zBuffer);
 
@@ -199,43 +199,43 @@ public class RelativePolygon extends RelativeComponent {
 	}
 
 	// Avoids object creation overhead. Equivalent to texture.determineShadeAt(findUV)
-	public int determineShade(int right, int down, double zBuffer) {
+	public int determineShade(int x, int y, double zBuffer) {
 		return texture.determineShadeAt(
-			(perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down + vAF)
-				/ zBuffer + vABDotOffset.getRight(),
-			(perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down + vBF)
-				/ zBuffer + vABDotOffset.getDown());
+			(perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF)
+				/ zBuffer + vABDotOffset.getX(),
+			(perceivedVectorB.getX() * x + perceivedVectorB.getY() * y + vBF)
+				/ zBuffer + vABDotOffset.getY());
 	}
 
 	/*
 	 * Finds the texture of the given point and calculates the new shade taking into
 	 * account the given light source. Fall off proportional to 1/distance
 	 */
-	public int determineShade(int right, int down, double zBuffer, LightSource lightSource) {		
+	public int determineShade(int x, int y, double zBuffer, LightSource lightSource) {		
 		double dot = lightSource.dot(this);
 		
 		if (shadeOrientation && dot < 0) {
 			return 0;
 		}
 		
-		// findUV.right
-		double u = (perceivedVectorA.getRight() * right + perceivedVectorA.getDown() * down
-			+ vAF) / zBuffer + vABDotOffset.getRight();
+		// findUV.getX
+		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y
+			+ vAF) / zBuffer + vABDotOffset.getX();
 
-		// findUV.down
-		double v = (perceivedVectorB.getRight() * right + perceivedVectorB.getDown() * down
-			+ vBF) / zBuffer + vABDotOffset.getDown();
+		// findUV.getY
+		double v = (perceivedVectorB.getX() * x + perceivedVectorB.getY() * y
+			+ vBF) / zBuffer + vABDotOffset.getY();
 		
 		/*
 		 * Coordinates of the vector from the traced back point (in 3d) to the light
 		 * source. Equivalent to (lightSource - u*vectorA - v*vectorB).
 		 */
-		double diffRight = lightSource.lightSource.getRight() - u * vectorA.getRight()
-			- v * vectorB.getRight() - offset.getRight();
-		double diffDown = lightSource.lightSource.getDown() - u * vectorA.getDown()
-			- v * vectorB.getDown() - offset.getDown();
-		double diffForward = lightSource.lightSource.getForward() - u * vectorA.getForward()
-			- v * vectorB.getForward() - offset.getForward();
+		double diffX = lightSource.lightSource.getX() - u * vectorA.getX()
+			- v * vectorB.getX() - offset.getX();
+		double diffY = lightSource.lightSource.getY() - u * vectorA.getY()
+			- v * vectorB.getY() - offset.getY();
+		double diffZ = lightSource.lightSource.getZ() - u * vectorA.getZ()
+			- v * vectorB.getZ() - offset.getZ();
 
 		/*
 		 * If a is the difference vector from the traced back point to the light source,
@@ -244,7 +244,7 @@ public class RelativePolygon extends RelativeComponent {
 		 * efficiency.
 		 */
 		double brightness = Math.min(Math.abs(lightSource.intensity * dot / (Math
-			.fma(diffRight, diffRight, Math.fma(diffDown, diffDown, diffForward * diffForward)))), 1);
+			.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)))), 1);
 
 		return (int) (texture.determineShadeAt(u, v) * brightness);
 	}
@@ -270,7 +270,7 @@ public class RelativePolygon extends RelativeComponent {
 		uVVectorTail.scale(1 / (double) uVPoints.size());
 
 		R3Point vectorTail = R3Point.linearCombination(
-			uVVectorTail.getRight(), uVVectorTail.getDown(), vectorA, vectorB);
+			uVVectorTail.getX(), uVVectorTail.getY(), vectorA, vectorB);
 		
 		vectorTail.translate(offset);
 		
@@ -291,9 +291,9 @@ public class RelativePolygon extends RelativeComponent {
 	 * Written out directly to avoid object creation overhead. 
 	 */
 	public double differenceDotNormal(R3Point point) {
-		return (point.getRight() - offset.getRight()) * orientation.getRight()
-			+ (point.getDown() - offset.getDown()) * orientation.getDown()
-			+ (point.getForward() - offset.getForward()) * orientation.getForward();
+		return (point.getX() - offset.getX()) * orientation.getX()
+			+ (point.getY() - offset.getY()) * orientation.getY()
+			+ (point.getZ() - offset.getZ()) * orientation.getZ();
 	}
 	
 	

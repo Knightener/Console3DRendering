@@ -41,8 +41,8 @@ public class RelativeLine extends RelativeComponent {
 
 	public void determineMostAndLeastForward() {
 		
-		leastForward = Math.min(perceivedA.getForward(),perceivedB.getForward());
-		mostForward = Math.max(perceivedA.getForward(),perceivedB.getForward());
+		leastForward = Math.min(perceivedA.getZ(),perceivedB.getZ());
+		mostForward = Math.max(perceivedA.getZ(),perceivedB.getZ());
 	}
 
 	public void updatePerspective() {

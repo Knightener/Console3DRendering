@@ -57,7 +57,7 @@ public class PolygonTexture {
 	}
 
 	public int determineShadeAt(R2Point point) {
-		return determineShadeAt(point.getRight(),point.getDown());
+		return determineShadeAt(point.getX(),point.getY());
 	}
 
 }

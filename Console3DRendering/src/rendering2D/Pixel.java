@@ -25,8 +25,8 @@ public class Pixel extends IntPoint {
 	}
 
 	public void translate(Pixel pixel) {
-		right += pixel.right;
-		down += pixel.down;
+		x += pixel.x;
+		y += pixel.y;
 	}
 	public int getShade() {
 		return shade;

@@ -10,51 +10,51 @@ import rendering2D.ShadeHandling;
 
 public class R2Point implements NormedVectorSpace<R2Point> {
 
-		private double right;
-		private double down;
+		private double x;
+		private double y;
 		
 		private static ShadeHandling shadeHandling = new ShadeHandling();
 		
-		public R2Point(double right, double down) {
+		public R2Point(double x, double y) {
 
-			this.right = right;
-			this.down = down;
+			this.x = x;
+			this.y = y;
 		}
 		
 		public R2Point() {
 
-			right = 0;
-			down = 0;
+			x = 0;
+			y = 0;
 		}
 		
 		public R2Point(R2Point point) {
 
-			right = point.right;
-			down = point.down;
+			x = point.x;
+			y = point.y;
 		}
 		
-		public double getRight() {
-			return right;
+		public double getX() {
+			return x;
 		}
 		
-		public void assign(double right, double down) {
-			this.right = right;
-			this.down = down;
+		public double getY() {
+			return y;
+		}
+		
+		public void set(double x, double y) {
+			this.x = x;
+			this.y = y;
 		}
 
-		public void assign(R2Point point) {
-			right = point.right;
-			down = point.down;
-		}
-		
-		public double getDown() {
-			return down;
+		public void set(R2Point point) {
+			x = point.x;
+			y = point.y;
 		}
 		
 		public void translate(double x, double y) {
 
-			right += x;
-			down += y;
+			this.x += x;
+			this.y += y;
 		}
 		
 		public static void adjustShades(RealFunction gauge) {
@@ -62,33 +62,33 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 		}
 
 		public void translate(R2Point vector) {
-			right += vector.right;
-			down += vector.down;
+			x += vector.x;
+			y += vector.y;
 		}
 		
 		public void scale(double factor) {
-			right *= factor;
-			down *= factor;
+			x *= factor;
+			y *= factor;
 		}
 		
 		public R2Point sum(R2Point vector) {
-			return new R2Point(right + vector.right, down + vector.down);
+			return new R2Point(x + vector.x, y + vector.y);
 		}
 		
 		public R2Point difference(R2Point vector) {
 
-			return new R2Point(right - vector.right, down - vector.down);
+			return new R2Point(x - vector.x, y - vector.y);
 		}
 
 		public void round() {
 
-			right = Math.round(right);
-			down = Math.round(down);
+			x = Math.round(x);
+			y = Math.round(y);
 		}
 
 		// Returns the area of the rectangle with corners this, point.
 		public double areaRectangle(R2Point point) {
-			return Math.abs((right - point.right) * (down - point.down));
+			return Math.abs((x - point.x) * (y - point.y));
 		}
 		
 		private int shadeArea(R2Point point, int maxShade) {
@@ -96,19 +96,19 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 		}
 
 		public Pixel truncate(int shade) {
-			return new Pixel((int) right, (int) down, shade);
+			return new Pixel((int) x, (int) y, shade);
 		}
 
 		public IntPoint floor() {
-			return new IntPoint((int) Math.floor((right)), (int) Math.floor((down)));
+			return new IntPoint((int) Math.floor((x)), (int) Math.floor((y)));
 		}
 
 		public IntPoint floor(double scale) {
-			return new IntPoint((int) Math.floor((scale * right)), (int) Math.floor((scale * down)));
+			return new IntPoint((int) Math.floor((scale * x)), (int) Math.floor((scale * y)));
 		}
 		
 		public IntPoint furthestRound(double scale) {
-			return new IntPoint(MiscFunctions.furthestRound(scale * right), MiscFunctions.furthestRound(scale * down));
+			return new IntPoint(MiscFunctions.furthestRound(scale * x), MiscFunctions.furthestRound(scale * y));
 		}
 
 		public Pixel[] approximate() {
@@ -147,32 +147,32 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 			}
 		}
 		public String toString() {
-			return "(" + right + "," + down + ")";
+			return "(" + x + "," + y + ")";
 		}
 
 		public double dot(R2Point vector) {
-			return vector.right * right + vector.down * down;
+			return vector.x * x + vector.y * y;
 		}
 
 		public void setRight(double right) {
-			this.right = right;
+			this.x = right;
 		}
 
 		public void setDown(double down) {
-			this.down = down;
+			this.y = down;
 		}
 		
 		public double chebyshev() {
-			return Math.max(Math.abs(right), Math.abs(down));
+			return Math.max(Math.abs(x), Math.abs(y));
 		}
 		
 		public double taxicab() {
-			return Math.abs(right) + Math.abs(down);
+			return Math.abs(x) + Math.abs(y);
 		}
 
 		public double lSquared() {
 			// a little bit more efficient
-			return Math.fma(right, right, down * down);
+			return Math.fma(x, x, y * y);
 		}
 
 	}

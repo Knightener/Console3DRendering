@@ -2,12 +2,12 @@ package classes2D;
 
 public class IntPoint {
 
-	protected int right;
-	protected int down;
+	protected int x;
+	protected int y;
 
-	public IntPoint(int right, int down) {
-		this.right = right;
-		this.down = down;
+	public IntPoint(int x, int y) {
+		this.x = x;
+		this.y = y;
 	}
 
 	public IntPoint() {
@@ -15,48 +15,48 @@ public class IntPoint {
 	}
 	
 	public IntPoint(IntPoint point) {
-		right = point.right;
-		down = point.down;
+		x = point.x;
+		y = point.y;
 	}
 	
-	public void moveRight(int delta) {
-		right += delta;
+	public void incrementX(int delta) {
+		x += delta;
 	}
 	
-	public void moveDown(int delta) {
-		down += delta;
+	public void incrementY(int delta) {
+		y += delta;
 	}
 	
-	public int getRight() {
-		return right;
+	public int getX() {
+		return x;
 	}
 
-	public int getDown() {
-		return down;
+	public int getY() {
+		return y;
 	}
 	
 	@Override
 	public String toString() {
-		return right + " " + down;
+		return x + " " + y;
 	}
 	
 	public void flip() {
-		int rightCopy = right;
-		right = down;
-		down = rightCopy;
+		int rightCopy = x;
+		x = y;
+		y = rightCopy;
 	}
 	
 	public void scale(int r) {
-		right *= r;
-		down *= r;
+		x *= r;
+		y *= r;
 	}
 
-	public void setRight(int right) {
-		this.right = right;
+	public void setX(int x) {
+		this.x = x;
 	}
 
-	public void setDown(int down) {
-		this.down = down;
+	public void setY(int y) {
+		this.y = y;
 	}
 
 	@Override
@@ -65,11 +65,11 @@ public class IntPoint {
 			return false;
 		}
 		IntPoint point = (IntPoint) obj;
-		return (point.right == right) && (point.down == down);
+		return (point.x == x) && (point.y == y);
 	}
 
 	public boolean oppositeEquals(IntPoint point) {
-		return (point.right == down) && (point.down == right);
+		return (point.x == y) && (point.y == x);
 	}
 
 	public boolean unorderedEquals(IntPoint point) {

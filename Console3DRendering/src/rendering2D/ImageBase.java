@@ -192,8 +192,8 @@ public abstract class ImageBase {
 		if (point == null) {
 			return false;
 		}
-		double right = point.getRight();
-		double down = point.getDown();
+		double right = point.getX();
+		double down = point.getY();
 
 		/*
 		 * The +-2s are arbitrary. I only added them to have a comfortable margin of

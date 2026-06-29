@@ -33,9 +33,8 @@ public class Observer {
 	 * 
 	 * The columns of the inverse of this matrix corresponds to the observer's
 	 * orientation in space. This is because rotating your head to the left looks
-	 * like keeping your head fixed and the world around you rotating to the right.
+	 * like keeping your head fixed and the world around you rotating to the x.
 	 * 
-	 * Since rotation matrices are orthogonal, its inverse is equal to its
 	 * transpose, hence the rows of the matrix correspond to the observer's
 	 * orientation.
 	 */
@@ -44,7 +43,7 @@ public class Observer {
 	/*
 	 * Theta rotates the observer to the left and phi rotates the observer up. Phi
 	 * is restricted to the interval -pi/2 , pi/2 to avoid flipping the observer
-	 * upside down.
+	 * upside y.
 	 * 
 	 * The formula for the rotation matrix was derived by multiplying the rotation
 	 * matrices for theta around the vertical axis, and phi around the relative left axis.
@@ -104,7 +103,7 @@ public class Observer {
 	}
 
 	/*
-	 * Turns the observer left/right/up/down, depending on the specified direction.
+	 * Turns the observer left/x/up/y, depending on the specified direction.
 	 */
 	public void turn(RotationDirection rotationDirection, double cosDelta, double sinDelta) {
 		double temp;
@@ -139,26 +138,26 @@ public class Observer {
 	public void move(TranslationDirection translationDirection, double delta) {
 		switch (translationDirection) {
 		case LEFT:
-			position.incrementRight(-delta * cosT);
-			position.incrementForward(-delta * sinT);
+			position.incrementX(-delta * cosT);
+			position.incrementZ(-delta * sinT);
 			break;
 		case RIGHT:
-			position.incrementRight(delta * cosT);
-			position.incrementForward(delta * sinT);
+			position.incrementX(delta * cosT);
+			position.incrementZ(delta * sinT);
 			break;
 		case BACKWARDS:
-			position.incrementRight(delta * sinT);
-			position.incrementForward(-delta * cosT);
+			position.incrementX(delta * sinT);
+			position.incrementZ(-delta * cosT);
 			break;
 		case FORWARDS:
-			position.incrementRight(-delta * sinT);
-			position.incrementForward(delta * cosT);
+			position.incrementX(-delta * sinT);
+			position.incrementZ(delta * cosT);
 			break;
 		case UP:
-			position.incrementDown(-delta);
+			position.incrementY(-delta);
 			break;
 		case DOWN:
-			position.incrementDown(delta);
+			position.incrementY(delta);
 			break;
 		}
 	}
@@ -181,7 +180,7 @@ public class Observer {
 
 	// Observer assumed to be in default state. Draws a point.
 	public void point(R3Point p, int shade) {
-		if (p.getForward() > Constants.NEAR_EPSILON) {
+		if (p.getZ() > Constants.NEAR_EPSILON) {
 			view.draw(p.project(fov, shade));
 		}
 	}
@@ -190,12 +189,12 @@ public class Observer {
 	// p2.
 	public ZFigure lineDefaultAuxiliary(R3Point p1, R3Point p2, int shade, int borderShade) {
 
-		if (p1.getForward() > Constants.NEAR_EPSILON) {
+		if (p1.getZ() > Constants.NEAR_EPSILON) {
 			return view.borderedLine(p1.project(fov, shade), p2.project(fov, shade), borderShade);
 		}
 
-		if (p2.getForward() > Constants.NEAR_EPSILON) {
-			R3Point start = p1.forward0Intersection(p2);
+		if (p2.getZ() > Constants.NEAR_EPSILON) {
+			R3Point start = p1.nearPlaneIntersection(p2);
 
 			return view.borderedLine(start.project(fov, shade), p2.project(fov, shade), borderShade);
 
@@ -207,7 +206,7 @@ public class Observer {
 	// Observer assumed to be in default state.
 	public void lineDefault(R3Point p1, R3Point p2, int shade, int borderShade) {
 
-		if (p2.getForward() > p1.getForward()) {
+		if (p2.getZ() > p1.getZ()) {
 			view.draw(lineDefaultAuxiliary(p1, p2, shade, borderShade));
 		} else {
 			view.draw(lineDefaultAuxiliary(p2, p1, shade, borderShade));
@@ -234,16 +233,16 @@ public class Observer {
 			R3Point curr = points.get(i);
 			R3Point next = points.get((i + 1) % length);
 
-			double currF = curr.getForward();
-			double nextF = next.getForward();
+			double currZ = curr.getZ();
+			double nextZ = next.getZ();
 
-			if (currF > Constants.NEAR_EPSILON) {
+			if (currZ > Constants.NEAR_EPSILON) {
 				viewedPolygon.add(curr.project(fov, shade, polygonID));
 			}
 
 			// If currF and nextF differ in sign, this intersection is added.
-			if (currF > Constants.NEAR_EPSILON ^ nextF > Constants.NEAR_EPSILON) {
-				viewedPolygon.add(curr.forward0Intersection(next).project(fov, shade, polygonID));
+			if (currZ > Constants.NEAR_EPSILON ^ nextZ > Constants.NEAR_EPSILON) {
+				viewedPolygon.add(curr.nearPlaneIntersection(next).project(fov, shade, polygonID));
 			}
 		}
 

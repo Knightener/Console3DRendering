@@ -48,7 +48,7 @@ public class Figure {
 			for (int j = 0; j < unique.size(); j++) {
 				currJ = unique.get(j);
 
-				if (currI.getRight() == currJ.getRight() && currI.getDown() == currJ.getDown()) {
+				if (currI.getX() == currJ.getX() && currI.getY() == currJ.getY()) {
 					currI.setShade(Math.max(currI.getShade(), currJ.getShade()));
 					isntIn = false;
 					break;

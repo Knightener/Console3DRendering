@@ -68,7 +68,7 @@ public class ShadeHandling {
 
 	/*
 	 * Adjusts the shade partition using an increasing function with domain and
-	 * range [0,1]. Bringing down the cutoffs will make shades appear stronger, and
+	 * range [0,1]. Bringing y the cutoffs will make shades appear stronger, and
 	 * bringing them up will make them appear lighter.
 	 */
 	public void adjustShades(RealFunction adjustment) {

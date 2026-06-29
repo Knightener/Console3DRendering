@@ -24,13 +24,13 @@ public class ZPixel extends Pixel {
 	}
 
 	
-	public ZPixel(int right, int down, int shade, double zBuffer) {
-		super(right, down, shade);
+	public ZPixel(int x, int y, int shade, double zBuffer) {
+		super(x, y, shade);
 		this.zBuffer = zBuffer;
 	}
 
-	public ZPixel(int right, int down, int shade, double zBuffer, int polygonID) {
-		super(right, down, shade);
+	public ZPixel(int x, int y, int shade, double zBuffer, int polygonID) {
+		super(x, y, shade);
 		this.zBuffer = zBuffer;
 		this.renderInfo = polygonID;
 	}

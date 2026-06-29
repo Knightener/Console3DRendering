@@ -166,8 +166,8 @@ public class ZImage extends ImageBase {
 		
 		for (ZPixel pixel : figure.figure) {
 
-			currRight = pixel.getRight() - leftBound;
-			currDown = pixel.getDown() - upBound;
+			currRight = pixel.getX() - leftBound;
+			currDown = pixel.getY() - upBound;
 			currZBuffer = pixel.getZBuffer();
 
 			if (currRight >= 0 && currRight < imageCols && currDown >= 0 && currDown < imageRows
@@ -181,7 +181,7 @@ public class ZImage extends ImageBase {
 	}
 
 	public void draw(ZPixel pixel) {
-		draw(pixel.getRight(), pixel.getDown(), pixel.getShade(), pixel.getZBuffer(),
+		draw(pixel.getX(), pixel.getY(), pixel.getShade(), pixel.getZBuffer(),
 			pixel.getRenderInfo());
 	}
 
@@ -212,7 +212,7 @@ public class ZImage extends ImageBase {
 	}
 	
 	public void writeToStencil(ZPixel pixel, boolean isFacing) {
-		writeToStencil(pixel.getRight(), pixel.getDown(), pixel.getZBuffer(), isFacing);
+		writeToStencil(pixel.getX(), pixel.getY(), pixel.getZBuffer(), isFacing);
 	}
 
 	public void texturize() {
@@ -268,13 +268,13 @@ public class ZImage extends ImageBase {
 		// Starting point left border
 		if (line.size() != 0) {
 			movingPixel = new ZPixel(line.get(0));
-			movingPixel.moveRight(-1);
+			movingPixel.incrementX(-1);
 			movingPixel.setShade(borderShade);
 
 			borderedLine.add(movingPixel);
 		}
 
-		// Middle point up/down borders
+		// Middle point up/y borders
 		for (int i = 0; i < line.size(); i++) {
 
 			movingPixel = line.get(i);
@@ -282,24 +282,24 @@ public class ZImage extends ImageBase {
 			// Middle
 			borderedLine.add(movingPixel);
 
-			// One down
+			// One y
 			movingPixel = new ZPixel(movingPixel);
-			movingPixel.moveDown(1);
+			movingPixel.incrementY(1);
 			movingPixel.setShade(borderShade);
 
 			borderedLine.add(movingPixel);
 
 			// One up
 			movingPixel = new ZPixel(movingPixel);
-			movingPixel.moveDown(-2);
+			movingPixel.incrementY(-2);
 
 			borderedLine.add(movingPixel);
 		}
 
-		// End point right border
+		// End point x border
 		movingPixel = new ZPixel(movingPixel);
-		movingPixel.moveDown(1);
-		movingPixel.moveRight(1);
+		movingPixel.incrementY(1);
+		movingPixel.incrementX(1);
 
 		borderedLine.add(movingPixel);
 		
@@ -312,7 +312,7 @@ public class ZImage extends ImageBase {
 	 */
 	private ZFigure borderedLineAux2(ZPixel p1, ZPixel p2, int borderShade) {
 		
-		if (p1.getRight() < p2.getRight()) {
+		if (p1.getX() < p2.getX()) {
 			return borderedLineAux1(p1, p2, borderShade);
 		}
 		return borderedLineAux1(p2, p1, borderShade);
@@ -321,7 +321,7 @@ public class ZImage extends ImageBase {
 
 	public ZFigure borderedLine(ZPixel p1, ZPixel p2, int borderShade) {
 
-		if (Math.abs(p1.getRight() - p2.getRight()) >= Math.abs(p1.getDown() - p2.getDown())) {
+		if (Math.abs(p1.getX() - p2.getX()) >= Math.abs(p1.getY() - p2.getY())) {
 			return borderedLineAux2(p1,p2,borderShade);
 		}
 		
@@ -343,7 +343,7 @@ public class ZImage extends ImageBase {
 
 	/*
 	 * Similar to the method of the same name in the image class, but the zBuffer is
-	 * linearly interpolated between points. p2 assumed to be further right than p1.
+	 * linearly interpolated between points. p2 assumed to be further x than p1.
 	 * Takes on shade and polygonID of p1.
 	 */
 	private ZFigure lineWithoutHorizontalRepetition(ZPixel p1, ZPixel p2) {
@@ -352,10 +352,10 @@ public class ZImage extends ImageBase {
 		ZFigure line = new ZFigure();
 
 		// Difference
-		int rightDist = p2.getRight() - p1.getRight();
-		int downDif = p2.getDown() - p1.getDown();
+		int rightDist = p2.getX() - p1.getX();
+		int downDif = p2.getY() - p1.getY();
 
-		if (rightDist == 0 || p1.getRight() > rightBound) {
+		if (rightDist == 0 || p1.getX() > rightBound) {
 			return line;
 		}
 
@@ -367,13 +367,13 @@ public class ZImage extends ImageBase {
 	
 		int minDownStep = downDif / rightDist;
 	
-		// Remaining down distance that will need to be distributed across iterations.
+		// Remaining y distance that will need to be distributed across iterations.
 		int excess = downDist % rightDist;
 	
 		int currMod = excess;
 
 		// Horizontal length of the visible line.
-		int visibleLength = Math.min(rightDist, rightBound - p1.getRight());
+		int visibleLength = Math.min(rightDist, rightBound - p1.getX());
 		
 		double zStep = (p2.getZBuffer() - p1.getZBuffer()) / rightDist;
 		
@@ -382,33 +382,33 @@ public class ZImage extends ImageBase {
 		for (int i = 0; i < visibleLength; i++) {
 			line.add(new ZPixel(movingPixel));
 			
-			movingPixel.moveRight(1);
-			movingPixel.moveDown(minDownStep);
+			movingPixel.incrementX(1);
+			movingPixel.incrementY(minDownStep);
 			movingPixel.incrementZBuffer(zStep);
 
 			currMod += excess;
 			
 			if (currMod >= rightDist) {
 				currMod -= rightDist;
-				movingPixel.moveDown(downDir);
+				movingPixel.incrementY(downDir);
 			}
 		}
 		return line;
 	}
 	
-	// Cuts the line to start at leftBound if it crosses it. p2 assumed to be further right than p1. 
+	// Cuts the line to start at leftBound if it crosses it. p2 assumed to be further x than p1. 
 	private ZFigure lWHRCut(ZPixel p1, ZPixel p2) {
 
-		int r1 = p1.getRight();
-		int r2 = p2.getRight();
+		int r1 = p1.getX();
+		int r2 = p2.getX();
 
 		if (r1 > leftBound) {
 			return lineWithoutHorizontalRepetition(p1,p2);
 		}
 		if (r2 > leftBound) {
 			
-			int d1 = p1.getDown();
-			int d2 = p2.getDown();
+			int d1 = p1.getY();
+			int d2 = p2.getY();
 
 			double z1 = p1.getZBuffer();
 			double z2 = p2.getZBuffer();
@@ -428,10 +428,10 @@ public class ZImage extends ImageBase {
 	 */
 	private void lWHRWriteToPolygonBuffer(ZPixel p1, ZPixel p2) {
 
-		int rightDist = p2.getRight() - p1.getRight();
-		int downDif = p2.getDown() - p1.getDown();
+		int rightDist = p2.getX() - p1.getX();
+		int downDif = p2.getY() - p1.getY();
 
-		if (p1.getRight() > rightBound || rightDist == 0) {
+		if (p1.getX() > rightBound || rightDist == 0) {
 			return;
 		}
 
@@ -442,13 +442,13 @@ public class ZImage extends ImageBase {
 
 		double zStep = (p2.getZBuffer() - p1.getZBuffer()) / rightDist;
 		
-		ZInt curr = new ZInt(p1.getDown(), p1.getZBuffer());
+		ZInt curr = new ZInt(p1.getY(), p1.getZBuffer());
 		ArrayList<ZInt> currList;
-		int startIndex = p1.getRight() - leftBound;
+		int startIndex = p1.getX() - leftBound;
 		int insertionIndex;
 
 		// i bound is visibleLnegth
-		for (int i = 0; i < Math.min(rightDist, rightBound - p1.getRight() - 1); i++) {
+		for (int i = 0; i < Math.min(rightDist, rightBound - p1.getX() - 1); i++) {
 			
 			currList = polygonBuffer[i+startIndex];
 			
@@ -472,16 +472,16 @@ public class ZImage extends ImageBase {
 
 	// Similar to lWHRCut but draws directly to polygonBuffer. Also sorts p1 and p2. 
 	public void lWHRCutWriteToPolygonBuffer(ZPixel p1, ZPixel p2) {
-		int r1 = p1.getRight();
-		int r2 = p2.getRight();
+		int r1 = p1.getX();
+		int r2 = p2.getX();
 		
 		if (r1 < r2) {
 			if (r1 > leftBound) {
 				lWHRWriteToPolygonBuffer(p1, p2);
 			} else if (r2 > leftBound) {
 
-				int d1 = p1.getDown();
-				int d2 = p2.getDown();
+				int d1 = p1.getY();
+				int d2 = p2.getY();
 
 				double z1 = p1.getZBuffer();
 				double z2 = p2.getZBuffer();
@@ -497,8 +497,8 @@ public class ZImage extends ImageBase {
 				lWHRWriteToPolygonBuffer(p2, p1);
 			} else if (r1 > leftBound) {
 
-				int d1 = p1.getDown();
-				int d2 = p2.getDown();
+				int d1 = p1.getY();
+				int d2 = p2.getY();
 
 				double z1 = p1.getZBuffer();
 				double z2 = p2.getZBuffer();
@@ -513,35 +513,35 @@ public class ZImage extends ImageBase {
 	}
 	
 	/*
-	 * zStep is the slope delta zBuffer / delta down. This isn't calculated within
+	 * zStep is the slope delta zBuffer / delta y. This isn't calculated within
 	 * the method to optimize the polygon method. p1 assumed to be above p2.
 	 */
 	private void verticalLineAuxiliary(ZPixel p1, ZPixel p2, double zStep) {
 		ZPixel movingPixel = new ZPixel(p1);
 
-		if (upBound > p1.getDown()) {
-			movingPixel.setDown(upBound);
-			movingPixel.incrementZBuffer(zStep * (upBound - p1.getDown()));
+		if (upBound > p1.getY()) {
+			movingPixel.setY(upBound);
+			movingPixel.incrementZBuffer(zStep * (upBound - p1.getY()));
 		}
-		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(),
-			downBound - movingPixel.getDown() - 1);
+		int visibleLength = Math.min(p2.getY() - movingPixel.getY(),
+			downBound - movingPixel.getY() - 1);
 
 		for (int i = 0; i <= visibleLength; i++) {
 			draw(movingPixel);
 
-			movingPixel.moveDown(1);
+			movingPixel.incrementY(1);
 			movingPixel.incrementZBuffer(zStep);
 		}
 	}
 
 	/*
 	 * Similar to the method of the same name in the Image class. zStep is the slope
-	 * delta zBuffer / delta down. This can be calculated easily, however, it is not
+	 * delta zBuffer / delta y. This can be calculated easily, however, it is not
 	 * calculated within the method and instead provided for the method call to
 	 * optimize the jaggedTriangle method. Takes on shade and polygonID of top pixel. 
 	 */
 	public void verticalLine(ZPixel p1, ZPixel p2, double zStep) {
-		if (p1.getDown() < p2.getDown()) {
+		if (p1.getY() < p2.getY()) {
 			verticalLineAuxiliary(p1, p2, zStep);
 		} else {
 			verticalLineAuxiliary(p2, p1, zStep);
@@ -592,21 +592,21 @@ public class ZImage extends ImageBase {
 
 		{
 			// Local variables that are only used to calculate the slope
-			double r1 = points.get(0).getRight();
-			double r2 = points.get(1).getRight();
-			double r3 = points.get(2).getRight();
+			double r1 = points.get(0).getX();
+			double r2 = points.get(1).getX();
+			double r3 = points.get(2).getX();
 
-			double d1 = points.get(0).getDown();
-			double d2 = points.get(1).getDown();
-			double d3 = points.get(2).getDown();
+			double d1 = points.get(0).getY();
+			double d2 = points.get(1).getY();
+			double d3 = points.get(2).getY();
 
 			double z1 = points.get(0).getZBuffer();
 			double z2 = points.get(1).getZBuffer();
 			double z3 = points.get(2).getZBuffer();
 
 			/*
-			 * Slope of the line (delta zBuffer / delta down) formed by intersection of the
-			 * plane on which the polygon lies on and the plane(s) right = x for any x (it
+			 * Slope of the line (delta zBuffer / delta y) formed by intersection of the
+			 * plane on which the polygon lies on and the plane(s) x = x for any x (it
 			 * is independent of x).
 			 */
 			slope = ((z2 - z1) * (r3 - r1) - (z3 - z1) * (r2 - r1)) / 
@@ -614,8 +614,8 @@ public class ZImage extends ImageBase {
 		}
 		
 
-		int rightMost = points.get(0).getRight();
-		int leftMost = points.get(0).getRight();
+		int rightMost = points.get(0).getX();
+		int leftMost = points.get(0).getX();
 
 		{
 			ZPixel curr;
@@ -626,7 +626,7 @@ public class ZImage extends ImageBase {
 			 */
 			for (int i = 0; i < length; i++) {
 				curr = points.get(i);
-				currRight = curr.getRight();
+				currRight = curr.getX();
 				
 				if (currRight > rightMost) {
 					rightMost = currRight;
@@ -638,7 +638,7 @@ public class ZImage extends ImageBase {
 			}
 		}
 
-		// If polygon goes further right than the screen.
+		// If polygon goes further x than the screen.
 		if (rightMost >= rightBound) {
 			rightMost = rightBound - 1;
 		}

@@ -40,9 +40,9 @@ public class UserControl extends JFrame implements KeyListener{
 		    "W: Move forwards<br>" +
 		    "A: Move left<br>" +
 		    "S: Move backwards<br>" +
-		    "D: Move right<br>" +
+		    "D: Move x<br>" +
 		    "Space: Move up<br>" +
-		    "Shift: Move down" +
+		    "Shift: Move y" +
 		    "</html>");
 		movementLabel.setVerticalAlignment(SwingConstants.TOP);
 		controlPanel.add(movementLabel);
@@ -50,9 +50,9 @@ public class UserControl extends JFrame implements KeyListener{
 		// Right controls 
 		JLabel turningLabel = new JLabel("<html>" +
 		    "Left arrow: Look left<br>" +
-		    "Right arrow: Look right<br>" +
+		    "Right arrow: Look x<br>" +
 		    "Up arrow: Look up<br>" +
-		    "Down arrow: Look down<br>" +
+		    "Down arrow: Look y<br>" +
 		    "</html>");
 		turningLabel.setVerticalAlignment(SwingConstants.TOP);
 		controlPanel.add(turningLabel);

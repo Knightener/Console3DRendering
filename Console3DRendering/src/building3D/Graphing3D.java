@@ -29,8 +29,8 @@ public class Graphing3D {
 		for (int i = 0; i < horizontalSteps; i++) {
 			for (int j = 0; j < forwardSteps; j++) {
 				// Although start is in xy coordinates, we are assuming it is in xz.
-				currRight = start.getRight() + i * spacing;
-				currForward = start.getDown() + j * spacing;
+				currRight = start.getX() + i * spacing;
+				currForward = start.getY() + j * spacing;
 
 				vertices.add(new R3Point(currRight, -function.apply(currRight, currForward), currForward));
 

@@ -40,7 +40,7 @@ public class VCRegionBuilder {
 	}
 	
 	/*
-	 * Adds a new vertical line from a to b (inclusive) to the right of region if
+	 * Adds a new vertical line from a to b (inclusive) to the x of region if
 	 * verticallyConvex is true. Else, adds a horizontal line from a to b beneath
 	 * the region.
 	 */
@@ -277,8 +277,8 @@ public class VCRegionBuilder {
 	public static int[] lineWithoutHorizontalRepetition(IntPoint p1, IntPoint p2) {
 
 		// difference
-		int rightDist = p2.getRight() - p1.getRight();
-		int downDif = p2.getDown() - p1.getDown();
+		int rightDist = p2.getX() - p1.getX();
+		int downDif = p2.getY() - p1.getY();
 
 		if (rightDist == 0) {
 			return new int[0];
@@ -291,7 +291,7 @@ public class VCRegionBuilder {
 
 		int minDownStep = downDif / rightDist;
 
-		// remaining down distance that will need to be distributed across iterations.
+		// remaining y distance that will need to be distributed across iterations.
 		int excess = Math.abs(downDif) % rightDist;
 
 		int currMod = excess;
@@ -307,7 +307,7 @@ public class VCRegionBuilder {
 		}
 		
 		for (int i = 0; i <= rightDist; i++) {
-			line[i] += p1.getDown();
+			line[i] += p1.getY();
 		}
 		return line;
 	}
@@ -326,14 +326,14 @@ public class VCRegionBuilder {
 			return new VCRegionBuilder(0);
 		}
 
-		// Index of the left/right most points in the list of points
+		// Index of the left/x most points in the list of points
 		int leftMost = Integer.MAX_VALUE;
 		int rightMost = Integer.MIN_VALUE;
 
 		// Finds leftMostIndex/rightMostIndex
 		for (int i = 0; i < numberVertices; i++) {
 
-			int curr = vertices.get(i).getRight();
+			int curr = vertices.get(i).getX();
 
 			if (curr < leftMost) {
 				leftMost = curr;
@@ -364,7 +364,7 @@ public class VCRegionBuilder {
 		
 		for (int i = 0; i < numberVertices; i++) {
 
-			if (vertices.get(i).getRight() < vertices.get((i + 1) % numberVertices).getRight()) {
+			if (vertices.get(i).getX() < vertices.get((i + 1) % numberVertices).getX()) {
 				leftVertex = vertices.get(i);
 				rightVertex = vertices.get((i + 1) % numberVertices);
 			} else {
@@ -373,7 +373,7 @@ public class VCRegionBuilder {
 			}
 			
 			currLine = lineWithoutHorizontalRepetition(leftVertex, rightVertex);
-			left = leftVertex.getRight();
+			left = leftVertex.getX();
 			
 			// Adding each line and comparing. 
 			for (int j = 0; j < currLine.length; j++) {

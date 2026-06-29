@@ -12,27 +12,27 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 	 * This project uses points and vectors interchangeably. The difference is
 	 * subtle, but irrelevant for what this project aims to deal with.
 	 */
-	private double right;
-	private double down;
-	private double forward;
+	private double x;
+	private double y;
+	private double z;
 	
-	public R3Point(double right, double down, double forward) {
-		this.right = right;
-		this.down = down;
-		this.forward = forward;
+	public R3Point(double x, double y, double z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
 	public R3Point() {
-		right = 0;
-		down = 0;
-		forward = 0;
+		x = 0;
+		y = 0;
+		z = 0;
 	}
 	public R2Point project(double fov) {
-		if (forward > 0) {
+		if (z > 0) {
 			
-			double ratio = fov / forward;
+			double ratio = fov / z;
 			
-			R2Point point = new R2Point(right,down);
+			R2Point point = new R2Point(x,y);
 			point.scale(ratio);
 			
 			return point;
@@ -41,11 +41,11 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 	}
 	
 	public ZPixel project(double fov, int shade) {
-		if (forward > 0) {
+		if (z > 0) {
 			
-			double ratio = fov / forward;
+			double ratio = fov / z;
 			
-			R2Point point = new R2Point(right,down);
+			R2Point point = new R2Point(x,y);
 			
 			point.scale(ratio);
 			
@@ -62,68 +62,68 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 		return pixel;
 	}
 
-	public void incrementRight(double delta) {
-		right += delta;
+	public void incrementX(double delta) {
+		x += delta;
 	}
-	public void incrementDown(double delta) {
-		down += delta;
+	public void incrementY(double delta) {
+		y += delta;
 	}
-	public void incrementForward(double delta) {
-		forward += delta;
+	public void incrementZ(double delta) {
+		z += delta;
 	}
 	public R3Point sum(R3Point factor) {
-		return new R3Point(right + factor.right, down + factor.down, forward + factor.forward);
+		return new R3Point(x + factor.x, y + factor.y, z + factor.z);
 	}
 	
 	public R3Point difference(R3Point factor) {
-		return new R3Point(right - factor.right, down - factor.down, forward - factor.forward);
+		return new R3Point(x - factor.x, y - factor.y, z - factor.z);
 	}
 	
 	public void scale(double factor) {
-		right *= factor;
-		down *= factor;
-		forward *= factor;
+		x *= factor;
+		y *= factor;
+		z *= factor;
 	}
 	
 	public void translate(R3Point vector) {
-		right += vector.right;
-		down += vector.down;
-		forward += vector.forward;
+		x += vector.x;
+		y += vector.y;
+		z += vector.z;
 	}
 	
 	public void translate(double right, double down, double forward) {
-		this.right += right;
-		this.down += down;
-		this.forward += forward;
+		this.x += right;
+		this.y += down;
+		this.z += forward;
 	}
 
 	public R3Point cross(R3Point vector) {
-		return new R3Point(down * vector.forward - forward * vector.down,
-			forward * vector.right - right * vector.forward, right * vector.down - down * vector.right);
+		return new R3Point(y * vector.z - z * vector.y,
+			z * vector.x - x * vector.z, x * vector.y - y * vector.x);
 	}
 
 	public double dot(R3Point vector) {
-		return right * vector.right + down * vector.down + forward * vector.forward;
+		return x * vector.x + y * vector.y + z * vector.z;
 	}
 	
 	@Override
 	public String toString() {
-		return "(" + right + "," + down + "," + forward + ")";
+		return "(" + x + "," + y + "," + z + ")";
 	}
 
 	/*
 	 * Intersects the the line formed by this and point with the near plane. This is
 	 * a commonly used expression in 3D rendering.
 	 */
-	public R3Point forward0Intersection(R3Point point) {
+	public R3Point nearPlaneIntersection(R3Point point) {
 
-		double ratio = (forward - Constants.NEAR_EPSILON) / (forward - point.forward);
+		double ratio = (z - Constants.NEAR_EPSILON) / (z - point.z);
 
 		/*
 		 * This is very slightly off the actual intersection point, however, the
 		 * difference is negligible in most cases
 		 */
-		return new R3Point(right + ratio * (point.right - right), down + ratio * (point.down - down),
+		return new R3Point(x + ratio * (point.x - x), y + ratio * (point.y - y),
 				Constants.NEAR_EPSILON);
 
 	}
@@ -135,64 +135,64 @@ public class R3Point implements NormedVectorSpace<R3Point>{
 	 * project.
 	 */
 	public static R3Point linearCombination(double s, double t, R3Point v1, R3Point v2) {
-		return new R3Point(s * v1.right + t * v2.right, s * v1.down + t * v2.down, s * v1.forward + t * v2.forward);
+		return new R3Point(s * v1.x + t * v2.x, s * v1.y + t * v2.y, s * v1.z + t * v2.z);
 	}
 	
-	public double getRight() {
-		return right;
+	public double getX() {
+		return x;
 	}
 
-	public double getDown() {
-		return down;
+	public double getY() {
+		return y;
 	}
 
-	public double getForward() {
-		return forward;
+	public double getZ() {
+		return z;
 	}
 
-	public void setRight(double right) {
-		this.right = right;
+	public void setX(double x) {
+		this.x = x;
 	}
 
-	public void setDown(double down) {
-		this.down = down;
+	public void setY(double y) {
+		this.y = y;
 	}
 
-	public void setForward(double forward) {
-		this.forward = forward;
+	public void setZ(double z) {
+		this.z = z;
 	}
 
 	public void set(R3Point point) {
-		right = point.right;
-		down = point.down;
-		forward = point.forward;
+		x = point.x;
+		y = point.y;
+		z = point.z;
 	}
 
 	public R3Point(R3Point point) {
-		right = point.right;
-		down = point.down;
-		forward = point.forward;
+		x = point.x;
+		y = point.y;
+		z = point.z;
 	}
 
 	public double chebyshev() {
-		return Math.max(Math.max(Math.abs(right), Math.abs(down)), Math.abs(forward));
+		return Math.max(Math.max(Math.abs(x), Math.abs(y)), Math.abs(z));
 	}
 
 
 	public double taxicab() {
-		return Math.abs(right) + Math.abs(down) + Math.abs(forward);
+		return Math.abs(x) + Math.abs(y) + Math.abs(z);
 	}
 
 	public double lSquared() {
 		// a little bit more efficient.
-		return Math.fma(right, right, Math.fma(down, down, forward * forward));
+		return Math.fma(x, x, Math.fma(y, y, z * z));
 	}
 
 	// Returns a new point that represent this scaled by multiplier from origin.
 	public R3Point extendFrom(R3Point origin, double multiplier) {
-		return new R3Point(multiplier * (right - origin.right) + origin.right,
-			multiplier * (down - origin.down) + origin.down,
-			multiplier * (forward - origin.forward) + origin.forward);
+		return new R3Point(multiplier * (x - origin.x) + origin.x,
+			multiplier * (y - origin.y) + origin.y,
+			multiplier * (z - origin.z) + origin.z);
 	}
 
 }

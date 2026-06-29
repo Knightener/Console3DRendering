@@ -53,7 +53,7 @@ public class Texture {
 	}
 
 	public int determineShadeAt(R2Point point) {
-		return determineShadeAt((int) Math.floor(scaleFactor * point.getRight()),
-				(int) Math.floor(scaleFactor * point.getDown()));
+		return determineShadeAt((int) Math.floor(scaleFactor * point.getX()),
+				(int) Math.floor(scaleFactor * point.getY()));
 	}
 }

@@ -39,7 +39,7 @@ public class Image extends ImageBase {
 	}
 	
 	public void draw(Pixel pixel) {
-		draw(pixel.getShade(), pixel.getRight(), pixel.getDown());
+		draw(pixel.getShade(), pixel.getX(), pixel.getY());
 	}
 	
 	
@@ -116,11 +116,11 @@ public class Image extends ImageBase {
 	// This method went through a loooot of iterations.
 	private Figure lineNeitherVisible(R2Point p1, R2Point p2, int maxShade) {
 	
-		double r1 = p1.getRight();
-		double r2 = p2.getRight();
+		double r1 = p1.getX();
+		double r2 = p2.getX();
 	
-		double d1 = p1.getDown();
-		double d2 = p2.getDown();
+		double d1 = p1.getY();
+		double d2 = p2.getY();
 	
 		/*
 		 * Could be done more efficiently, but this edge case along with the one where
@@ -298,7 +298,7 @@ public class Image extends ImageBase {
 		for (double i = start + 2 * step; i < end; i += step) {
 			graph.add(line(current, next));
 			current = new R2Point(next);
-			next.assign(i, f.f(i));
+			next.set(i, f.f(i));
 		}
 	
 		return graph;
@@ -314,15 +314,15 @@ public class Image extends ImageBase {
 	 * 
 	 * p1 assumed to be further left than p2.
 	 * 
-	 * This was a very tedious algorithm to design. My initial idea was to move down
+	 * This was a very tedious algorithm to design. My initial idea was to move y
 	 * by downDist / rightDist at every iteration then trying to distribute the
-	 * remaining down distance evenly, but I had a lot of trouble figuring out how
+	 * remaining y distance evenly, but I had a lot of trouble figuring out how
 	 * to distribute it evenly.
 	 * 
 	 * I was close to giving up and just draw the line by truncating floats until I
 	 * realized that truncating divisions is equivalent to taking quotients.
 	 * 
-	 * This algorithm moves the movingPoint down every time the quotient (i* excess)
+	 * This algorithm moves the movingPoint y every time the quotient (i* excess)
 	 * / downDist increases by one. That is, every time currMod += excess exceeds
 	 * rightDist. I did it this way because calculating a quotient at every
 	 * iteration felt inefficient.
@@ -333,10 +333,10 @@ public class Image extends ImageBase {
 	
 		// difference
 	
-		int rightDist = p2.getRight() - p1.getRight();
-		int downDif = p2.getDown() - p1.getDown();
+		int rightDist = p2.getX() - p1.getX();
+		int downDif = p2.getY() - p1.getY();
 	
-		if (rightDist == 0 || p1.getRight() > rightBound) {
+		if (rightDist == 0 || p1.getX() > rightBound) {
 			return line;
 		}
 	
@@ -348,12 +348,12 @@ public class Image extends ImageBase {
 	
 		int minDownStep = downDif / rightDist;
 	
-		// remaining down distance that will need to be distributed across iterations.
+		// remaining y distance that will need to be distributed across iterations.
 		int excess = downDist % rightDist;
 	
 		int currMod = excess;
 		
-		int visibleLength = Math.min(rightDist, rightBound - p1.getRight());
+		int visibleLength = Math.min(rightDist, rightBound - p1.getX());
 		
 		Pixel movingPixel = new Pixel(p1);
 		
@@ -361,13 +361,13 @@ public class Image extends ImageBase {
 			
 			line.add(new Pixel(movingPixel));
 			
-			movingPixel.moveRight(1);
-			movingPixel.moveDown(minDownStep);
+			movingPixel.incrementX(1);
+			movingPixel.incrementY(minDownStep);
 			
 			currMod += excess;
 			if (currMod >= rightDist) {
 				currMod -= rightDist;
-				movingPixel.moveDown(downDir);
+				movingPixel.incrementY(downDir);
 			}
 		}
 	
@@ -377,16 +377,16 @@ public class Image extends ImageBase {
 	// Starts the line at leftBound if it crosses it
 	private Figure lWHRCut(Pixel p1, Pixel p2) {
 
-		int r1 = p1.getRight();
-		int r2 = p2.getRight();
+		int r1 = p1.getX();
+		int r2 = p2.getX();
 
 		if (r1 > leftBound) {
 			return lineWithoutHorizontalRepetition(p1, p2);
 		}
 		if (r2 > leftBound) {
 
-			int d1 = p1.getDown();
-			int d2 = p2.getDown();
+			int d1 = p1.getY();
+			int d2 = p2.getY();
 
 			Pixel start = new Pixel(leftBound, d1 + ((leftBound - r1) * (d2 - d1)) / (r2 - r1), p1.getShade());
 
@@ -398,7 +398,7 @@ public class Image extends ImageBase {
 
 	/*
 	 * Draws a vertical line from p1 to p2, assuming p1 and p2 have the same
-	 * horizontal component. Includes p1 and p2. p1 assumed to have a lower down
+	 * horizontal component. Includes p1 and p2. p1 assumed to have a lower y
 	 * component.
 	 * 
 	 * Takes on the shade of the uppermost element.
@@ -408,21 +408,21 @@ public class Image extends ImageBase {
 
 		Pixel movingPixel = new Pixel(p1);
 	
-		if (upBound > p1.getDown()) {
-			movingPixel.setDown(upBound);
+		if (upBound > p1.getY()) {
+			movingPixel.setY(upBound);
 		}
-		int visibleLength = Math.min(p2.getDown() - movingPixel.getDown(), downBound - movingPixel.getDown() - 1);
+		int visibleLength = Math.min(p2.getY() - movingPixel.getY(), downBound - movingPixel.getY() - 1);
 	
 		for (int i = 0; i <= visibleLength; i++) {
 			line.add(new Pixel(movingPixel));
-			movingPixel.moveDown(1);
+			movingPixel.incrementY(1);
 		}
 	
 		return line;
 	}
 
 	public Figure verticalLine(Pixel p1, Pixel p2) {
-		if (p1.getDown() < p2.getDown()) {
+		if (p1.getY() < p2.getY()) {
 			return verticalLineAuxiliary(p1, p2);
 		}
 		return verticalLineAuxiliary(p2, p1);
@@ -458,9 +458,9 @@ public class Image extends ImageBase {
 	 */
 	public Figure jaggedTriangle(Pixel p1, Pixel p2, Pixel p3) {
 
-		boolean r2r3 = p2.getRight() <= p3.getRight();
-		boolean r1r3 = p1.getRight() <= p3.getRight();
-		boolean r1r2 = p1.getRight() <= p2.getRight();
+		boolean r2r3 = p2.getX() <= p3.getX();
+		boolean r1r3 = p1.getX() <= p3.getX();
+		boolean r1r2 = p1.getX() <= p2.getX();
 
 		/*
 		 * Maybe not the cleanest way to do it, but I didn't want to go through the

@@ -17,8 +17,8 @@ public class RelativePoint extends RelativeComponent {
 	}
 	
 	public void determineMostAndLeastForward() {
-		mostForward = point.getForward();
-		leastForward = point.getForward();
+		mostForward = point.getZ();
+		leastForward = point.getZ();
 	}
 	
 	public R3Point getPoint() {
