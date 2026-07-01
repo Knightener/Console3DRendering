@@ -15,56 +15,19 @@ public class Graphing3D {
 
 	/*
 	 * Returns a mesh representing the graph of the function in a rectangle around
-	 * the specified start sampling horizontalSteps * forwardSteps
-	 * points with the specified spacing.
+	 * the specified start sampling horizontalSteps * forwardSteps points with the
+	 * specified spacing.
 	 */
 	public static Mesh getGraph(Observer observer, BiFunction<Double, Double, Double> function,
-		double spacing, R2Point start, int horizontalSteps, int forwardSteps) {
-
-		Texture texture = new Texture(TexturePresets.WHITE, 1);
-		List<R3Point> vertices = new ArrayList<>();
-
-		double currRight;
-		double currForward;
-		for (int i = 0; i < horizontalSteps; i++) {
-			for (int j = 0; j < forwardSteps; j++) {
-				// Although start is in xy coordinates, we are assuming it is in xz.
-				currRight = start.getX() + i * spacing;
-				currForward = start.getY() + j * spacing;
-
-				vertices.add(new R3Point(currRight, -function.apply(currRight, currForward), currForward));
-
-			}
-		}
-
-		Mesh graph = new Mesh(observer, vertices);
-
-		int currIndex;
-		for (int i = 0; i < horizontalSteps - 1; i++) {
-			for (int j = 0; j < forwardSteps - 1; j++) {
-				currIndex = forwardSteps * i + j;
-				graph.createFace(texture, currIndex, currIndex + 1, currIndex + forwardSteps);
-				graph.createFace(texture, currIndex + forwardSteps + 1, currIndex + 1,
-					currIndex + forwardSteps);
-			}
-		}
-		
-		return graph; 
+		double xStart, double xEnd, double zStart, double zEnd, int xDivisions, int yDivisions) {
+		BiFunction<Double, Double, R3Point> parametricFunction = (s, t) -> new R3Point(s,
+			-function.apply(s, t), t);
+		return getParametricGraph(observer,parametricFunction, xStart, xEnd, zStart, zEnd, xDivisions, yDivisions);
 	}
-
-	// Returns the graph of the function centered on center
-	public static Mesh getCenteredGraph(Observer observer,
-		BiFunction<Double, Double, Double> function, double spacing, R2Point center,
-		int horizontalSteps, int forwardSteps) {
-
-		R2Point start = new R2Point(center);
-		start.translate(-horizontalSteps * spacing / 2, -forwardSteps * spacing / 2.0);
-
-		return getGraph(observer, function, spacing, start, horizontalSteps, forwardSteps);
-	}
-
+	
 	/*
-	 * Returns the graph of the specified parametric function (R2 -> R3). 
+	 * Returns the graph of the specified parametric function ([sStart,sEnd] X
+	 * [tStart, tEnd]-> R3).
 	 */
 	public static Mesh getParametricGraph(Observer observer,
 		BiFunction<Double, Double, R3Point> function, double sStart, double sEnd, double tStart,
@@ -72,37 +35,31 @@ public class Graphing3D {
 		if (sStart > sEnd || tStart > tEnd || sDivisions <= 0 || tDivisions <= 0) {
 			throw new IllegalArgumentException();
 		}
-		
+
 		double sStep = (sEnd - sStart) / sDivisions;
 		double tStep = (tEnd - tStart) / tDivisions;
-		
+
 		Texture texture = new Texture(TexturePresets.WHITE, 1);
 		List<R3Point> vertices = new ArrayList<>();
-		
-		double sCurr = sStart;
-		double tCurr = tStart;
-		
-		for (int i = 0; i < sDivisions; i++) {
-			for (int j = 0; j < tDivisions; j++) {
-				sCurr += sStep; 
-				tCurr += tStep;
-				vertices.add(function.apply(sCurr, tCurr));
+
+		for (int i = 0; i <= sDivisions; i++) {
+			for (int j = 0; j <= tDivisions; j++) {
+				vertices.add(function.apply(sStart + i * sStep, tStart + j * tStep));
 			}
 		}
 		Mesh graph = new Mesh(observer, vertices);
-		
+
 		int currIndex;
-		for (int i = 0; i < sDivisions - 1; i++) {
-			for (int j = 0; j < tDivisions - 1; j++) {
-				currIndex = tDivisions * i + j;
-				graph.createFace(texture, currIndex, currIndex + 1, currIndex + tDivisions);
-				graph.createFace(texture, currIndex + tDivisions + 1, currIndex + 1,
-					currIndex + tDivisions);
+		for (int i = 0; i < sDivisions; i++) {
+			for (int j = 0; j < tDivisions; j++) {
+				currIndex = (tDivisions + 1) * i + j;
+				graph.createFace(texture, currIndex, currIndex + 1, currIndex + tDivisions + 1);
+				graph.createFace(texture, currIndex + tDivisions + 2, currIndex + 1,
+					currIndex + tDivisions + 1);
 			}
 		}
-		
-		return graph; 
-		
+
+		return graph;
 
 	}
 
