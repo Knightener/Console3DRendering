@@ -37,6 +37,8 @@ public class RelativePolygon extends RelativeComponent {
 	protected R3Point perceivedVectorA;
 	protected R3Point perceivedVectorB;
 
+	// 0: full ground, 1: full sky
+	private double hemisphereAmbientFactor;
 	/*
 	 * If false, rendering will not be affected by orientation. If true, polygons
 	 * facing away from a light source will be rendered all black.
@@ -112,7 +114,9 @@ public class RelativePolygon extends RelativeComponent {
 		if ((getID() & 1) == 1) {
 			this.texture = new PolygonTexture(uVPoints, texture);
 		}
-		
+
+		hemisphereAmbientFactor = -orientation.getY() * 0.5 + 0.5;
+
 		updatePerspective();
 
 
@@ -247,6 +251,10 @@ public class RelativePolygon extends RelativeComponent {
 			.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)))), 1);
 
 		return (int) (texture.determineShadeAt(u, v) * brightness);
+	}
+	
+	public int applyHemisphereAmbient(int shade) {
+		return (int) (hemisphereAmbientFactor * shade);
 	}
 
 	public void render() {

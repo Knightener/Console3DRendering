@@ -206,7 +206,7 @@ public class ZImage extends ImageBase {
 		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
 			&& adjustedDown < imageRows
 			&& zBuffer < this.zBuffer.get(adjustedDown, adjustedRight)) {
-			renderInfo.map(n -> n + (isFacing ? ZPixel.STENCIL_BIT : -ZPixel.STENCIL_BIT), adjustedDown,
+			renderInfo.map(n -> n + (isFacing ? -ZPixel.STENCIL_BIT : ZPixel.STENCIL_BIT), adjustedDown,
 				adjustedRight);
 		}
 	}
@@ -228,24 +228,36 @@ public class ZImage extends ImageBase {
 	}
 	
 	public void texturize(LightSource lightSource) {
-		int curr;
+		int currInfo;
+		int currShade;
+		RelativePolygon currPolygon;
+		int currShadowValue;
+		
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				curr = renderInfo.get(i, j);
-				// Skips lighting calculations if pixel is in shadow.
-				if ((curr & 1) == 1) {
-					if (curr >>> ZPixel.STENCIL_BIT_POS == 0) {
-						image.set(RelativeComponent
-							.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
-							.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j),
-								lightSource),
-							i, j);
+				
+				currInfo = renderInfo.get(i, j);
+				
+				currPolygon = RelativeComponent
+					.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS);
+				
+				if ((currInfo & 1) == 1) {
+					
+					currShadowValue = currInfo >>> ZPixel.STENCIL_BIT_POS;
+					if (currShadowValue == 0) {
+						image.set(currPolygon.determineShade(j + leftBound, i + upBound,
+							zBuffer.get(i, j), lightSource), i, j);
+						// Applies hemisphere ambient if pixel is in shadow.
 					} else {
-						image.set(
-							RelativeComponent
-								.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
-								.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j)),
-							i, j);
+						
+						// current texture divided by shadow factor
+						currShade = currPolygon.determineShade(j + leftBound, i + upBound,
+							zBuffer.get(i, j));
+						
+						currShade /= (currShadowValue + 1);
+						
+						currShade = currPolygon.applyHemisphereAmbient(currShade);
+						image.set(currShade, i, j);
 					}
 				}
 			}

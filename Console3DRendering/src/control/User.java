@@ -92,7 +92,6 @@ public class User {
 			} else {
 				userView.texturize();
 			}
-			userView.shade();
 			userView.display();
 			userView.clear();
 
