@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import array2D.BooleanArray2D;
 import array2D.DoubleArray2D;
 import array2D.IntArray2D;
 import functionalInterfaces.RealFunction;
@@ -215,7 +214,7 @@ public class ZImage extends ImageBase {
 		writeToStencil(pixel.getX(), pixel.getY(), pixel.getZBuffer(), isFacing);
 	}
 
-	public void texturize() {
+	public void applyRenderInfo() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
 				if ((renderInfo.get(i, j) & 1) == 1) {
@@ -227,7 +226,7 @@ public class ZImage extends ImageBase {
 		}
 	}
 	
-	public void texturize(LightSource lightSource) {
+	public void applyRenderInfo(LightSource lightSource) {
 		int currInfo;
 		int currShade;
 		RelativePolygon currPolygon;
@@ -249,12 +248,11 @@ public class ZImage extends ImageBase {
 							zBuffer.get(i, j), lightSource), i, j);
 						// Applies hemisphere ambient if pixel is in shadow.
 					} else {
-						
-						// current texture divided by shadow factor
 						currShade = currPolygon.determineShade(j + leftBound, i + upBound,
 							zBuffer.get(i, j));
 						
-						currShade /= (currShadowValue + 1);
+						// initial darkening
+						currShade /= (6*currShadowValue + 1);
 						
 						currShade = currPolygon.applyHemisphereAmbient(currShade);
 						image.set(currShade, i, j);

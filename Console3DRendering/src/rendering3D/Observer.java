@@ -250,7 +250,7 @@ public class Observer {
 	}
 	
 	public void printView() {
-		view.texturize();
+		view.applyRenderInfo();
 		view.display();
 		view.clear();
 	}

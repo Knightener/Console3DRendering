@@ -88,9 +88,9 @@ public class User {
 			World.render();
 			World.shade();
 			if (World.lightSource != null) {
-				userView.texturize(World.lightSource);
+				userView.applyRenderInfo(World.lightSource);
 			} else {
-				userView.texturize();
+				userView.applyRenderInfo();
 			}
 			userView.display();
 			userView.clear();
