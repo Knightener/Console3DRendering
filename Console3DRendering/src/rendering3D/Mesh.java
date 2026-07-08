@@ -18,11 +18,12 @@ import texturing.TexturePresets;
 public class Mesh implements Renderable {
 
 	/*
-	 * This class differs from form in that it can only store faces, all edges must
-	 * be shared by only 1 or 2 faces, and all faces are connected (in the sense
-	 * that it is possible to traverse from any face to any other face). Unlike
-	 * form, it eliminates a lot of redundant calculations that are found from
-	 * adjacent faces.
+	 * This class differs from form in that it can only store faces, and the
+	 * topology is regulated so that (unless unrestrictedCreateFace is used), all
+	 * edges must be shared by only 1 or 2 faces, and all faces are connected (in
+	 * the sense that it is possible to traverse from any face to any other face).
+	 * Unlike form, it eliminates a lot of redundant calculations that are found
+	 * from adjacent faces.
 	 */
 
 	private Observer observer;
@@ -96,11 +97,14 @@ public class Mesh implements Renderable {
 		this(observer, Arrays.asList(vertices));
 	}
 
-	// Creates a face of the given indices of the vertices list. 
-	private void unrestrictedCreateFace(Texture texture, int... indices) {
+	/*
+	 * Creates a face of the given indices of the vertices list. Use with caution -
+	 * tends to cause broken topology.
+	 */
+	public void unrestrictedCreateFace(Texture texture, int... indices) {
 
 		faceIndices.add(indices);
-		
+
 		R3Point[] faceVertices = new R3Point[indices.length];
 		Arrays.setAll(faceVertices, i -> vertices.get(indices[i]));
 

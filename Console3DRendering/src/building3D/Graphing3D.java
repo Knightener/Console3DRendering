@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import classes2D.R2Point;
 import classes3D.R3Point;
 import rendering3D.Mesh;
 import rendering3D.Observer;
