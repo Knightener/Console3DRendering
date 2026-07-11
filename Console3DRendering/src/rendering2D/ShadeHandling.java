@@ -9,7 +9,8 @@ public class ShadeHandling {
 	// Shade cutoffs.
 	private double[] shadePartition;
 
-	public static final String NO_SHADE = "NA";
+	// Easier to spot: you will rarely see pure white and black next to each other. 
+	public static final String NO_SHADE = " █";
 	
 	public static final String[] BLOCK_SHADES = getShadeArray(" ░▒▓█");
 	

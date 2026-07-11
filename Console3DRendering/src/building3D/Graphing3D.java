@@ -38,7 +38,8 @@ public class Graphing3D {
 		double sStep = (sEnd - sStart) / sDivisions;
 		double tStep = (tEnd - tStart) / tDivisions;
 
-		Texture texture = new Texture(TexturePresets.WHITE, 1);
+		// 2 avoids some bounding errors
+		Texture texture = new Texture(TexturePresets.WHITE, 2);
 		List<R3Point> vertices = new ArrayList<>();
 
 		for (int i = 0; i <= sDivisions; i++) {
