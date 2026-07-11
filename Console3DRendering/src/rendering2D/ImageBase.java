@@ -126,22 +126,31 @@ public abstract class ImageBase {
 	public String[][] convert() {
 
 		String[][] shadeArr = new String[imageRows][imageCols];
-
+		int curr;
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				shadeArr[i][j] = ShadeHandling.shades[image.get(i, j)];
+				curr = image.get(i, j);
+				if (curr != -1) {
+					shadeArr[i][j] = ShadeHandling.shades[curr];
+				} else {
+					shadeArr[i][j] = ShadeHandling.NO_SHADE;
+				}
 			}
 		}
 		return shadeArr;
 	}
-	
 
 	public void display() {
 		StringBuilder imageString = new StringBuilder();
-		
+		int curr;
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
-				imageString.append(ShadeHandling.shades[image.get(i, j)]);
+				curr = image.get(i, j);
+				if (curr != -1) {
+					imageString.append(ShadeHandling.shades[curr]);
+				} else {
+					imageString.append(ShadeHandling.NO_SHADE);
+				}
 			}
 			imageString.append('\n');
 		}

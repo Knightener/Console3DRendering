@@ -251,10 +251,12 @@ public class ZImage extends ImageBase {
 						currShade = currPolygon.determineShade(j + leftBound, i + upBound,
 							zBuffer.get(i, j));
 						
+						if (currShade != -1) {
 						// initial darkening
 						currShade /= (6*currShadowValue + 1);
 						
 						currShade = currPolygon.applyHemisphereAmbient(currShade);
+						}
 						image.set(currShade, i, j);
 					}
 				}

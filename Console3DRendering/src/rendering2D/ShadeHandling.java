@@ -9,6 +9,8 @@ public class ShadeHandling {
 	// Shade cutoffs.
 	private double[] shadePartition;
 
+	public static final String NO_SHADE = "NA";
+	
 	public static final String[] BLOCK_SHADES = getShadeArray(" ░▒▓█");
 	
 	// ASCII characters ordered by brightness. 

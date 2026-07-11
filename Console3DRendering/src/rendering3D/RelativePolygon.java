@@ -215,31 +215,38 @@ public class RelativePolygon extends RelativeComponent {
 	 * Finds the texture of the given point and calculates the new shade taking into
 	 * account the given light source. Fall off proportional to 1/distance
 	 */
-	public int determineShade(int x, int y, double zBuffer, LightSource lightSource) {		
+	public int determineShade(int x, int y, double zBuffer, LightSource lightSource) {
 		double dot = lightSource.dot(this);
-		
+
 		if (shadeOrientation && dot < 0) {
 			return 0;
 		}
-		
+
 		// findUV.getX
-		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y
-			+ vAF) / zBuffer + vABDotOffset.getX();
+		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF) / zBuffer
+			+ vABDotOffset.getX();
 
 		// findUV.getY
-		double v = (perceivedVectorB.getX() * x + perceivedVectorB.getY() * y
-			+ vBF) / zBuffer + vABDotOffset.getY();
+		double v = (perceivedVectorB.getX() * x + perceivedVectorB.getY() * y + vBF) / zBuffer
+			+ vABDotOffset.getY();
+
+		int textureShade = texture.determineShadeAt(u, v);
+		
+		// Error: no texture
+		if (textureShade == -1) {
+			return -1;
+		}
 		
 		/*
 		 * Coordinates of the vector from the traced back point (in 3d) to the light
 		 * source. Equivalent to (lightSource - u*vectorA - v*vectorB).
 		 */
-		double diffX = lightSource.lightSource.getX() - u * vectorA.getX()
-			- v * vectorB.getX() - offset.getX();
-		double diffY = lightSource.lightSource.getY() - u * vectorA.getY()
-			- v * vectorB.getY() - offset.getY();
-		double diffZ = lightSource.lightSource.getZ() - u * vectorA.getZ()
-			- v * vectorB.getZ() - offset.getZ();
+		double diffX = lightSource.lightSource.getX() - u * vectorA.getX() - v * vectorB.getX()
+			- offset.getX();
+		double diffY = lightSource.lightSource.getY() - u * vectorA.getY() - v * vectorB.getY()
+			- offset.getY();
+		double diffZ = lightSource.lightSource.getZ() - u * vectorA.getZ() - v * vectorB.getZ()
+			- offset.getZ();
 
 		/*
 		 * If a is the difference vector from the traced back point to the light source,
@@ -247,13 +254,16 @@ public class RelativePolygon extends RelativeComponent {
 		 * a), clamped to be between 0 and 1. Math.fma used for a little extra
 		 * efficiency.
 		 */
-		double brightness = Math.min(Math.abs(lightSource.intensity * dot / (Math
-			.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)))), 1);
+		double brightness = Math.min(Math.abs(lightSource.intensity * dot
+			/ (Math.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)))), 1);
 
 		return (int) (texture.determineShadeAt(u, v) * brightness);
 	}
-	
+
 	public int applyHemisphereAmbient(int shade) {
+		if (shade == -1) {
+			return -1;
+		}
 		return (int) (hemisphereAmbientFactor * shade);
 	}
 
