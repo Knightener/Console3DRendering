@@ -22,10 +22,13 @@ public class PolygonTexture {
 
 		scaleFactor = texture.getScaleFactor();
 
-		List<IntPoint> flooredScaledVertices = vertices.stream().map(x -> x.furthestRound(scaleFactor))
-			.toList();
+		List<R2Point> scaledVertices = vertices.stream().map(v -> new R2Point(v)).toList();
 
-		VCRegionBuilder polygonBuilder = VCRegionBuilder.polygon(flooredScaledVertices);
+		for (R2Point vertex : scaledVertices) {
+			vertex.scale(scaleFactor);
+		}
+		
+		VCRegionBuilder polygonBuilder = VCRegionBuilder.polygon(scaledVertices);
 
 		// Adds a margin to account for errors that come from rounding.
 		polygonBuilder.extendRows(-1);

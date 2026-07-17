@@ -32,13 +32,13 @@ public class VCRegionBuilder {
 
 	// Horizontal offset of entire region.
 	int regionOffset;
-	
+
 	public VCRegionBuilder(int regionOffset) {
 		this.regionOffset = regionOffset;
 		region = new ArrayList<int[]>();
 		rowOffsets = new ArrayList<Integer>();
 	}
-	
+
 	/*
 	 * Adds a new vertical line from a to b (inclusive) to the x of region if
 	 * verticallyConvex is true. Else, adds a horizontal line from a to b beneath
@@ -74,7 +74,7 @@ public class VCRegionBuilder {
 		}
 	}
 
-	// Extends all the rows by n. 
+	// Extends all the rows by n.
 	public void extendRows(int n) {
 		if (n >= 0) {
 			for (int i = 0; i < region.size(); i++) {
@@ -156,7 +156,7 @@ public class VCRegionBuilder {
 		}
 
 		addBlanks(n);
-		
+
 		if (n > 0) {
 			for (int i = 0; i < region.size(); i++) {
 
@@ -181,7 +181,7 @@ public class VCRegionBuilder {
 				}
 			}
 		}
-		
+
 		if (n < 0) {
 			for (int i = region.size() - 1; i >= 0; i--) {
 
@@ -205,7 +205,7 @@ public class VCRegionBuilder {
 			}
 		}
 	}
-	
+
 	// VerticallyConvex assumed to be true.
 	public int getShade(int right, int down) {
 		try {
@@ -261,55 +261,12 @@ public class VCRegionBuilder {
 	}
 
 	// Shades pixels according to their current shade.
-	public void shade(Function<Integer,Integer> shadeFunction) {
+	public void shade(Function<Integer, Integer> shadeFunction) {
 		for (int row[] : region) {
-			for (int i = 0; i < row.length ; i++) {
+			for (int i = 0; i < row.length; i++) {
 				row[i] = shadeFunction.apply(row[i]);
 			}
 		}
-	}
-
-	/*
-	 * Returns an integer array representing the horizontal component of every point
-	 * on the line. The line is fully drawn, including both p1 and p2. p1 assumed to
-	 * be further left.
-	 */
-	public static int[] lineWithoutHorizontalRepetition(IntPoint p1, IntPoint p2) {
-
-		// difference
-		int rightDist = p2.getX() - p1.getX();
-		int downDif = p2.getY() - p1.getY();
-
-		if (rightDist == 0) {
-			return new int[0];
-		}
-		
-		int[] line = new int[rightDist + 1];
-
-		// direction
-		int downDir = MiscFunctions.sign(downDif);
-
-		int minDownStep = downDif / rightDist;
-
-		// remaining y distance that will need to be distributed across iterations.
-		int excess = Math.abs(downDif) % rightDist;
-
-		int currMod = excess;
-		for (int i = 0; i < rightDist; i++) {
-
-			line[i + 1] = line[i] + minDownStep;
-
-			currMod += excess;
-			if (currMod >= rightDist) {
-				currMod -= rightDist;
-				line[i + 1] += downDir;
-			}
-		}
-		
-		for (int i = 0; i <= rightDist; i++) {
-			line[i] += p1.getY();
-		}
-		return line;
 	}
 
 	/*
@@ -317,8 +274,10 @@ public class VCRegionBuilder {
 	 * not vertically convex, draws the smallest vertically convex region containing
 	 * the polygon.
 	 * 
+	 * Not the most efficient polygon algorithm, designed to account for non 
+	 * integer points and give a generous (larger than the actual polygon) approximation. 
 	 */
-	public static VCRegionBuilder polygon(List<IntPoint> vertices) {
+	public static VCRegionBuilder polygon(List<R2Point> vertices) {
 
 		int numberVertices = vertices.size();
 
@@ -327,41 +286,47 @@ public class VCRegionBuilder {
 		}
 
 		// Index of the left/x most points in the list of points
-		int leftMost = Integer.MAX_VALUE;
-		int rightMost = Integer.MIN_VALUE;
+		int xMinIdx = 0;
+		int xMaxIdx = 0;
 
 		// Finds leftMostIndex/rightMostIndex
-		for (int i = 0; i < numberVertices; i++) {
+		for (int i = 1; i < numberVertices; i++) {
 
-			int curr = vertices.get(i).getX();
-
-			if (curr < leftMost) {
-				leftMost = curr;
+			if (vertices.get(i).getX() < vertices.get(xMinIdx).getX()) {
+				xMinIdx = i;
 			}
 
-			if (curr > rightMost) {
-				rightMost = curr;
+			if (vertices.get(i).getX() > vertices.get(xMaxIdx).getX()) {
+				xMaxIdx = i;
 			}
 		}
 
-		int length = rightMost - leftMost;
+		int polygonStart = (int) Math.floor(vertices.get(xMinIdx).getX());
+		int polygonEnd = (int) Math.ceil(vertices.get(xMaxIdx).getX());
 
-		// Top intersection at each x. 
-		int[] top = new int[length + 1];
+		int length = polygonEnd - polygonStart;
 
-		// Bottom intersection at each x. 
-		int[] bottom = new int[length + 1];
-		
-		Arrays.fill(top, Integer.MAX_VALUE);
-		Arrays.fill(bottom, Integer.MIN_VALUE);
+		// Top intersection at each x.
+		double[] top = new double[length + 1];
 
+		// Bottom intersection at each x.
+		double[] bottom = new double[length + 1];
 
-		// Loop variables
-		int[] currLine;
-		IntPoint leftVertex;
-		IntPoint rightVertex;
-		int left; 
-		
+		Arrays.fill(top, Double.NEGATIVE_INFINITY);
+		Arrays.fill(bottom, Double.POSITIVE_INFINITY);
+
+		R2Point leftVertex;
+		R2Point rightVertex;
+
+		int currStart;
+		int currEnd;
+
+		double currSlope;
+		double currY;
+
+		double currLeft;
+		double currRight;
+
 		for (int i = 0; i < numberVertices; i++) {
 
 			if (vertices.get(i).getX() < vertices.get((i + 1) % numberVertices).getX()) {
@@ -371,28 +336,60 @@ public class VCRegionBuilder {
 				rightVertex = vertices.get(i);
 				leftVertex = vertices.get((i + 1) % numberVertices);
 			}
+
+			currLeft = leftVertex.getX();
+			currRight = rightVertex.getX();
+
+			currStart = (int) Math.floor(currLeft);
+			currEnd = (int) Math.ceil(currRight);
 			
-			currLine = lineWithoutHorizontalRepetition(leftVertex, rightVertex);
-			left = leftVertex.getX();
-			
-			// Adding each line and comparing. 
-			for (int j = 0; j < currLine.length; j++) {
-				if (top[j + left - leftMost] > currLine[j]) {
-					top[j + left - leftMost] = currLine[j];
+			// Vertical line
+			if (MiscFunctions.nearlyEquals(currLeft, currRight)) {
+				double maxY = Math.max(currLeft, currRight);
+				double minY = Math.min(currLeft, currRight);
+				
+				// It is worth checking both
+				int leftIdx = currStart - polygonStart;
+				int rightIdx = currEnd - polygonStart;
+
+				if (maxY > top[leftIdx]) {
+					top[leftIdx] = maxY;
 				}
-				if (bottom[j + left - leftMost] < currLine[j]) {
-					bottom[j + left - leftMost] = currLine[j];
+				if (minY < bottom[leftIdx]) {
+					bottom[leftIdx] = minY;
 				}
+				if (maxY > top[rightIdx]) {
+					top[rightIdx] = maxY;
+				}
+				if (minY < bottom[rightIdx]) {
+					bottom[rightIdx] = minY;
+				}
+				continue;
 			}
-			
+
+			currSlope = leftVertex.slope(rightVertex);
+
+			currY = currSlope * (currStart - currLeft) + leftVertex.getY();
+
+			// Adding the line to the top/bottom
+			for (int j = currStart - polygonStart; j <= currEnd - polygonStart; j++) {
+				if (currY > top[j]) {
+					top[j] = currY;
+				}
+				if (currY < bottom[j]) {
+					bottom[j] = currY;
+				}
+				currY += currSlope;
+			}
 		}
 
-		VCRegionBuilder polygon = new VCRegionBuilder(leftMost);
+		VCRegionBuilder polygon = new VCRegionBuilder(polygonStart);
 
-		
 		for (int i = 0; i <= length; i++) {
-			polygon.addLine(bottom[i], top[i]);
+
+			polygon.addLine((int) Math.floor(bottom[i]), (int) Math.ceil(top[i]));
 		}
+
 
 		return polygon;
 	}
@@ -405,7 +402,8 @@ public class VCRegionBuilder {
 		int minRow = Integer.MAX_VALUE;
 		int maxRow = Integer.MIN_VALUE;
 
-		for (int i = 0; i < rowOffsets.size(); i++) {;
+		for (int i = 0; i < rowOffsets.size(); i++) {
+			;
 			if (minRow > rowOffsets.get(i)) {
 				minRow = rowOffsets.get(i);
 			}
@@ -413,11 +411,11 @@ public class VCRegionBuilder {
 				maxRow = rowOffsets.get(i) + region.get(i).length - 1;
 			}
 		}
-		
+
 		Image image = new Image(regionOffset, regionOffset + rowOffsets.size(), minRow, maxRow);
-		
+
 		image.draw(convertToFigure());
-		
+
 		image.displayCoordinates();
 	}
 

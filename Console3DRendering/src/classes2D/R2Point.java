@@ -140,6 +140,11 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 			
 			return points;
 		}
+
+		// Returns the slope between this and point
+		public double slope(R2Point point) {
+			return (y - point.y)/(x - point.x);
+		}
 		
 		public static void add(ArrayList<Pixel> points, R2Point point, int maxShade) {
 			for (int j = 0; j < 4; j++) {
