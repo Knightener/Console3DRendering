@@ -159,12 +159,12 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 			return vector.x * x + vector.y * y;
 		}
 
-		public void setRight(double right) {
-			this.x = right;
+		public void setX(double x) {
+			this.x = x;
 		}
 
-		public void setDown(double down) {
-			this.y = down;
+		public void setY(double y) {
+			this.y = y;
 		}
 		
 		public double chebyshev() {

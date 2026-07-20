@@ -86,6 +86,7 @@ public class RelativePolygon extends RelativeComponent {
 		}
 
 		try {
+			
 			vectorA = orientation.cross(new R3Point(0, -1, 0));
 			vectorA.normalize();
 			vectorB = vectorA.cross(orientation);
@@ -325,14 +326,9 @@ public class RelativePolygon extends RelativeComponent {
 		}
 	}
 	
-	// Reverses the orientation of the polygon. 
+	// Inverts the orientation of the polygon. 
 	public void invertOrientation() {
-		
-		// vectorB is fixed because of the double negative
 		orientation.scale(-1);
-		
-		uVPoints = uVPoints.reversed();
-		perceivedPoints = perceivedPoints.reversed();
 	}
 	
 	public void toggleShadeOrientation() {

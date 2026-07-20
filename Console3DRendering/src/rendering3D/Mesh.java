@@ -384,6 +384,8 @@ public class Mesh implements Renderable {
 			face.invertOrientation();
 		}
 		border = border.getTranspose();
+	
+		// Reversing faces
 		int temp;
 		for (int[] face : faceIndices) {
 			for (int i = 0; i < face.length / 2; i++) {
