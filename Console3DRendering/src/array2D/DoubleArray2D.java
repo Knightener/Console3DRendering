@@ -1,7 +1,7 @@
 package array2D;
 
 public class DoubleArray2D {
-	// Performance gains over using a double[][]
+	// Performance over using a double[][]
 	int rows, cols;
 
 	double array2D[];

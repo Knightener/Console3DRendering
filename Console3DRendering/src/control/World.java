@@ -47,6 +47,13 @@ public class World {
 		World.lightSource = lightSource;
 		lightSourcePoint = new RelativePoint(lightSource.getPosition(), User.getUser());
 	}
+	
+	// Debug function. Adds the normals of shadow volumes to world
+	public static void addShadowNormals() {
+		for (Mesh shadowVolume : shadowVolumes) {
+			World.addObject(shadowVolume.getAllNormals());
+		}
+	}
 
 	// Renders the world to the user. 
 	public static void render() {

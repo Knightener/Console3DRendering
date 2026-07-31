@@ -3,7 +3,7 @@ package array2D;
 import java.util.function.IntUnaryOperator;
 
 public class IntArray2D {
-	// Performance gains over using int[][]
+	// Performance over using int[][]
 	int rows, cols;
 
 	int array2D[];

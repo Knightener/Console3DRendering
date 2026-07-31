@@ -287,13 +287,13 @@ public class Mesh implements Renderable {
 						avgDistance += vertices.get(vertex).euclidian(lightSource.lightSource);
 					}
 				}
-			}
+			} 
 		}
 		
 		avgDistance /= vertexOrder.size();
 		
 		// This helps mitigate Z-fighting
-		double nearExtendFactor = 1 + Constants.EPSILON / avgDistance;
+		double nearExtendFactor = 1 + 0.1 / avgDistance;
 		double farExtendFactor = 1 + extendFactor / avgDistance;
 		List<R3Point> shadowVertices = new ArrayList<>();
 		
@@ -394,6 +394,33 @@ public class Mesh implements Renderable {
 				face[face.length - i - 1] = temp;
 			}
 		}
+	}
+
+	/*
+	 * Closes the texture by adding the reverse of each face.
+	 * 
+	 * TODO: Check if mesh already contains reverse face.
+	 */
+	public void close() {
+		Texture texture = new Texture(TexturePresets.WHITE, 1);
+
+		int length;
+		int[] face;
+		int oldLength = faceIndices.size();
+		
+		for (int i = 0; i < oldLength; i++) {
+			face = faceIndices.get(i);
+			length = face.length;
+			int[] reverse = new int[length];
+			
+			for (int j = 0; j < length; j++) {
+				reverse[j] = face[length - j - 1];
+			}
+			unrestrictedCreateFace(texture, reverse);
+		}
+		
+		border = new IndexGraph();
+		
 	}
 	
 	public void toggleShadeOrientation() {
