@@ -399,7 +399,7 @@ public class Mesh implements Renderable {
 	/*
 	 * Closes the texture by adding the reverse of each face.
 	 * 
-	 * TODO: Check if mesh already contains reverse face.
+	 * TODO: Check if mesh already contains reverse face, preserve texture. 
 	 */
 	public void close() {
 		Texture texture = new Texture(TexturePresets.WHITE, 1);
