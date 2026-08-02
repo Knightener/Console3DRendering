@@ -16,7 +16,7 @@ public class ZBuffer {
 	/*
 	 * Essentially just a stripped down version of ZImage that only write to
 	 * zBuffer. All code is identical save comments, unnecessary methods, and
-	 * paramters.
+	 * parameters.
 	 */
 
 	private DoubleArray2D zBuffer;
@@ -24,6 +24,15 @@ public class ZBuffer {
 	private int leftBound, rightBound, upBound, downBound, rows, cols;
 	
 	private ArrayList<ZInt>[] polygonBuffer;
+	
+	// Only method in ZBuffer that is not in ZImage. Returns true if the point z-passes. 
+	public boolean zPass(int x, int y, int zBuffer) {
+		int adjustedX = x - leftBound;
+		int adjustedY = y - upBound;
+
+		return (adjustedX >= 0 && adjustedX < cols && adjustedY >= 0 && adjustedY < rows
+			&& zBuffer > this.zBuffer.get(adjustedY, adjustedX));
+	}
 	
 	private static class ZInt implements Comparable<ZInt> {
 		int position;
@@ -66,8 +75,6 @@ public class ZBuffer {
 			polygonBuffer[i] = new ArrayList<>();
 		}
 	}
-
-	
 	
 	public ZBuffer(int leftBound, int rightBound, int upBound, int downBound) {
 		this.leftBound = leftBound;
@@ -80,7 +87,6 @@ public class ZBuffer {
 	}
 	
 	public Image getZBufferImage(ShadeHandling shadeHandling, RealFunction sigmoid) {
-		
 		Image image = new Image(leftBound, rightBound, upBound, downBound);
 		
 		for (int i = 0; i < rows; i++) {
@@ -102,19 +108,18 @@ public class ZBuffer {
 		draw(pixel.getX(), pixel.getY(), pixel.getZBuffer());
 	}
 
-	public void draw(int right, int down, double zBuffer) {
-		int adjustedRight = right - leftBound;
-		int adjustedDown = down - upBound;
+	public void draw(int x, int y, double zBuffer) {
+		int adjustedX = x - leftBound;
+		int adjustedY = y - upBound;
 
-		if (adjustedRight >= 0 && adjustedRight < cols && adjustedDown >= 0
-			&& adjustedDown < rows && zBuffer > this.zBuffer.get(adjustedDown, adjustedRight)) {
+		if (adjustedX >= 0 && adjustedX < cols && adjustedY >= 0
+			&& adjustedY < rows && zBuffer > this.zBuffer.get(adjustedY, adjustedX)) {
 
-			this.zBuffer.set(zBuffer, adjustedDown, adjustedRight);
+			this.zBuffer.set(zBuffer, adjustedY, adjustedX);
 		}
 	}
 
 	private void lWHRWriteToPolygonBuffer(ZPixel p1, ZPixel p2) {
-
 		int rightDist = p2.getX() - p1.getX();
 		int downDif = p2.getY() - p1.getY();
 

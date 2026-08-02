@@ -184,29 +184,29 @@ public class ZImage extends ImageBase {
 			pixel.getRenderInfo());
 	}
 
-	public void draw(int right, int down, int shade, double zBuffer, int polygonID) {
-		int adjustedRight = right - leftBound;
-		int adjustedDown = down - upBound;
+	public void draw(int x, int y, int shade, double zBuffer, int polygonID) {
+		int adjustedX = x - leftBound;
+		int adjustedY = y - upBound;
 
-		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
-			&& adjustedDown < imageRows && zBuffer > this.zBuffer.get(adjustedDown, adjustedRight)) {
+		if (adjustedX >= 0 && adjustedX < imageCols && adjustedY >= 0
+			&& adjustedY < imageRows && zBuffer > this.zBuffer.get(adjustedY, adjustedX)) {
 
-			this.zBuffer.set(zBuffer, adjustedDown, adjustedRight);
-			image.set(shade, adjustedDown, adjustedRight);
-			this.renderInfo.set(polygonID, adjustedDown, adjustedRight);
+			this.zBuffer.set(zBuffer, adjustedY, adjustedX);
+			image.set(shade, adjustedY, adjustedX);
+			this.renderInfo.set(polygonID, adjustedY, adjustedX);
 		}
 	}
 	
 	// Increments/decrements on Z-fail, depending on if polygon is facing or not.
-	public void writeToStencil(int right, int down, double zBuffer, boolean isFacing) {
-		int adjustedRight = right - leftBound;
-		int adjustedDown = down - upBound;
+	public void writeToStencil(int x, int y, double zBuffer, boolean isFacing) {
+		int adjustedX = x - leftBound;
+		int adjustedY = y - upBound;
 
-		if (adjustedRight >= 0 && adjustedRight < imageCols && adjustedDown >= 0
-			&& adjustedDown < imageRows
-			&& zBuffer < this.zBuffer.get(adjustedDown, adjustedRight)) {
-			renderInfo.map(n -> n + (isFacing ? -ZPixel.STENCIL_BIT : ZPixel.STENCIL_BIT), adjustedDown,
-				adjustedRight);
+		if (adjustedX >= 0 && adjustedX < imageCols && adjustedY >= 0
+			&& adjustedY < imageRows
+			&& zBuffer < this.zBuffer.get(adjustedY, adjustedX)) {
+			renderInfo.map(n -> n + (isFacing ? -ZPixel.STENCIL_BIT : ZPixel.STENCIL_BIT), adjustedY,
+				adjustedX);
 		}
 	}
 	
