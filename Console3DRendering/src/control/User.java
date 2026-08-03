@@ -2,6 +2,8 @@ package control;
 
 import classes3D.R3Point;
 import rendering3D.Observer;
+import rendering3D.Spotlight;
+import zBuffered2DRendering.ZBuffer;
 import zBuffered2DRendering.ZImage;
 
 public class User {
@@ -86,9 +88,8 @@ public class User {
 		try {
 			long start = System.nanoTime();			
 			World.render();
-			World.shade();
-			if (World.lightSource != null) {
-				userView.applyRenderInfo(World.lightSource);
+			if (World.spotlight != null) {
+				userView.applyRenderInfo(World.spotlight);
 			} else {
 				userView.applyRenderInfo();
 			}

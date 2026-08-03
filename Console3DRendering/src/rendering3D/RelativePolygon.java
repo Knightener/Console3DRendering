@@ -7,7 +7,6 @@ import java.util.List;
 import classes2D.R2Point;
 import classes3D.R3Point;
 import other.Constants;
-import shading.Spotlight;
 import texturing.PolygonTexture;
 import texturing.Texture;
 

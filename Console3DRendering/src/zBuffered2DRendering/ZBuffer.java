@@ -7,6 +7,7 @@ import java.util.List;
 
 import array2D.DoubleArray2D;
 import functionalInterfaces.RealFunction;
+import other.Constants;
 import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ShadeHandling;
@@ -30,8 +31,9 @@ public class ZBuffer {
 		int adjustedX = x - leftBound;
 		int adjustedY = y - upBound;
 
+		// slight bias for new zBuffer to avoid shadow map z-fighting
 		return (adjustedX >= 0 && adjustedX < cols && adjustedY >= 0 && adjustedY < rows
-			&& zBuffer > this.zBuffer.get(adjustedY, adjustedX));
+			&& zBuffer + 0.01 > this.zBuffer.get(adjustedY, adjustedX));
 	}
 	
 	private static class ZInt implements Comparable<ZInt> {

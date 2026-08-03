@@ -15,6 +15,7 @@ import rendering2D.ShadeHandling;
 import rendering3D.LightSource;
 import rendering3D.RelativeComponent;
 import rendering3D.RelativePolygon;
+import rendering3D.Spotlight;
 
 public class ZImage extends ImageBase {
 
@@ -221,6 +222,19 @@ public class ZImage extends ImageBase {
 					image.set(RelativeComponent
 						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
 						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j)), i, j);
+				}
+			}
+		}
+	}
+
+	public void applyRenderInfo(Spotlight spotlight) {
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				if ((renderInfo.get(i, j) & 1) == 1) {
+					image.set(RelativeComponent
+						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
+						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j), spotlight),
+						i, j);
 				}
 			}
 		}

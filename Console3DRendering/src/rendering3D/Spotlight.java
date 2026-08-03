@@ -1,5 +1,5 @@
 
-package shading;
+package rendering3D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +58,9 @@ public class Spotlight {
 		return rotation.transform(point.difference(position));
 	}
 
+	public R3Point getPosition() {
+		return position;
+	}
 	public void setOrientation(double theta, double phi) {
 		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
 			throw new IllegalArgumentException("phi must be within [-pi/2 , pi/2]");
@@ -113,6 +116,16 @@ public class Spotlight {
 		}
 
 		zBuffer.polygon(viewedPolygon);
+	}
+	
+	public void render(RelativePolygon polygon) {
+		polygon(polygon.getVertexList());
+	}
+	
+	public void render(Mesh mesh) {
+		for (RelativePolygon face : mesh.faces) {
+			render(face);
+		}
 	}
 	
 }
