@@ -89,5 +89,41 @@ public class R3Matrix {
 		this.a33 = a33;
 	}
 	
+	public double getA11() {
+		return a11;
+	}
+
+	public double getA12() {
+		return a12;
+	}
+
+	public double getA13() {
+		return a13;
+	}
+
+	public double getA21() {
+		return a21;
+	}
+
+	public double getA22() {
+		return a22;
+	}
+
+	public double getA23() {
+		return a23;
+	}
+
+	public double getA31() {
+		return a31;
+	}
+
+	public double getA32() {
+		return a32;
+	}
+
+	public double getA33() {
+		return a33;
+	}
+	
 	
 }

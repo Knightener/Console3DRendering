@@ -1,0 +1,119 @@
+
+package shading;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import classes3D.R3Matrix;
+import classes3D.R3Point;
+import other.Constants;
+import zBuffered2DRendering.ZBuffer;
+import zBuffered2DRendering.ZPixel;
+
+public class Spotlight {
+
+	// Stripped down observer class for shade mapping purposes.
+	
+	ZBuffer zBuffer;
+	double fov;
+	R3Point position;
+	R3Matrix rotation;
+
+	public Spotlight(R3Point position, double theta, double phi, ZBuffer zBuffer, double fov) {
+		this.zBuffer = zBuffer;
+		this.position = new R3Point(position);
+		this.fov = fov;
+
+		setOrientation(theta, phi);
+	}
+	
+	public boolean isLit(double x, double y, double z) {
+		double xDiff = x - position.getX();
+		double yDiff = y - position.getY();
+		double zDiff = z - position.getZ();
+
+		/*
+		 * Written out explicitly to avoid object creation overhead (this function will
+		 * be called a lot). Equivalent to the coordinates of perspective(new
+		 * R3Point(x,y,z))
+		 */
+		double zPer = rotation.getA31() * xDiff + rotation.getA32() * yDiff
+			+ rotation.getA33() * zDiff;
+		
+		if (zPer < Constants.NEAR_EPSILON) {
+			return false;
+		}
+		
+		double xPer = rotation.getA11() * xDiff + rotation.getA12() * yDiff
+			+ rotation.getA13() * zDiff;
+		double yPer = rotation.getA21() * xDiff + rotation.getA22() * yDiff
+			+ rotation.getA23() * zDiff;
+		
+		double ratio = fov/zPer;
+		
+		return zBuffer.zPass((int) (xPer * ratio), (int) (yPer * ratio), ratio);
+	}
+
+	public R3Point perspective(R3Point point) {
+		return rotation.transform(point.difference(position));
+	}
+
+	public void setOrientation(double theta, double phi) {
+		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
+			throw new IllegalArgumentException("phi must be within [-pi/2 , pi/2]");
+		}
+
+		double sinT = Math.sin(theta);
+		double cosT = Math.cos(theta);
+		double sinP = Math.sin(phi);
+		double cosP = Math.cos(phi);
+
+		rotation = new R3Matrix(cosT, 0, sinT, -sinT * sinP, cosP, cosT * sinP, -sinT * cosP, -sinP,
+			cosT * cosP);
+		
+	}
+
+	public void setPosition(R3Point position) {
+		this.position = position;
+	}
+
+	public double getFov() {
+		return fov;
+	}
+	
+
+	/*
+	 * Unlike observer, polygons will not have their coordinates pre adjusted to be
+	 * relative to the observer. Hence, the method adjusts them.
+	 * 
+	 * Optimization is not very important as the spotlight, unlike the observer, will
+	 * not be moving much.
+	 */
+	public void polygon(List<R3Point> points) {
+
+		ArrayList<ZPixel> viewedPolygon = new ArrayList<ZPixel>();
+
+		int length = points.size();
+
+		for (int i = 0; i < length; i++) {
+
+			R3Point curr = perspective(points.get(i));
+			R3Point next = perspective(points.get((i + 1) % length));
+
+			double currZ = curr.getZ();
+			double nextZ = next.getZ();
+
+			if (currZ > Constants.NEAR_EPSILON) {
+				viewedPolygon.add(curr.project(fov, 0));
+			}
+
+			if (currZ > Constants.NEAR_EPSILON ^ nextZ > Constants.NEAR_EPSILON) {
+				viewedPolygon.add(curr.nearPlaneIntersection(next).project(fov, 0));
+			}
+		}
+
+		zBuffer.polygon(viewedPolygon);
+	}
+	
+}
+	

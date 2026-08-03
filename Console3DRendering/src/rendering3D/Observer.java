@@ -178,7 +178,7 @@ public class Observer {
 	}
 	// Everything past this point is drawing methods
 
-	// Observer assumed to be in default state. Draws a point.
+	// Observer assumed to be in default state (at (0,0,0) w/ orientation (0,0)). Draws a point.
 	public void point(R3Point p, int shade) {
 		if (p.getZ() > Constants.NEAR_EPSILON) {
 			view.draw(p.project(fov, shade));

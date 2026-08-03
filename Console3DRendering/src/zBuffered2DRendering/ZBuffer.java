@@ -26,7 +26,7 @@ public class ZBuffer {
 	private ArrayList<ZInt>[] polygonBuffer;
 	
 	// Only method in ZBuffer that is not in ZImage. Returns true if the point z-passes. 
-	public boolean zPass(int x, int y, int zBuffer) {
+	public boolean zPass(int x, int y, double zBuffer) {
 		int adjustedX = x - leftBound;
 		int adjustedY = y - upBound;
 
