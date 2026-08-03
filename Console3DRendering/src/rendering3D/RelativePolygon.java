@@ -7,6 +7,7 @@ import java.util.List;
 import classes2D.R2Point;
 import classes3D.R3Point;
 import other.Constants;
+import shading.Spotlight;
 import texturing.PolygonTexture;
 import texturing.Texture;
 
@@ -258,7 +259,37 @@ public class RelativePolygon extends RelativeComponent {
 		double brightness = Math.min(Math.abs(lightSource.intensity * dot
 			/ (Math.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)))), 1);
 
-		return (int) (texture.determineShadeAt(u, v) * brightness);
+		return (int) (textureShade * brightness);
+	}
+	
+	public int determineShade(int x, int y, double zBuffer, Spotlight spotlight) {
+
+		// findUV.getX
+		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF) / zBuffer
+			+ vABDotOffset.getX();
+
+		// findUV.getY
+		double v = (perceivedVectorB.getX() * x + perceivedVectorB.getY() * y + vBF) / zBuffer
+			+ vABDotOffset.getY();
+
+		int textureShade = texture.determineShadeAt(u, v);
+		
+		// Error: no texture
+		if (textureShade == -1) {
+			return -1;
+		}
+
+		/*
+		 * Coordinates of the actual point in 3d space
+		 */
+		double xAct = u * vectorA.getX() + v * vectorB.getX() + offset.getX();
+		double yAct = u * vectorA.getY() + v * vectorB.getY() + offset.getY();
+		double zAct = u * vectorA.getZ() + v * vectorB.getZ() + offset.getZ();
+
+		if (!spotlight.isLit(xAct, yAct, zAct)) {
+			return 0;
+		}
+		return texture.determineShadeAt(u, v);
 	}
 
 	public int applyHemisphereAmbient(int shade) {
@@ -303,6 +334,20 @@ public class RelativePolygon extends RelativeComponent {
 	// Returns true if the polygon is facing the point.
 	public boolean isFacing(R3Point point) {
 		return differenceDotNormal(point) > Constants.EPSILON;
+	}
+	
+	// Returns the vertices of the polygon in space. 
+	public List<R3Point> getVertexList() {
+		List<R3Point> vertexList = new ArrayList<>();
+
+		for (R2Point uvPoint : uVPoints) {
+			vertexList.add(new R3Point(
+				uvPoint.getX() * vectorA.getX() + uvPoint.getY() * vectorB.getX() + offset.getX(),
+				uvPoint.getX() * vectorA.getY() + uvPoint.getY() * vectorB.getY() + offset.getY(),
+				uvPoint.getX() * vectorA.getZ() + uvPoint.getY() * vectorB.getZ() + offset.getZ()));
+		}
+		
+		return vertexList;
 	}
 
 	/*
