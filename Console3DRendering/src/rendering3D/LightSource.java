@@ -6,7 +6,7 @@ import java.util.Map;
 import classes3D.R3Point;
 
 public class LightSource {
-	R3Point lightSource;
+	R3Point position;
 
 	double intensity = 1;
 	/*
@@ -16,8 +16,8 @@ public class LightSource {
 	 */
 	Map<RelativePolygon, Double> dot = new HashMap<RelativePolygon, Double>();
 
-	public LightSource(R3Point lightSource, double intensity) {
-		this.lightSource = lightSource;
+	public LightSource(R3Point position, double intensity) {
+		this.position = position;
 		this.intensity = intensity;
 	}
 
@@ -30,7 +30,7 @@ public class LightSource {
 	}
 
 	public void addPolygon(RelativePolygon polygon) {
-		dot.put(polygon, polygon.differenceDotNormal(lightSource));
+		dot.put(polygon, polygon.differenceDotNormal(position));
 	}
 
 	// Returns true if the polygon is facing the light source. 
@@ -48,6 +48,22 @@ public class LightSource {
 	}
 	
 	public R3Point getPosition() {
-		return lightSource;
+		return position;
+	}
+	
+	public double getX() {
+		return position.getX();
+	}
+	
+	public double getY() {
+		return position.getY();
+	}
+	
+	public double getZ() {
+		return position.getZ();
+	}
+	
+	public double getIntensity() {
+		return intensity;
 	}
 }

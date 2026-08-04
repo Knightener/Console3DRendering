@@ -3,7 +3,7 @@ package control;
 import java.util.ArrayList;
 import java.util.List;
 
-import classes3D.R3Point;
+import rendering3D.LightSource;
 import rendering3D.Mesh;
 import rendering3D.Renderable;
 import rendering3D.Spotlight;
@@ -15,7 +15,7 @@ public class World {
 	 */
 	private static List<Renderable> world = new ArrayList<Renderable>();
 
-	static Spotlight spotlight = new Spotlight(new R3Point(-4, -6, 6), Math.PI, 0,
+	static Spotlight spotlight = new Spotlight(new LightSource(-4, -6, 6, 15), Math.PI, 0,
 		new ZBuffer(-240, 240, -160, 160), 100);
 
 	// Adds an object to the world.

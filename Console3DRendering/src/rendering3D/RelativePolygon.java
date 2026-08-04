@@ -15,7 +15,7 @@ public class RelativePolygon extends RelativeComponent {
 	PolygonTexture texture;
 
 	/*
-	 * Stores the points using two variables u and v representing their position on
+	 * Stores the points using two variables u and v representing their lightSource on
 	 * the plane. Rotation and translation invariant
 	 */
 	protected List<R2Point> uVPoints;
@@ -242,11 +242,11 @@ public class RelativePolygon extends RelativeComponent {
 		 * Coordinates of the vector from the traced back point (in 3d) to the light
 		 * source. Equivalent to (lightSource - u*vectorA - v*vectorB).
 		 */
-		double diffX = lightSource.lightSource.getX() - u * vectorA.getX() - v * vectorB.getX()
+		double diffX = lightSource.getX() - u * vectorA.getX() - v * vectorB.getX()
 			- offset.getX();
-		double diffY = lightSource.lightSource.getY() - u * vectorA.getY() - v * vectorB.getY()
+		double diffY = lightSource.getY() - u * vectorA.getY() - v * vectorB.getY()
 			- offset.getY();
-		double diffZ = lightSource.lightSource.getZ() - u * vectorA.getZ() - v * vectorB.getZ()
+		double diffZ = lightSource.getZ() - u * vectorA.getZ() - v * vectorB.getZ()
 			- offset.getZ();
 
 		/*
@@ -260,20 +260,27 @@ public class RelativePolygon extends RelativeComponent {
 
 		return (int) (textureShade * brightness);
 	}
-	
-	public int determineShade(int x, int y, double zBuffer, Spotlight spotlight) {
 
-		// findUV.getX
+	/*
+	 * Similar to the above method, but also determines if the point is lit by the
+	 * spotlight, and early returns to 0 if it is.
+	 */
+	public int determineShade(int x, int y, double zBuffer, Spotlight spotlight) {
+		double dot = spotlight.dot(this);
+
+		if (shadeOrientation && dot < 0) {
+			return 0;
+		}
+
 		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF) / zBuffer
 			+ vABDotOffset.getX();
 
-		// findUV.getY
 		double v = (perceivedVectorB.getX() * x + perceivedVectorB.getY() * y + vBF) / zBuffer
 			+ vABDotOffset.getY();
 
 		int textureShade = texture.determineShadeAt(u, v);
-		
-		// Error: no texture
+
+		// No texture
 		if (textureShade == -1) {
 			return -1;
 		}
@@ -285,10 +292,19 @@ public class RelativePolygon extends RelativeComponent {
 		double yAct = u * vectorA.getY() + v * vectorB.getY() + offset.getY();
 		double zAct = u * vectorA.getZ() + v * vectorB.getZ() + offset.getZ();
 
+		// Early return if point is unlit
 		if (!spotlight.isLit(xAct, yAct, zAct)) {
 			return 0;
 		}
-		return texture.determineShadeAt(u, v);
+
+		double diffX = spotlight.getX() - xAct;
+		double diffY = spotlight.getY() - yAct;
+		double diffZ = spotlight.getZ() - zAct;
+
+		double brightness = Math.min(Math.abs(spotlight.getIntensity() * dot
+			/ (Math.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)))), 1);
+
+		return (int) (textureShade * brightness);
 	}
 
 	public int applyHemisphereAmbient(int shade) {

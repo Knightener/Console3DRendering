@@ -74,7 +74,7 @@ public class Observer {
 		return perspective(point).project(fov);
 	}
 
-	// Returns the position of the point from the observer's perspective
+	// Returns the lightSource of the point from the observer's perspective
 	public R3Point perspective(R3Point point) {
 		return rotation.transform(point.difference(position));
 	}
@@ -255,7 +255,7 @@ public class Observer {
 		view.clear();
 	}
 	
-	// Prints the position and angle of the observer. 
+	// Prints the lightSource and angle of the observer. 
 	@Override
 	public String toString() {
 		return "Position: " + position.toString() + "  Orientation: " + "(" + Math.atan2(sinT, cosT)

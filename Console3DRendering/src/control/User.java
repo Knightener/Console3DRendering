@@ -79,7 +79,7 @@ public class User {
 		User.printAvgRenderSpeed = !User.printAvgRenderSpeed;
 	}
 	
-	// Print the position and orientation of the observer
+	// Print the lightSource and orientation of the observer
 	public static void toggleCoordinates() {
 		User.printCoordinates = !User.printCoordinates;
 	}

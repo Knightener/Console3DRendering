@@ -251,7 +251,7 @@ public class Mesh implements Renderable {
 		int halfSize = border.size();
 
 		for (int i = 0; i < halfSize; i++) {
-			border.add(border.get(i).extendFrom(lightSource.lightSource, extendMultiplier));
+			border.add(border.get(i).extendFrom(lightSource.position, extendMultiplier));
 		}
 
 		Mesh shadowVolume = new Mesh(observer, border);
@@ -284,7 +284,7 @@ public class Mesh implements Renderable {
 					if (!frontFaceVertices.containsKey(vertex)) {
 						frontFaceVertices.put(vertex, index++);
 						vertexOrder.add(vertex);
-						avgDistance += vertices.get(vertex).euclidian(lightSource.lightSource);
+						avgDistance += vertices.get(vertex).euclidian(lightSource.position);
 					}
 				}
 			} 
@@ -302,8 +302,8 @@ public class Mesh implements Renderable {
 		 * cap, i + 1 represents the extended vertex of the back cap and vice versa.
 		 */
 		for (int n : vertexOrder) {
-			shadowVertices.add(vertices.get(n).extendFrom(lightSource.lightSource, nearExtendFactor));
-			shadowVertices.add(vertices.get(n).extendFrom(lightSource.lightSource, farExtendFactor));
+			shadowVertices.add(vertices.get(n).extendFrom(lightSource.position, nearExtendFactor));
+			shadowVertices.add(vertices.get(n).extendFrom(lightSource.position, farExtendFactor));
 		}
 
 		Mesh shadowVolume = new Mesh(observer, shadowVertices);

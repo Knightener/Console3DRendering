@@ -16,21 +16,24 @@ public class Spotlight {
 	
 	ZBuffer zBuffer;
 	double fov;
-	R3Point position;
+	
+	// Contains lighting and position info
+	LightSource lightSource;
+	
 	R3Matrix rotation;
 
-	public Spotlight(R3Point position, double theta, double phi, ZBuffer zBuffer, double fov) {
+	public Spotlight(LightSource lightSource, double theta, double phi, ZBuffer zBuffer, double fov) {
 		this.zBuffer = zBuffer;
-		this.position = new R3Point(position);
+		this.lightSource = lightSource;
 		this.fov = fov;
 
 		setOrientation(theta, phi);
 	}
 	
 	public boolean isLit(double x, double y, double z) {
-		double xDiff = x - position.getX();
-		double yDiff = y - position.getY();
-		double zDiff = z - position.getZ();
+		double xDiff = x - lightSource.getX();
+		double yDiff = y - lightSource.getY();
+		double zDiff = z - lightSource.getZ();
 
 		/*
 		 * Written out explicitly to avoid object creation overhead (this function will
@@ -55,12 +58,13 @@ public class Spotlight {
 	}
 
 	public R3Point perspective(R3Point point) {
-		return rotation.transform(point.difference(position));
+		return rotation.transform(point.difference(lightSource.getPosition()));
 	}
 
 	public R3Point getPosition() {
-		return position;
+		return lightSource.getPosition();
 	}
+	
 	public void setOrientation(double theta, double phi) {
 		if (-Math.PI / 2 > phi || phi > Math.PI / 2) {
 			throw new IllegalArgumentException("phi must be within [-pi/2 , pi/2]");
@@ -75,11 +79,7 @@ public class Spotlight {
 			cosT * cosP);
 		
 	}
-
-	public void setPosition(R3Point position) {
-		this.position = position;
-	}
-
+	
 	public double getFov() {
 		return fov;
 	}
@@ -126,6 +126,26 @@ public class Spotlight {
 		for (RelativePolygon face : mesh.faces) {
 			render(face);
 		}
+	}
+	
+	public double dot(RelativePolygon polygon) {
+		return lightSource.dot(polygon);
+	}
+	
+	public double getIntensity() {
+		return lightSource.getIntensity();
+	}
+	
+	public double getX() {
+		return lightSource.getX();
+	}
+	
+	public double getY() {
+		return lightSource.getY();
+	}
+	
+	public double getZ() {
+		return lightSource.getZ();
 	}
 	
 }

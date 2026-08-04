@@ -38,7 +38,7 @@ public class TexturedShape {
 		// Texture of the shape.
 		Texture texture = new Texture(TexturePresets.CHECKERBOARD, 0.5);
 	
-		// Observer's position.
+		// Observer's lightSource.
 		R3Point position = new R3Point(0, 0, 0);
 		
 		// Observer's horizontal angle.

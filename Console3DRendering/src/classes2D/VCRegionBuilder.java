@@ -249,7 +249,7 @@ public class VCRegionBuilder {
 		shade((x, y) -> shade);
 	}
 
-	// Shades pixels according to their position.
+	// Shades pixels according to their lightSource.
 	public void shade(BiFunction<Integer, Integer, Integer> shadeFunction) {
 		for (int i = 0; i < region.size(); i++) {
 			int[] curr = region.get(i);
