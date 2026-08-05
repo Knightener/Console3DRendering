@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import array2D.DoubleArray2D;
+import array2D.IntArray2D;
 import functionalInterfaces.RealFunction;
-import other.Constants;
 import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ShadeHandling;
@@ -21,21 +21,26 @@ public class ZBuffer {
 	 */
 
 	private DoubleArray2D zBuffer;
+	
+	// the ID of the polygon of each pixel 
+	private IntArray2D polygonID;
 
 	private int leftBound, rightBound, upBound, downBound, rows, cols;
-	
+
 	private ArrayList<ZInt>[] polygonBuffer;
-	
-	// Only method in ZBuffer that is not in ZImage. Returns true if the point z-passes. 
-	public boolean zPass(int x, int y, double zBuffer) {
+
+	// Only method in ZBuffer that is not in ZImage. Returns true if the point
+	// z-passes. PolygonID to avoid
+	public boolean zPass(int x, int y, double zBuffer, int polygonID) {
 		int adjustedX = x - leftBound;
 		int adjustedY = y - upBound;
 
-		// slight bias for new zBuffer to avoid shadow map z-fighting
-		return (adjustedX >= 0 && adjustedX < cols && adjustedY >= 0 && adjustedY < rows
-			&& zBuffer + 0.01 > this.zBuffer.get(adjustedY, adjustedX));
+		// Returns true if same polygonID to avoid shadow map Z fighting. 
+		return ((adjustedX >= 0 && adjustedX < cols && adjustedY >= 0 && adjustedY < rows)
+			&& (polygonID == this.polygonID.get(adjustedY, adjustedX)
+				|| zBuffer > this.zBuffer.get(adjustedY, adjustedX)));
 	}
-	
+
 	private static class ZInt implements Comparable<ZInt> {
 		int position;
 		double zBuffer;
@@ -44,7 +49,7 @@ public class ZBuffer {
 			this.position = position;
 			this.zBuffer = zBuffer;
 		}
-		
+
 		public ZInt(ZInt zInt) {
 			position = zInt.position;
 			zBuffer = zInt.zBuffer;
@@ -72,6 +77,7 @@ public class ZBuffer {
 	@SuppressWarnings("unchecked")
 	private void initialize() {
 		zBuffer = new DoubleArray2D(rows, cols);
+		polygonID = new IntArray2D(rows, cols);
 		polygonBuffer = (ArrayList<ZInt>[]) new ArrayList[cols];
 		for (int i = 0; i < cols; i++) {
 			polygonBuffer[i] = new ArrayList<>();
@@ -107,17 +113,17 @@ public class ZBuffer {
 	}
 
 	public void draw(ZPixel pixel) {
-		draw(pixel.getX(), pixel.getY(), pixel.getZBuffer());
+		draw(pixel.getX(), pixel.getY(), pixel.getZBuffer(), pixel.getRenderInfo());
 	}
 
-	public void draw(int x, int y, double zBuffer) {
+	public void draw(int x, int y, double zBuffer, int polygonID) {
 		int adjustedX = x - leftBound;
 		int adjustedY = y - upBound;
 
 		if (adjustedX >= 0 && adjustedX < cols && adjustedY >= 0
 			&& adjustedY < rows && zBuffer > this.zBuffer.get(adjustedY, adjustedX)) {
-
 			this.zBuffer.set(zBuffer, adjustedY, adjustedX);
+			this.polygonID.set(polygonID, adjustedY, adjustedX);
 		}
 	}
 
@@ -203,7 +209,7 @@ public class ZBuffer {
 	}
 	
 
-	private void verticalLine(ZInt start, ZInt end, int right, double zStep) {
+	private void verticalLine(ZInt start, ZInt end, int right, double zStep, int polygonID) {
 		if (upBound > start.position) {
 			start.incrementZ(zStep * (upBound - start.position));
 			start.position = upBound;
@@ -212,7 +218,7 @@ public class ZBuffer {
 		int visibleEnd = Math.min(end.position, downBound - 1);
 		double currZ = start.zBuffer;
 		for (int i = start.position; i < visibleEnd; i++) {
-				draw(right, i, currZ);
+				draw(right, i, currZ, polygonID);
 			currZ += zStep;
 		}
 	}
@@ -225,6 +231,8 @@ public class ZBuffer {
 		}
 		
 		double slope = 0;
+		
+		int polygonID =  points.get(0).getRenderInfo();
 
 		{
 			double r1 = points.get(0).getX();
@@ -278,7 +286,7 @@ public class ZBuffer {
 			currList = polygonBuffer[i - leftBound];
 
 			for (int j = 1; j < currList.size(); j += 2) {
-				verticalLine(currList.get(j - 1), currList.get(j), i, slope);
+				verticalLine(currList.get(j - 1), currList.get(j), i, slope, polygonID);
 			}
 			currList.clear();
 		}

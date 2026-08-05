@@ -30,7 +30,8 @@ public class Spotlight {
 		setOrientation(theta, phi);
 	}
 	
-	public boolean isLit(double x, double y, double z) {
+	public boolean isLit(double x, double y, double z, int polygonID) {
+		
 		double xDiff = x - lightSource.getX();
 		double yDiff = y - lightSource.getY();
 		double zDiff = z - lightSource.getZ();
@@ -54,7 +55,7 @@ public class Spotlight {
 		
 		double ratio = fov/zPer;
 		
-		return zBuffer.zPass((int) (xPer * ratio), (int) (yPer * ratio), ratio);
+		return zBuffer.zPass((int) (xPer * ratio), (int) (yPer * ratio), ratio, polygonID);
 	}
 
 	public R3Point perspective(R3Point point) {
@@ -92,7 +93,7 @@ public class Spotlight {
 	 * Optimization is not very important as the spotlight, unlike the observer, will
 	 * not be moving much.
 	 */
-	public void polygon(List<R3Point> points) {
+	public void polygon(List<R3Point> points, int polygonID) {
 
 		ArrayList<ZPixel> viewedPolygon = new ArrayList<ZPixel>();
 
@@ -106,12 +107,13 @@ public class Spotlight {
 			double currZ = curr.getZ();
 			double nextZ = next.getZ();
 
+			// 0 is a placeholder as there is no writing to shade
 			if (currZ > Constants.NEAR_EPSILON) {
-				viewedPolygon.add(curr.project(fov, 0));
+				viewedPolygon.add(curr.project(fov, 0, polygonID));
 			}
 
 			if (currZ > Constants.NEAR_EPSILON ^ nextZ > Constants.NEAR_EPSILON) {
-				viewedPolygon.add(curr.nearPlaneIntersection(next).project(fov, 0));
+				viewedPolygon.add(curr.nearPlaneIntersection(next).project(fov, 0, polygonID));
 			}
 		}
 
@@ -119,7 +121,7 @@ public class Spotlight {
 	}
 	
 	public void render(RelativePolygon polygon) {
-		polygon(polygon.getVertexList());
+		polygon(polygon.getVertexList(), polygon.getID());
 	}
 	
 	public void render(Mesh mesh) {

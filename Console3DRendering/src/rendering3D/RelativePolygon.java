@@ -293,7 +293,7 @@ public class RelativePolygon extends RelativeComponent {
 		double zAct = u * vectorA.getZ() + v * vectorB.getZ() + offset.getZ();
 
 		// Early return if point is unlit
-		if (!spotlight.isLit(xAct, yAct, zAct)) {
+		if (!spotlight.isLit(xAct, yAct, zAct, ID)) {
 			return 0;
 		}
 
