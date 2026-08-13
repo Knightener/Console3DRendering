@@ -178,7 +178,7 @@ public class ZImage extends ImageBase {
 			for (int j = 0; j < imageCols; j++) {
 				if ((renderInfo.get(i, j) & 1) == 1) {
 					image.set(RelativeComponent
-						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
+						.<RelativePolygon>get(renderInfo.get(i, j))
 						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j)), i, j);
 				}
 			}
@@ -190,7 +190,7 @@ public class ZImage extends ImageBase {
 			for (int j = 0; j < imageCols; j++) {
 				if ((renderInfo.get(i, j) & 1) == 1) {
 					image.set(RelativeComponent
-						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
+						.<RelativePolygon>get(renderInfo.get(i, j))
 						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j), spotlight),
 						i, j);
 				}

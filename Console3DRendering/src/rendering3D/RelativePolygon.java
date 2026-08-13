@@ -14,6 +14,9 @@ public class RelativePolygon extends RelativeComponent {
 
 	PolygonTexture texture;
 
+	// Full sky color
+	public static final double HEMISPHERE_FULL_SKY = 0.5;
+	
 	/*
 	 * Stores the points using two variables u and v representing their lightSource on
 	 * the plane. Rotation and translation invariant
@@ -37,7 +40,7 @@ public class RelativePolygon extends RelativeComponent {
 	protected R3Point perceivedVectorA;
 	protected R3Point perceivedVectorB;
 
-	// 0: full ground, 1: full sky
+	// 0: full ground, HEMISPHERE_FULL_SKY: full sky
 	private double hemisphereAmbientFactor;
 	/*
 	 * If false, rendering will not be affected by orientation. If true, polygons
@@ -116,7 +119,7 @@ public class RelativePolygon extends RelativeComponent {
 			this.texture = new PolygonTexture(uVPoints, texture);
 		}
 
-		hemisphereAmbientFactor = -orientation.getY() * 0.5 + 0.5;
+		hemisphereAmbientFactor = (orientation.getY() * 0.5 + 0.5) * HEMISPHERE_FULL_SKY;
 
 		updatePerspective();
 
@@ -306,12 +309,13 @@ public class RelativePolygon extends RelativeComponent {
 		double brightness = Math.min(spotlight.getIntensity() * dot
 			/ (Math.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ))), 1);
 
-		return (int) (textureShade * brightness);
+		// If brightness is 0, applies hemisphere ambient instead
+		return (int) (brightness == 0 ? textureShade * hemisphereAmbientFactor
+			: textureShade * brightness);
 	}
-	
-	// Like the above method, but sums the brightness across all spotlights. 
-	public int determineShade(int x, int y, double zBuffer, List<Spotlight> spotlights) {
 
+	// Like the above method, but sums the brightness across all spotlights.
+	public int determineShade(int x, int y, double zBuffer, List<Spotlight> spotlights) {
 		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF) / zBuffer
 			+ vABDotOffset.getX();
 
@@ -324,7 +328,6 @@ public class RelativePolygon extends RelativeComponent {
 		if (textureShade == -1) {
 			return -1;
 		}
-
 		/*
 		 * Coordinates of the actual point in 3d space
 		 */
@@ -355,8 +358,9 @@ public class RelativePolygon extends RelativeComponent {
 		}
 
 		totalBrightness = Math.min(1, totalBrightness);
-		
-		return (int) (textureShade * totalBrightness);
+
+		return (int) (totalBrightness == 0 ? textureShade * hemisphereAmbientFactor
+			: textureShade * totalBrightness);
 	}
 
 	public int applyHemisphereAmbient(int shade) {
@@ -409,36 +413,36 @@ public class RelativePolygon extends RelativeComponent {
 				uvPoint.getX() * vectorA.getY() + uvPoint.getY() * vectorB.getY() + offset.getY(),
 				uvPoint.getX() * vectorA.getZ() + uvPoint.getY() * vectorB.getZ() + offset.getZ()));
 		}
-		
+
 		return vertexList;
 	}
 
 	/*
 	 * (point - any point of the polygon) DOT (orientation). Independent of choice.
-	 * Written out directly to avoid object creation overhead. 
+	 * Written out directly to avoid object creation overhead.
 	 */
 	public double differenceDotNormal(R3Point point) {
 		return (point.getX() - offset.getX()) * orientation.getX()
 			+ (point.getY() - offset.getY()) * orientation.getY()
 			+ (point.getZ() - offset.getZ()) * orientation.getZ();
 	}
-	
-	
+
 	public boolean isFacingObserver() {
 		return isFacing(observer.position);
 	}
-	
+
 	private void checkTextured() {
-		if  ((getID() & 1) == 0) {
+		if ((getID() & 1) == 0) {
 			throw new IllegalStateException("Polygon is untextured");
 		}
 	}
-	
-	// Inverts the orientation of the polygon. 
+
+	// Inverts the orientation of the polygon.
 	public void invertOrientation() {
 		orientation.scale(-1);
+		hemisphereAmbientFactor = HEMISPHERE_FULL_SKY - hemisphereAmbientFactor;
 	}
-	
+
 	public void toggleShadeOrientation() {
 		shadeOrientation = !shadeOrientation;
 	}
