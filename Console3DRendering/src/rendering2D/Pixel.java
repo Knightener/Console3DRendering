@@ -8,9 +8,6 @@ public class Pixel extends IntPoint {
 
 	public Pixel(int right, int down, int shade) {
 		super(right, down);
-		if (shade < 0 || shade > ShadeHandling.MAX_SHADE) {
-			throw new IllegalArgumentException();
-		}
 		this.shade = shade;
 	}
 

@@ -367,7 +367,7 @@ public class RelativePolygon extends RelativeComponent {
 	}
 
 	public void render() {
-		observer.polygon(perceivedPoints, 2, ID);
+		observer.polygon(perceivedPoints, -1, ID);
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.
