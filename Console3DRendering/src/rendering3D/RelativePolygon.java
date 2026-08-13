@@ -271,6 +271,8 @@ public class RelativePolygon extends RelativeComponent {
 		if (shadeOrientation && dot < 0) {
 			return 0;
 		}
+		
+		dot = Math.abs(dot);
 
 		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF) / zBuffer
 			+ vABDotOffset.getX();
@@ -301,10 +303,60 @@ public class RelativePolygon extends RelativeComponent {
 		double diffY = spotlight.getY() - yAct;
 		double diffZ = spotlight.getZ() - zAct;
 
-		double brightness = Math.min(Math.abs(spotlight.getIntensity() * dot
-			/ (Math.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)))), 1);
+		double brightness = Math.min(spotlight.getIntensity() * dot
+			/ (Math.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ))), 1);
 
 		return (int) (textureShade * brightness);
+	}
+	
+	// Like the above method, but sums the brightness across all spotlights. 
+	public int determineShade(int x, int y, double zBuffer, List<Spotlight> spotlights) {
+
+		double u = (perceivedVectorA.getX() * x + perceivedVectorA.getY() * y + vAF) / zBuffer
+			+ vABDotOffset.getX();
+
+		double v = (perceivedVectorB.getX() * x + perceivedVectorB.getY() * y + vBF) / zBuffer
+			+ vABDotOffset.getY();
+
+		int textureShade = texture.determineShadeAt(u, v);
+
+		// No texture
+		if (textureShade == -1) {
+			return -1;
+		}
+
+		/*
+		 * Coordinates of the actual point in 3d space
+		 */
+		double xAct = u * vectorA.getX() + v * vectorB.getX() + offset.getX();
+		double yAct = u * vectorA.getY() + v * vectorB.getY() + offset.getY();
+		double zAct = u * vectorA.getZ() + v * vectorB.getZ() + offset.getZ();
+
+		double totalBrightness = 0; 
+		double dot;
+		double diffX, diffY, diffZ;
+
+		for (Spotlight spotlight : spotlights) {
+			dot = spotlight.dot(this);
+			
+			// If polygon facing away or spotlight facing away, skip. 
+			if ((shadeOrientation && dot < 0) || !spotlight.isLit(xAct, yAct, zAct, ID)) {
+				continue;
+			}
+			
+			dot = Math.abs(dot);
+
+			diffX = spotlight.getX() - xAct;
+			diffY = spotlight.getY() - yAct;
+			diffZ = spotlight.getZ() - zAct;
+
+			totalBrightness += spotlight.getIntensity() * dot
+				/ (Math.fma(diffX, diffX, Math.fma(diffY, diffY, diffZ * diffZ)));
+		}
+
+		totalBrightness = Math.min(1, totalBrightness);
+		
+		return (int) (textureShade * totalBrightness);
 	}
 
 	public int applyHemisphereAmbient(int shade) {

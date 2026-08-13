@@ -14,10 +14,9 @@ public class World {
 	 * Class consisting of renderable objects that will be viewed by the user.
 	 */
 	private static List<Renderable> world = new ArrayList<Renderable>();
-
-	static Spotlight spotlight = new Spotlight(new LightSource(-4, -6, 6, 15), Math.PI, 0,
-		new ZBuffer(-240, 240, -160, 160), 100);
-
+	
+	static List<Spotlight> spotlights = new ArrayList<Spotlight>();
+	
 	// Adds an object to the world.
 	public static void addObject(Renderable object) {
 		if (object.getObserver() == User.getUser()) {
@@ -30,12 +29,13 @@ public class World {
 
 	// Adds the shadows of the mesh to the world.
 	public static void addShadow(Mesh object) {
-		spotlight.render(object);
+		for (Spotlight spotlight : spotlights) {
+			spotlight.render(object);
+		}
 	}
 
-	// Adds a light source to the world.
-	public static void setSpotlight(Spotlight spotlight) {
-		World.spotlight = spotlight;
+	public static void addSpotlight(Spotlight spotlight) {
+		spotlights.add(spotlight);
 	}
 
 	// Renders the world to the user.

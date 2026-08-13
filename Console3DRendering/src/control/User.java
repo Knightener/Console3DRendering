@@ -88,8 +88,8 @@ public class User {
 		try {
 			long start = System.nanoTime();			
 			World.render();
-			if (World.spotlight != null) {
-				userView.applyRenderInfo(World.spotlight);
+			if (World.spotlights.size() > 0) {
+				userView.applyRenderInfo(World.spotlights);
 			} else {
 				userView.applyRenderInfo();
 			}

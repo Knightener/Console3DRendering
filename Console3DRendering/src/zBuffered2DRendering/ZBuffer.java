@@ -8,6 +8,7 @@ import java.util.List;
 import array2D.DoubleArray2D;
 import array2D.IntArray2D;
 import functionalInterfaces.RealFunction;
+import other.Constants;
 import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ShadeHandling;
@@ -35,10 +36,10 @@ public class ZBuffer {
 		int adjustedX = x - leftBound;
 		int adjustedY = y - upBound;
 
-		// Returns true if same polygonID to avoid shadow map Z fighting. 
+		// Returns true if same polygonID to avoid shadow map Z fighting. Small bias for new pixels. 
 		return ((adjustedX >= 0 && adjustedX < cols && adjustedY >= 0 && adjustedY < rows)
 			&& (polygonID == this.polygonID.get(adjustedY, adjustedX)
-				|| zBuffer > this.zBuffer.get(adjustedY, adjustedX)));
+				|| zBuffer + 0.1 > this.zBuffer.get(adjustedY, adjustedX)));
 	}
 
 	private static class ZInt implements Comparable<ZInt> {

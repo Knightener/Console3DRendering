@@ -240,6 +240,19 @@ public class ZImage extends ImageBase {
 		}
 	}
 	
+	public void applyRenderInfo(List<Spotlight> spotlights) {
+		for (int i = 0; i < imageRows; i++) {
+			for (int j = 0; j < imageCols; j++) {
+				if ((renderInfo.get(i, j) & 1) == 1) {
+					image.set(RelativeComponent
+						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
+						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j), spotlights),
+						i, j);
+				}
+			}
+		}
+	}
+	
 	public void applyRenderInfo(LightSource lightSource) {
 		int currInfo;
 		int currShade;
