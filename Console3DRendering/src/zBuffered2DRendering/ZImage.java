@@ -125,38 +125,13 @@ public class ZImage extends ImageBase {
 		
 		return image;
 	}
-	
-	// Debug function. Returns an image with pixels colored according to their stencil value.
-	public Image getStencilImage() {
-		
-		Image image = new Image(this);
-		image.clear();
-
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				image.setShade(j + leftBound, i + upBound, Math
-					.min(renderInfo.get(i, j) >> ZPixel.STENCIL_BIT_POS, ShadeHandling.MAX_SHADE));
-			}
-		}
-
-		return image;
-	}
 
 	public void clear() {
 		Arrays.fill(image.getArray(), 0);
 		Arrays.fill(zBuffer.getArray(), 0.0);
 		Arrays.fill(renderInfo.getArray(), 0);
 	}
-
-	public void shade() {
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				image.set(ShadeHandling.darken(image.get(i, j),
-					renderInfo.get(i, j) >>> ZPixel.STENCIL_BIT_POS), i, j);
-			}
-		}
-	}
-
+	
 	// Replaces a pixel iff the new pixel has a greater zBuffer
 	public void draw(ZFigure figure) {
 
@@ -198,23 +173,6 @@ public class ZImage extends ImageBase {
 		}
 	}
 	
-	// Increments/decrements on Z-fail, depending on if polygon is facing or not.
-	public void writeToStencil(int x, int y, double zBuffer, boolean isFacing) {
-		int adjustedX = x - leftBound;
-		int adjustedY = y - upBound;
-
-		if (adjustedX >= 0 && adjustedX < imageCols && adjustedY >= 0
-			&& adjustedY < imageRows
-			&& zBuffer < this.zBuffer.get(adjustedY, adjustedX)) {
-			renderInfo.map(n -> n + (isFacing ? -ZPixel.STENCIL_BIT : ZPixel.STENCIL_BIT), adjustedY,
-				adjustedX);
-		}
-	}
-	
-	public void writeToStencil(ZPixel pixel, boolean isFacing) {
-		writeToStencil(pixel.getX(), pixel.getY(), pixel.getZBuffer(), isFacing);
-	}
-
 	public void applyRenderInfo() {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
@@ -245,7 +203,7 @@ public class ZImage extends ImageBase {
 			for (int j = 0; j < imageCols; j++) {
 				if ((renderInfo.get(i, j) & 1) == 1) {
 					image.set(RelativeComponent
-						.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS)
+						.<RelativePolygon>get(renderInfo.get(i, j))
 						.determineShade(j + leftBound, i + upBound, zBuffer.get(i, j), spotlights),
 						i, j);
 				}
@@ -253,43 +211,6 @@ public class ZImage extends ImageBase {
 		}
 	}
 	
-	public void applyRenderInfo(LightSource lightSource) {
-		int currInfo;
-		int currShade;
-		RelativePolygon currPolygon;
-		int currShadowValue;
-		
-		for (int i = 0; i < imageRows; i++) {
-			for (int j = 0; j < imageCols; j++) {
-				
-				currInfo = renderInfo.get(i, j);
-				
-				currPolygon = RelativeComponent
-					.<RelativePolygon>get(renderInfo.get(i, j) & ZPixel.POLYGON_BITS);
-				
-				if ((currInfo & 1) == 1) {
-					
-					currShadowValue = currInfo >>> ZPixel.STENCIL_BIT_POS;
-					if (currShadowValue == 0) {
-						image.set(currPolygon.determineShade(j + leftBound, i + upBound,
-							zBuffer.get(i, j), lightSource), i, j);
-						// Applies hemisphere ambient if pixel is in shadow.
-					} else {
-						currShade = currPolygon.determineShade(j + leftBound, i + upBound,
-							zBuffer.get(i, j));
-						
-						if (currShade != -1) {
-						// initial darkening
-						currShade /= (6*currShadowValue + 1);
-						
-						currShade = currPolygon.applyHemisphereAmbient(currShade);
-						}
-						image.set(currShade, i, j);
-					}
-				}
-			}
-		}
-	}
 	// Everything past this point is drawing methods
 
 	/*
@@ -588,7 +509,7 @@ public class ZImage extends ImageBase {
 	}
 
 	private void verticalLine(ZInt start, ZInt end, int right, int shade, double zStep,
-		int polygonID, boolean writeToStencil, boolean isFacing) {
+		int polygonID) {
 
 		/*
 		 * For the specific application of drawing polygons, we do not have to worry
@@ -602,11 +523,7 @@ public class ZImage extends ImageBase {
 		int visibleEnd = Math.min(end.position, downBound - 1);
 		double currZ = start.zBuffer;
 		for (int i = start.position; i < visibleEnd; i++) {
-			if (writeToStencil) {
-				writeToStencil(right, i, currZ, isFacing);
-			} else {
-				draw(right, i, shade, currZ, polygonID);
-			}
+			draw(right, i, shade, currZ, polygonID);
 			currZ += zStep;
 		}
 	}
@@ -616,7 +533,7 @@ public class ZImage extends ImageBase {
 	 * plane. Putting in any other set of points may lead to visual artifacts. Takes
 	 * on shade and polygonID of first point.
 	 */
-	public void polygon(List<ZPixel> points, boolean writeToStencil, boolean isFacing) {
+	public void polygon(List<ZPixel> points) {
 		int length = points.size();
 
 		if (length < 3) {
@@ -697,15 +614,10 @@ public class ZImage extends ImageBase {
 			 * intersection.
 			 */
 			for (int j = 1; j < currList.size(); j += 2) {
-				verticalLine(currList.get(j - 1), currList.get(j), i, shade, slope, polygonID,
-					writeToStencil, isFacing);
+				verticalLine(currList.get(j - 1), currList.get(j), i, shade, slope, polygonID);
 			}
 			currList.clear();
 		}
 
-	}
-
-	public void polygon(List<ZPixel> points) {
-		polygon(points, false, false);
 	}
 }

@@ -361,12 +361,6 @@ public class Mesh implements Renderable {
 
 	}
 	
-	public void writeToStencil() {
-		for (RelativePolygon face : faces) {
-			face.writeToStencil();
-		}
-	}
-
 	@Override
 	public void render() {
 		for (RelativePolygon face : faces) {

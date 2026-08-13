@@ -221,8 +221,7 @@ public class Observer {
 	/*
 	 * Points assumed to lie on a plane. Will lead to visual artifacts otherwise
 	 */
-	public void polygon(List<R3Point> points, int shade, int polygonID, boolean writeToStencil,
-		boolean isFacing) {
+	public void polygon(List<R3Point> points, int shade, int polygonID) {
 
 		ArrayList<ZPixel> viewedPolygon = new ArrayList<ZPixel>();
 
@@ -246,7 +245,7 @@ public class Observer {
 			}
 		}
 
-		view.polygon(viewedPolygon, writeToStencil, isFacing);
+		view.polygon(viewedPolygon);
 	}
 	
 	public void printView() {

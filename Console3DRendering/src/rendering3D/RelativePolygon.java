@@ -367,11 +367,7 @@ public class RelativePolygon extends RelativeComponent {
 	}
 
 	public void render() {
-		observer.polygon(perceivedPoints, 2, ID, false, false);
-	}
-	
-	public void writeToStencil() {
-		observer.polygon(perceivedPoints, 2, ID, true, isFacingObserver());
+		observer.polygon(perceivedPoints, 2, ID);
 	}
 
 	// Returns the outward pointing unit normal vector of the triangle.
