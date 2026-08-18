@@ -1,7 +1,6 @@
 package classes2D;
 import java.util.ArrayList;
 
-import functionalInterfaces.RealFunction;
 import interfaces.NormedVectorSpace;
 import other.MiscFunctions;
 import rendering2D.Pixel;
@@ -12,8 +11,6 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 
 		private double x;
 		private double y;
-		
-		private static ShadeHandling shadeHandling = new ShadeHandling();
 		
 		public R2Point(double x, double y) {
 
@@ -56,10 +53,6 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 			this.x += x;
 			this.y += y;
 		}
-		
-		public static void adjustShades(RealFunction gauge) {
-			shadeHandling.adjustShades(gauge);
-		}
 
 		public void translate(R2Point vector) {
 			x += vector.x;
@@ -92,7 +85,7 @@ public class R2Point implements NormedVectorSpace<R2Point> {
 		}
 		
 		private int shadeArea(R2Point point, int maxShade) {
-			return shadeHandling.determineShade(areaRectangle(point), maxShade);
+			return ShadeHandling.determineShade(areaRectangle(point), maxShade);
 		}
 
 		public Pixel truncate(int shade) {

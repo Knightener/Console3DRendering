@@ -1,13 +1,10 @@
 package rendering2D;
 
-import functionalInterfaces.RealFunction;
 
 public class ShadeHandling {
 
 	// This class is for determining a mapping from [0,1] to shading characters.
 	
-	// Shade cutoffs.
-	private double[] shadePartition;
 
 	// Easier to spot: you will rarely see pure white and black next to each other. 
 	public static final String NO_SHADE = " █";
@@ -23,29 +20,17 @@ public class ShadeHandling {
 	// Very commonly used expression, stored as an instance variable for convenience.
 	public static final int MAX_SHADE = shades.length - 1;
 
-	public ShadeHandling() {
-		shadePartition = new double[MAX_SHADE + 1];
-		for (int i = 0; i <= MAX_SHADE; i++) {
-			shadePartition[i] = (i + 1) / (double) (MAX_SHADE + 1);
-		}
-	}
-
-	public int determineShade(double x, int maxShade) {
+	public static int determineShade(double x, int maxShade) {
 		return Math.min(maxShade, determineShade(x));
 	}
 
-	public int determineShade(double x) {
-		if (x < 0 || x > 1) {
-			throw new IllegalArgumentException();
+	public static int determineShade(double x) {
+		// Negative shade correspond to no shade
+		if (x < 0) {
+			return -1;
 		}
-
-		int numPointsPassed = 0;
-
-		while (shadePartition[numPointsPassed] < x) {
-			numPointsPassed++;
-		}
-
-		return numPointsPassed;
+		
+		return Math.min(MAX_SHADE, (int) (x * MAX_SHADE));
 	}
 
 	/*
@@ -73,14 +58,4 @@ public class ShadeHandling {
 		}
 	}
 
-	/*
-	 * Adjusts the shade partition using an increasing function with domain and
-	 * range [0,1]. Bringing y the cutoffs will make shades appear stronger, and
-	 * bringing them up will make them appear lighter.
-	 */
-	public void adjustShades(RealFunction adjustment) {
-		for (int i = 0; i < shadePartition.length; i++) {
-			shadePartition[i] = adjustment.f(shadePartition[i]);
-		}
-	}
 }

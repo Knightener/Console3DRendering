@@ -2,8 +2,6 @@ package control;
 
 import classes3D.R3Point;
 import rendering3D.Observer;
-import rendering3D.Spotlight;
-import zBuffered2DRendering.ZBuffer;
 import zBuffered2DRendering.ZImage;
 
 public class User {

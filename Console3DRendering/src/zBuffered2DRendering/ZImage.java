@@ -12,7 +12,6 @@ import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ImageBase;
 import rendering2D.ShadeHandling;
-import rendering3D.LightSource;
 import rendering3D.RelativeComponent;
 import rendering3D.RelativePolygon;
 import rendering3D.Spotlight;
@@ -118,7 +117,7 @@ public class ZImage extends ImageBase {
 		for (int i = 0; i < imageRows; i++) {
 			for (int j = 0; j < imageCols; j++) {
 				if (zBuffer.get(i, j) != 0)  {
-				image.setShade(j+leftBound, i+upBound, shadeHandling.determineShade(sigmoid.f(zBuffer.get(i, j))));			
+				image.setShade(j+leftBound, i+upBound, ShadeHandling.determineShade(sigmoid.f(zBuffer.get(i, j))));			
 				}
 			}
 		}

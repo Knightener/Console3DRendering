@@ -6,8 +6,6 @@ import rendering2D.ShadeHandling;
 
 public class Texture {
 
-	private static ShadeHandling shadeHandling = new ShadeHandling();
-
 	// Array of shades.
 	private int[][] texture;
 
@@ -28,7 +26,7 @@ public class Texture {
 
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
-				texture[i][j] = shadeHandling.determineShade(doubleTexture[i][j]);
+				texture[i][j] = ShadeHandling.determineShade(doubleTexture[i][j]);
 			}
 		}
 

@@ -8,7 +8,6 @@ import java.util.List;
 import array2D.DoubleArray2D;
 import array2D.IntArray2D;
 import functionalInterfaces.RealFunction;
-import other.Constants;
 import other.MiscFunctions;
 import rendering2D.Image;
 import rendering2D.ShadeHandling;
@@ -101,7 +100,7 @@ public class ZBuffer {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				if (zBuffer.get(i, j) != 0)  {
-				image.setShade(j+leftBound, i+upBound, shadeHandling.determineShade(sigmoid.f(zBuffer.get(i, j))));			
+				image.setShade(j+leftBound, i+upBound, ShadeHandling.determineShade(sigmoid.f(zBuffer.get(i, j))));			
 				}
 			}
 		}

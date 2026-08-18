@@ -3,11 +3,9 @@ package control;
 import java.util.ArrayList;
 import java.util.List;
 
-import rendering3D.LightSource;
 import rendering3D.Mesh;
 import rendering3D.Renderable;
 import rendering3D.Spotlight;
-import zBuffered2DRendering.ZBuffer;
 
 public class World {
 	/*

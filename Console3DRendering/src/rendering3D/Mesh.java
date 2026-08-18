@@ -11,7 +11,6 @@ import classes3D.R3Point;
 import graph.IndexEdge;
 import graph.IndexGraph;
 import graph.UnorderedEdge;
-import other.Constants;
 import texturing.Texture;
 import texturing.TexturePresets;
 

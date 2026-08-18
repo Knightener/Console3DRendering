@@ -2,7 +2,6 @@ package texturing;
 
 import java.util.List;
 
-import classes2D.IntPoint;
 import classes2D.R2Point;
 import classes2D.VCRegionBuilder;
 import classes2D.VerticallyConvexRegion;
